@@ -12,7 +12,7 @@ parameter DEPTH = 64 // depth of ROM
     output reg [WIDTH-1:0] o_out
 );
 
-reg [WIDTH-1:0] data[DEPTH];
+reg [WIDTH-1:0] data[0:DEPTH-1];
 
 initial begin
     $readmemh(FILE, data);
