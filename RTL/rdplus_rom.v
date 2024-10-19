@@ -49,7 +49,7 @@ rom#(
 .READ_ADDR_WIDTH(8),
 .WIDTH(10),
 .DEPTH(256)
-) d_minus_rom(
+) d_plus_rom(
 .clk(clk),
 .i_addr(i_addr),
 .i_rd_en(i_rd_en),
