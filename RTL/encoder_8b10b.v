@@ -4,6 +4,7 @@
 `include "rdminus_rom.v"
 `include "rdplus_rom.v"
 
+// 
 module encoder_8b10b
 (
     input wire clk,
@@ -16,6 +17,8 @@ module encoder_8b10b
     input wire i_k,
     // abcdeifghj
     output reg [9:0] o_data,
+    // 1 - input data is not a valid control symbol
+    // 0 - input data is a valid control symbol or it's a data symbol
     output reg o_k_error
 );
 
