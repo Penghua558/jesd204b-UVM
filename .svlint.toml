@@ -1,0 +1,30 @@
+[verilog]
+include_paths = ["agents/pmd901_agent/*", "agents/pmd901_bus_agent/*"]
+# defines = ["DEBUG", "VAR=1"]
+# plugins = ["path/to/libfoo.so", "path/to/libbar.so"]
+
+[option] # linter = true
+
+[textrules]
+style_directives = true
+style_semicolon = true
+style_textwidth = true
+
+[syntaxrules]
+blocking_assignment_in_always_at_edge = true
+case_default = true
+explicit_if_else = true
+function_same_as_system_function = true
+genvar_declaration_in_loop = true
+interface_identifier_matches_filename = true
+loop_variable_declaration = true
+module_identifier_matches_filename = true
+package_identifier_matches_filename = true
+procedural_continuous_assignment = true
+program_identifier_matches_filename = true
+style_indent = true
+style_keyword_construct = true
+style_keyword_datatype = true
+style_keyword_end = true
+style_trailingwhitespace = true
+tab_character = true

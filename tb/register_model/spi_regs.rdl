@@ -1,0 +1,77 @@
+addrmap spi_reg {
+    name = "PMD901 SPI Controller";
+    desc = "Register description of SPI controller for PMD901";
+
+    default regwidth = 16;
+    default accesswidth = 16;
+    default sw = rw;
+    default hw = r;
+
+
+    reg {
+        name = "Motor Speed";
+        desc = "signed number, used to directly supply SPI output data 
+        for PMD901";
+        field {
+        } MOTORSPD[15:0] = 0x100;
+    } MOTORSPD @ 0x0;
+
+    reg {
+        name = "PMD901 ENABLE";
+        field {
+            desc = "1 - enable PMD901; 0 - disable PMD901";
+        } ENABLE[0:0] = 0;
+
+        field {
+            sw=r; hw=na;
+        } RESRVED[15:1] = 0;
+    } PARK @ 0x2;
+
+    reg {
+        name = "PMD901 BENDING";
+        field {
+            desc = "1 - changes PMD901's work mode to bending mode; 
+            0 - PMD901's work mode is normal work mode.
+            This field's value will only take effect when PARK.ENABLE is set";
+        } BENDING [0:0] = 0;
+
+        field {
+            sw=r; hw=na;
+        } RESRVED[15:1] = 0;
+    } BENDING @ 0x4;
+
+    reg {
+        field {
+            desc = "1 - PMD901 is close to overheat; 0 - PMD901 is 
+            not close to overheat";
+            sw=r; hw=rw;
+        } CLOSE2OVERHEAT [0:0] = 0;
+
+        field {
+            sw=r; hw=na;
+        } RESRVED[15:1] = 0;
+    } FAN @ 0x6;
+
+    reg {
+        field {
+            desc = "1 - SPI of PMD901 is violated; 0 - SPI of PMD901 is 
+            not violated";
+            sw=r; hw=rw;
+        } SPIVIOLATION[0:0] = 0;
+
+        field {
+            sw=r; hw=na;
+        } RESRVED[15:1] = 0;
+    } FAULT @ 0x8;
+
+    reg {
+        field {
+            desc = "1 - PMD901 is overheated; 0 - PMD901 is not overheated";
+            sw=r; hw=rw;
+        } OVERHEAT[0:0] = 0;
+
+        field {
+            sw=r; hw=na;
+        } RESRVED[15:1] = 0;
+    } READY @ 0xa;
+};

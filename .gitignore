@@ -1,0 +1,12 @@
+csrc/
+simv.daidir/
+dump.vcd
+simv
+tags
+tags.lock
+tags.temp
+work/
+transcript
+*.wlf
+*.log
+tc_*/
