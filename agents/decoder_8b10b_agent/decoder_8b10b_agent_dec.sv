@@ -71,7 +71,7 @@ package decoder_8b10b_agent_dec;
         6'b010100
         };
 
-    // D word array, value is fghi, index is HGF, running disparity is RD-
+    // D word array, value is fghj, index is HGF, running disparity is RD-
     bit [3:0] d_3b_minus[8] = {
         4'b1011,
         4'b1001,
@@ -83,7 +83,7 @@ package decoder_8b10b_agent_dec;
         4'b1110
     };
 
-    // D word array, value is fghi, index is HGF, running disparity is RD+
+    // D word array, value is fghj, index is HGF, running disparity is RD+
     bit [3:0] d_3b_plus[8] = {
         4'b0100,
         4'b1001,
@@ -93,5 +93,39 @@ package decoder_8b10b_agent_dec;
         4'b1010,
         4'b0110,
         4'b0001
+    };
+
+    // K word array, value is abcdeifghj, index is HGFEDCBA, running disparity
+    // is RD-
+    bit [9:0] k_8b_minus[byte] = '{
+        8'b000_11100:10'b001111_0100,
+        8'b001_11100:10'b001111_1001,
+        8'b010_11100:10'b001111_0101,
+        8'b011_11100:10'b001111_0011,
+        8'b100_11100:10'b001111_0010,
+        8'b101_11100:10'b001111_1010,
+        8'b110_11100:10'b001111_0110,
+        8'b111_11100:10'b001111_1000,
+        8'b111_10111:10'b111010_1000,
+        8'b111_11011:10'b110110_1000,
+        8'b111_11101:10'b101110_1000,
+        8'b111_11110:10'b011110_1000
+    };
+
+    // K word array, value is abcdeifghj, index is HGFEDCBA, running disparity
+    // is RD+
+    bit [9:0] k_8b_plus[byte] = '{
+        8'b000_11100:10'b110000_1011,
+        8'b001_11100:10'b110000_0110,
+        8'b010_11100:10'b110000_1010,
+        8'b011_11100:10'b110000_1100,
+        8'b100_11100:10'b110000_1101,
+        8'b101_11100:10'b110000_0101,
+        8'b110_11100:10'b110000_1001,
+        8'b111_11100:10'b110000_0111,
+        8'b111_10111:10'b000101_0111,
+        8'b111_11011:10'b001001_0111,
+        8'b111_11101:10'b010001_0111,
+        8'b111_11110:10'b100001_0111
     };
 endpackage: decoder_8b10b_agent_dec
