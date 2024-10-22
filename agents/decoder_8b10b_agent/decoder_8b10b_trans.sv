@@ -10,6 +10,7 @@ class decoder_8b10b_trans extends uvm_sequence_item;
 //------------------------------------------
 logic [7:0] data;
 logic is_control_word;
+logic disparity_error;
 logic k_not_valid_error;
 
 
@@ -44,6 +45,7 @@ function void decoder_8b10b_trans::do_copy(uvm_object rhs);
   // Copy over wdata members:
   data = rhs_.data;
   is_control_word = rhs_.is_control_word;
+  disparity_error = rhs_.disparity_error;
   k_not_valid_error = rhs_.k_not_valid_error;
 
 endfunction:do_copy
@@ -58,6 +60,7 @@ function bit decoder_8b10b_trans::do_compare(uvm_object rhs,
   end
   return super.do_compare(rhs, comparer) &&
          data == rhs_.data&&
+         disparity_error == rhs_.disparity_error &&
          k_not_valid_error == rhs_.k_not_valid_error &&
          is_control_word == rhs_.is_control_word;
 endfunction:do_compare
@@ -66,6 +69,8 @@ function void decoder_8b10b_trans::do_print(uvm_printer printer);
     super.do_print(printer);
     printer.print_int("Decoded data", data, $bits(data), UVM_HEX);
     printer.print_string("Is control word?", (is_control_word)? "Yes":"No");
+    printer.print_int("Disparity error", disparity_error, 
+        $bits(disparity_error), UVM_BIN);
     printer.print_int("k not valid error", k_not_valid_error, 
         $bits(k_not_valid_error), UVM_BIN);
 endfunction:do_print
