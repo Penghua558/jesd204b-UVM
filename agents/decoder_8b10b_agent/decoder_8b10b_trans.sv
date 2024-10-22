@@ -10,8 +10,11 @@ class decoder_8b10b_trans extends uvm_sequence_item;
 //------------------------------------------
 logic [7:0] data;
 logic is_control_word;
+// a valid character, however running disparity is wrong
 logic disparity_error;
 logic k_not_valid_error;
+// nor a control word or a data word
+logic not_in_table_error;
 
 
 //------------------------------------------
@@ -47,6 +50,7 @@ function void decoder_8b10b_trans::do_copy(uvm_object rhs);
   is_control_word = rhs_.is_control_word;
   disparity_error = rhs_.disparity_error;
   k_not_valid_error = rhs_.k_not_valid_error;
+  not_in_table_error = rhs_.not_in_table_error;
 
 endfunction:do_copy
 
@@ -62,7 +66,8 @@ function bit decoder_8b10b_trans::do_compare(uvm_object rhs,
          data == rhs_.data&&
          disparity_error == rhs_.disparity_error &&
          k_not_valid_error == rhs_.k_not_valid_error &&
-         is_control_word == rhs_.is_control_word;
+         is_control_word == rhs_.is_control_word &&
+         not_in_table_error == rhs_.not_in_table_error;
 endfunction:do_compare
 
 function void decoder_8b10b_trans::do_print(uvm_printer printer);
@@ -73,6 +78,8 @@ function void decoder_8b10b_trans::do_print(uvm_printer printer);
         $bits(disparity_error), UVM_BIN);
     printer.print_int("k not valid error", k_not_valid_error, 
         $bits(k_not_valid_error), UVM_BIN);
+    printer.print_int("Not in table error", not_in_table_error, 
+        $bits(not_in_table_error), UVM_BIN);
 endfunction:do_print
 
 function void decoder_8b10b_trans:: do_record(uvm_recorder recorder);
