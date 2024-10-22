@@ -5,12 +5,8 @@ import uvm_pkg::*;
 `include "decoder_8b10b_trans.sv"
 `include "decoder_8b10b_agent_config.sv"
 
-`include "apb_monitor.sv"
-`include "apb_sequencer.sv"
-`include "apb_recorder.sv"
+`include "decoder_8b10b_monitor.sv"
+`include "decoder_8b10b_recorder.sv"
 
-`include "apb_agent.sv"
-
-`include "apb_sequences/apb_rand_read_sequence.sv"
-`include "apb_sequences/apb_rand_sequence.sv"
+`include "decoder_8b10b_agent.sv"
 endpackage: decoder_8b10b_agent_pkg
