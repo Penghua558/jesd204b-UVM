@@ -23,12 +23,12 @@ import uvm_pkg::*;
 `include "enc_bus_trans.sv"
 `include "enc_bus_agent_config.sv"
 
-`include "apb_monitor.sv"
-`include "apb_driver.sv"
-`include "apb_sequencer.sv"
-`include "apb_recorder.sv"
+`include "enc_bus_monitor.sv"
+`include "enc_bus_driver.sv"
+`include "enc_bus_sequencer.sv"
+`include "enc_bus_recorder.sv"
 
-`include "apb_agent.sv"
+`include "enc_bus_agent.sv"
 
 `include "apb_sequences/apb_read_sequence.sv"
 `include "apb_sequences/apb_write_sequence.sv"

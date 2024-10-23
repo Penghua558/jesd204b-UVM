@@ -1,4 +1,4 @@
-./enc_bus_agent_dec.sv
+./enc_bus_dec.sv
 ./enc_bus_agent_pkg.sv
 
 # module & BFMs
