@@ -11,6 +11,8 @@ module encoder_8b10b
     input wire rst_n,
     // HGFEDCBA
     input wire [7:0] i_data,
+    // active high, assert to indicate current i_data is valid
+    // if deassert then module will not process current i_data
     input wire i_vld,
     // 1 - this data is control word K
     // 0 - this data is data word D

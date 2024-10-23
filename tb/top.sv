@@ -18,12 +18,6 @@ apb_if u_apb_if(PCLK, PRESETn);
 //
 // Instantiate the BFM interfaces:
 //
-
-pmd901_timecheck u_timecheck(
-    .clk(u_pmd901_if.clk),
-    .csn(u_pmd901_if.csn)
-);
-
 pmd901_driver_bfm u_pmd901_drv_bfm(
     .clk(u_pmd901_if.clk),
     .csn(u_pmd901_if.csn),

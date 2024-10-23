@@ -1,4 +1,3 @@
-import apb_agent_dec::*;
 class decoder_8b10b_trans extends uvm_sequence_item;
 
 // UVM Factory Registration Macro
@@ -8,6 +7,8 @@ class decoder_8b10b_trans extends uvm_sequence_item;
 //------------------------------------------
 // Data Members (Outputs rand, inputs non-rand)
 //------------------------------------------
+// decoded data
+// HGFEDCBA
 logic [7:0] data;
 logic is_control_word;
 // a valid character, however running disparity is wrong
