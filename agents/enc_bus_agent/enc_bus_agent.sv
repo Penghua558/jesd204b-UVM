@@ -28,7 +28,7 @@ endclass: enc_bus_agent
 
 function enc_bus_agent::new(string name = "enc_bus_agent", 
     uvm_component parent = null);
-  super.new(name, parent);
+    super.new(name, parent);
 endfunction
 
 function void enc_bus_agent::build_phase(uvm_phase phase);
@@ -37,20 +37,20 @@ function void enc_bus_agent::build_phase(uvm_phase phase);
     m_monitor = enc_bus_monitor::type_id::create("m_monitor", this);
     m_monitor.m_cfg = m_cfg;
 
-  m_recorder = enc_bus_recorder::type_id::create("m_recorder", this);
-  // Only build the driver and sequencer if active
-  if(m_cfg.active == UVM_ACTIVE) begin
-    m_driver = enc_bus_driver::type_id::create("m_driver", this);
-    m_driver.m_cfg = m_cfg;
-    m_sequencer = enc_bus_sequencer::type_id::create("m_sequencer", this);
-  end
+    m_recorder = enc_bus_recorder::type_id::create("m_recorder", this);
+    // Only build the driver and sequencer if active
+    if(m_cfg.active == UVM_ACTIVE) begin
+        m_driver = enc_bus_driver::type_id::create("m_driver", this);
+        m_driver.m_cfg = m_cfg;
+        m_sequencer = enc_bus_sequencer::type_id::create("m_sequencer", this);
+    end
 endfunction: build_phase
 
 function void enc_bus_agent::connect_phase(uvm_phase phase);
-  ap = m_monitor.ap;
-  ap.connect(m_recorder.analysis_export);
-  // Only connect the driver and the sequencer if active
-  if(m_cfg.active == UVM_ACTIVE) begin
-    m_driver.seq_item_port.connect(m_sequencer.seq_item_export);
-  end
+    ap = m_monitor.ap;
+    ap.connect(m_recorder.analysis_export);
+    // Only connect the driver and the sequencer if active
+    if(m_cfg.active == UVM_ACTIVE) begin
+        m_driver.seq_item_port.connect(m_sequencer.seq_item_export);
+    end
 endfunction: connect_phase

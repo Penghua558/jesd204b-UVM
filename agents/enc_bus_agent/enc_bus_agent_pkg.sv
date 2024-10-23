@@ -30,9 +30,8 @@ import uvm_pkg::*;
 
 `include "enc_bus_agent.sv"
 
-`include "apb_sequences/apb_read_sequence.sv"
-`include "apb_sequences/apb_write_sequence.sv"
-`include "apb_sequences/apb_rand_write_sequence.sv"
-`include "apb_sequences/apb_rand_read_sequence.sv"
-`include "apb_sequences/apb_rand_sequence.sv"
+`include "enc_bus_sequences/enc_bus_rand_legal_sequence.sv"
+`include "enc_bus_sequences/enc_bus_valid_legal_sequence.sv"
+`include "enc_bus_sequences/enc_bus_rand_illegal_sequence.sv"
+`include "enc_bus_sequences/enc_bus_valid_illegal_sequence.sv"
 endpackage: enc_bus_agent_pkg
