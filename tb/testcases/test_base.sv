@@ -17,14 +17,12 @@ env m_env;
 // Configuration objects
 env_config m_env_cfg;
 
-bit test_enable;
-bit test_bending;
-
 //------------------------------------------
 // Methods
 //------------------------------------------
-extern function void configure_pmd901_agent(pmd901_agent_config cfg);
-extern function void configure_apb_agent(apb_agent_config cfg);
+extern function void configure_decoder_8b10b_agent(
+decoder_8b10b_agent_config cfg);
+extern function void configure_enc_bus_agent(enc_bus_agent_config cfg);
 // Standard UVM Methods:
 extern function new(string name = "test_base", uvm_component parent = null);
 extern function void build_phase(uvm_phase phase);
@@ -45,57 +43,49 @@ function void test_base::build_phase(uvm_phase phase);
   // Enable all types of coverage available in the register model
   uvm_reg::include_coverage("*", UVM_CVR_ALL);
   // Create the register model:
-  m_env_cfg.spi_rb.build();
-  m_env_cfg.spi_rb.lock_model();
+  // m_env_cfg.spi_rb.build();
+  // m_env_cfg.spi_rb.lock_model();
 
-  configure_pmd901_agent(m_env_cfg.m_pmd901_agent_cfg);
-  configure_apb_agent(m_env_cfg.m_apb_agent_cfg);
+  configure_decoder_8b10b_agent(m_env_cfg.m_decoder_8b10b_agent_cfg);
+  configure_enc_bus_agent(m_env_cfg.m_enc_bus_agent_cfg);
 
-  if (!uvm_config_db #(virtual pmd901_driver_bfm)::get(this, "", 
-      "PMD901_drv_bfm", m_env_cfg.m_pmd901_agent_cfg.drv_bfm))
+  if (!uvm_config_db #(virtual decoder_8b10b_monitor_bfm)::get(this, "", 
+      "dec_8b10b_mon_bfm", m_env_cfg.m_decoder_8b10b_agent_cfg.mon_bfm))
     `uvm_error("build_phase", "uvm_config_db #(virtual \
-        pmd901_driver_bfm)::get() failed");
-  if (!uvm_config_db #(virtual pmd901_monitor_bfm)::get(this, "", 
-      "PMD901_mon_bfm", m_env_cfg.m_pmd901_agent_cfg.mon_bfm))
-    `uvm_error("build_phase", "uvm_config_db #(virtual \
-        pmd901_monitor_bfm)::get() failed");
+        8b10b decoder_monitor BFM)::get() failed");
 
-  if (!uvm_config_db #(virtual apb_driver_bfm)::get(this, "", 
-      "u_apb_driver_bfm", m_env_cfg.m_apb_agent_cfg.drv_bfm))
+  if (!uvm_config_db #(virtual enc_bus_monitor_bfm)::get(this, "", 
+      "enc_bus_mon_bfm", m_env_cfg.m_enc_bus_agent_cfg.mon_bfm))
     `uvm_error("build_phase", "uvm_config_db #(virtual \
-        apb_driver_bfm)::get(...) failed");
-  if (!uvm_config_db #(virtual apb_monitor_bfm)::get(this, "", 
-      "u_apb_monitor_bfm", m_env_cfg.m_apb_agent_cfg.mon_bfm))
+        encoder bus_monitor)::get(...) failed");
+  if (!uvm_config_db #(virtual enc_bus_driver_bfm)::get(this, "", 
+      "enc_bus_drv_bfm", m_env_cfg.m_enc_bus_agent_cfg.drv_bfm))
     `uvm_error("build_phase", "uvm_config_db #(virtual \
-        apb_monitor_bfm)::get(...) failed");
+        encoder bus driver)::get(...) failed");
 
   m_env = env::type_id::create("m_env", this);
 
   uvm_config_db #(uvm_object)::set(this, "m_env*", "env_config", m_env_cfg);
-  uvm_config_db #(pmd901_agent_config)::set(this, "m_env*", 
-      "pmd901_agent_config", m_env_cfg.m_pmd901_agent_cfg);
-  uvm_config_db #(apb_agent_config)::set(this, "m_env*", 
-      "apb_agent_config", m_env_cfg.m_apb_agent_cfg);
+  uvm_config_db #(decoder_8b10b_agent_config)::set(this, "m_env*", 
+      "decoder_8b10b_agent_config", m_env_cfg.m_decoder_8b10b_agent_cfg);
+  uvm_config_db #(enc_bus_agent_config)::set(this, "m_env*", 
+      "enc_bus_agent_config", m_env_cfg.m_enc_bus_agent_cfg);
 endfunction: build_phase
 
 
 // This can be overloaded by extensions to this base class
-function void test_base::configure_pmd901_agent(pmd901_agent_config cfg);
-  cfg.active = UVM_ACTIVE;
-  cfg.disable_spi_violation = 1'b0;
-  cfg.disable_close2overheat = 1'b0;
-  cfg.disable_overheat = 1'b0;
-endfunction: configure_pmd901_agent
+function void test_base::configure_decoder_8b10b_agent(
+    decoder_8b10b_agent_config cfg);
+    cfg.active = UVM_PASSIVE;
+endfunction: configure_decoder_8b10b_agent
 
-function void test_base::configure_apb_agent(apb_agent_config cfg);
+function void test_base::configure_enc_bus_agent(enc_bus_agent_config cfg);
   cfg.active = UVM_ACTIVE;
-  cfg.apb_index = 0;
-  cfg.start_address[0] = 16'd0;
-  cfg.range[0] = 16'd10;
-endfunction: configure_apb_agent
+endfunction: configure_enc_bus_agent
 
 function void test_base::set_sequencers(test_vseq_base seq);
   seq.m_cfg = m_env_cfg;
 
-  seq.pmd901_sequencer_h = m_env.m_pmd901_agent.m_sequencer;
+  seq.dec_8b10b_sequencer_h = m_env.m_dec_8b10b_agent.m_sequencer;
+  seq.enc_bus_sequencer_h = m_env.m_enc_bus_agent.m_sequencer;
 endfunction

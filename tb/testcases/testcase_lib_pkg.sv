@@ -5,11 +5,10 @@ import uvm_pkg::*;
 `include "uvm_macros.svh"
 
 import env_pkg::*;
-import pmd901_agent_pkg::*;
-import apb_agent_pkg::*;
+import enc_bus_agent_pkg::*;
+import decoder_8b10b_agent_config::*;
 import apb_bus_sequence_lib_pkg::*;
 import test_seq_lib_pkg::*;
-import spi_reg_pkg::*;
 
 // testcases
 `include "test_base.sv"
