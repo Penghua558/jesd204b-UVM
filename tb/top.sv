@@ -4,122 +4,82 @@ import uvm_pkg::*;
 import env_pkg::*;
 import testcase_lib_pkg::*;
 
-// PCLK and PRESETn
+// clk and rst_n
 //
-logic PCLK;
-logic PRESETn;
+logic clk;
+logic rst_n;
 
 //
 // Instantiate the pin interfaces:
 //
-pmd901_if u_pmd901_if();
-apb_if u_apb_if(PCLK, PRESETn);
+decoder_8b10b_if u_dec_8b10b_if(clk, rst_n);
+enc_bus_if u_enc_bus_if(clk, rst_n);
 
 //
 // Instantiate the BFM interfaces:
 //
-pmd901_driver_bfm u_pmd901_drv_bfm(
-    .clk(u_pmd901_if.clk),
-    .csn(u_pmd901_if.csn),
-    .bend(u_pmd901_if.bend),
-    .park(u_pmd901_if.park),
-    .mosi(u_pmd901_if.mosi),
-    .fault(u_pmd901_if.fault),
-    .fan(u_pmd901_if.fan),
-    .ready(u_pmd901_if.ready)
+decoder_8b10b_monitor_bfm u_dec_8b10b_mon_bfm(
+    .clk(u_dec_8b10b_if.clk),
+    .rst_n(u_dec_8b10b_if.rst_n),
+    .data(u_dec_8b10b_if.data),
+    .k_error(u_dec_8b10b_if.k_error)
 );
 
-pmd901_monitor_bfm u_pmd901_mon_bfm(
-    .clk(u_pmd901_if.clk),
-    .csn(u_pmd901_if.csn),
-    .bend(u_pmd901_if.bend),
-    .park(u_pmd901_if.park),
-    .mosi(u_pmd901_if.mosi),
-    .fault(u_pmd901_if.fault),
-    .fan(u_pmd901_if.fan),
-    .ready(u_pmd901_if.ready)
+enc_bus_driver_bfm u_enc_bus_drv_bfm(
+    .clk(u_enc_bus_if.clk),
+    .rst_n(u_enc_bus_if.rst_n),
+    .data(u_enc_bus_if.data),
+    .valid(u_enc_bus_if.valid),
+    .k(u_enc_bus_if.k)
 );
 
-apb_driver_bfm u_apb_driver_bfm(
-    .PCLK(u_apb_if.PCLK),
-    .PRESETn(u_apb_if.PRESETn),
-    .PADDR(u_apb_if.PADDR),
-    .PRDATA(u_apb_if.PRDATA),
-    .PWDATA(u_apb_if.PWDATA),
-    .PSEL(u_apb_if.PSEL),
-    .PENABLE(u_apb_if.PENABLE),
-    .PWRITE(u_apb_if.PWRITE),
-    .PREADY(u_apb_if.PREADY)
-);
-
-apb_monitor_bfm u_apb_monitor_bfm(
-    .PCLK(u_apb_if.PCLK),
-    .PRESETn(u_apb_if.PRESETn),
-    .PADDR(u_apb_if.PADDR),
-    .PRDATA(u_apb_if.PRDATA),
-    .PWDATA(u_apb_if.PWDATA),
-    .PSEL(u_apb_if.PSEL),
-    .PENABLE(u_apb_if.PENABLE),
-    .PWRITE(u_apb_if.PWRITE),
-    .PREADY(u_apb_if.PREADY)
+enc_bus_monitor_bfm u_enc_bus_mon_bfm(
+    .clk(u_enc_bus_if.clk),
+    .rst_n(u_enc_bus_if.rst_n),
+    .data(u_enc_bus_if.data),
+    .valid(u_enc_bus_if.valid),
+    .k(u_enc_bus_if.k)
 );
 
 // DUT
-spi_top#(
-.SCLK_DIVIDER(8'd8),
-.SPI_TRANSMIT_DELAY(12'd2001),
-.CS_N_HOLD_COUNT(6'd3)
-) DUT(
-    .PCLK(PCLK),
-    .PRESETn(PRESETn),
-    .PSEL(u_apb_if.PSEL[0]),
-    .PENABLE(u_apb_if.PENABLE),
-    .PWRITE(u_apb_if.PWRITE),
-    .PADDR(u_apb_if.PADDR),
-    .PWDATA(u_apb_if.PWDATA),
-    .PREADY(u_apb_if.PREADY),
-    .PRDATA(u_apb_if.PRDATA),
-
-    .fault(u_pmd901_if.fault),
-    .fan(u_pmd901_if.fan),
-    .ready(u_pmd901_if.ready),
-    .park(u_pmd901_if.park),
-    .bending(u_pmd901_if.bend),
-    .sclk(u_pmd901_if.clk),
-    .cs_n(u_pmd901_if.csn),
-    .mosi(u_pmd901_if.mosi)
+encoder_8b10b DUT(
+    .clk(clk),
+    .rst_n(rst_n),
+    .i_data(u_enc_bus_if.data),
+    .i_vld(u_enc_bus_if.valid),
+    .i_k(u_enc_bus_if.k),
+    .o_data(u_dec_8b10b_if.data),
+    .o_k_error(u_dec_8b10b_if.k_error)
 );
-
 
 // UVM initial block:
 // Virtual interface wrapping & run_test()
 initial begin
-  import uvm_pkg::uvm_config_db;
-  uvm_config_db#(virtual pmd901_monitor_bfm)::set(null, "uvm_test_top",
-      "PMD901_mon_bfm", u_pmd901_mon_bfm);
-  uvm_config_db#(virtual pmd901_driver_bfm)::set(null, "uvm_test_top",
-      "PMD901_drv_bfm", u_pmd901_drv_bfm);
+    import uvm_pkg::uvm_config_db;
+    uvm_config_db#(virtual decoder_8b10b_monitor_bfm)::set(null, "uvm_test_top",
+      "dec_8b10b_mon_bfm", u_dec_8b10b_mon_bfm);
 
-  uvm_config_db #(virtual apb_monitor_bfm)::set(null, "uvm_test_top",
-      "u_apb_monitor_bfm", u_apb_monitor_bfm);
-  uvm_config_db #(virtual apb_driver_bfm)::set(null, "uvm_test_top",
-      "u_apb_driver_bfm", u_apb_driver_bfm);
-  run_test();
+
+    uvm_config_db #(virtual enc_bus_monitor_bfm)::set(null, "uvm_test_top",
+      "enc_bus_mon_bfm", u_enc_bus_mon_bfm);
+    uvm_config_db #(virtual enc_bus_driver_bfm)::set(null, "uvm_test_top",
+      "enc_bus_drv_bfm", u_enc_bus_drv_bfm);
+    run_test();
 end
 
 //
 // Clock and reset initial block:
 //
 initial begin
-  PCLK = 0;
-  forever #10ns PCLK = ~PCLK;
+  clk = 0;
+  forever #10ns clk = ~clk;
 end
 initial begin
-  PRESETn = 0;
-  repeat(4) @(posedge PCLK);
-  PRESETn = 0;
-  repeat(4) @(posedge PCLK);
-  PRESETn = 1;
+  rst_n = 0;
+  repeat(4) @(posedge clk);
+  rst_n = 0;
+  repeat(4) @(posedge clk);
+  rst_n = 1;
 end
 
 initial begin
