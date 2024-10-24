@@ -36,10 +36,8 @@ localparam string s_my_config_type_error_id = "config type error";
 //------------------------------------------
 // Data Members
 //------------------------------------------
-pmd901_agent_config m_pmd901_agent_cfg;
-apb_agent_config m_apb_agent_cfg;
-
-spi_reg spi_rb;
+decoder_8b10b_agent_config m_decoder_8b10b_agent_cfg;
+enc_bus_agent_config m_enc_bus_agent_cfg;
 
 //------------------------------------------
 // Methods
@@ -52,11 +50,10 @@ endclass: env_config
 
 function env_config::new(string name = "env_config");
   super.new(name);
-    m_pmd901_agent_cfg = pmd901_agent_config::type_id::create(
-      "m_pmd901_agent_cfg");
-    m_apb_agent_cfg = apb_agent_config::type_id::create(
-      "m_apb_agent_cfg");
-    spi_rb = spi_reg::type_id::create("spi_rb");
+    m_decoder_8b10b_agent_cfg = decoder_8b10b_agent_config::type_id::create(
+      "m_decoder_8b10b_agent_cfg");
+    m_enc_bus_agent_cfg = enc_bus_agent_config::type_id::create(
+      "m_enc_bus_agent_cfg");
 endfunction
 
 //
@@ -89,7 +86,7 @@ function env_config env_config::get_config( uvm_component c );
 endfunction
 
 task env_config::wait_for_reset();
-    m_apb_agent_cfg.wait_for_reset();
+    m_enc_bus_agent_cfg.wait_for_reset();
 endtask
 
 `endif // env_config

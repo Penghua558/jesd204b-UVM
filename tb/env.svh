@@ -29,12 +29,9 @@ class env extends uvm_env;
 //------------------------------------------
 // Data Members
 //------------------------------------------
-pmd901_agent m_pmd901_agent;
-apb_agent m_apb_agent;
+decoder_8b10b_agent m_dec_8b10b_agent;
+enc_bus_agent m_enc_bus_agent;
 
-reg2apb_adapter m_reg2apb;
-// Register predictor
-uvm_reg_predictor#(apb_trans) m_apb2reg_predictor;
 env_config m_cfg;
 
 // Standard UVM Methods:
@@ -50,36 +47,10 @@ endfunction
 
 function void env::build_phase(uvm_phase phase);
     m_cfg = env_config::get_config(this);
-    m_pmd901_agent = pmd901_agent::type_id::create("m_pmd901_agent", this);
-    m_apb_agent = apb_agent::type_id::create("m_apb_agent", this);
-
-    m_apb2reg_predictor = uvm_reg_predictor#(apb_trans)::type_id::create(
-        "m_apb2reg_predictor", this);
-    m_reg2apb = reg2apb_adapter::type_id::create("m_reg2apb");
+    m_dec_8b10b_agent = decoder_8b10b_agent::type_id::create(
+        "m_dec_8b10b_agent", this);
+    m_enc_bus_agent = enc_bus_agent::type_id::create("m_enc_bus_agent", this);
 endfunction:build_phase
 
 function void env::connect_phase(uvm_phase phase);
-    // Only set up register sequencer layering if the spi_rb is the top block
-    // If it isn't, then the top level environment will set up the correct 
-    // sequencer and predictor
-    if(m_cfg.spi_rb.get_parent() == null) begin
-        if(m_cfg.m_apb_agent_cfg.active == UVM_ACTIVE) begin
-          m_cfg.spi_rb.default_map.set_sequencer(
-              m_apb_agent.m_sequencer, m_reg2apb);
-        end
-
-        //
-        // Register prediction part:
-        //
-        // Replacing implicit register model prediction with explicit prediction
-        // based on APB bus activity observed by the APB agent monitor
-        // Set the predictor map:
-        m_apb2reg_predictor.map = m_cfg.spi_rb.default_map;
-        // Set the predictor adapter:
-        m_apb2reg_predictor.adapter = m_reg2apb;
-        // Disable the register models auto-prediction
-        m_cfg.spi_rb.default_map.set_auto_predict(0);
-        // Connect the predictor to the bus agent monitor analysis port
-        m_apb_agent.ap.connect(m_apb2reg_predictor.bus_in);
-    end
 endfunction: connect_phase
