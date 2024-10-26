@@ -22,12 +22,12 @@ package test_seq_lib_pkg;
 import uvm_pkg::*;
 `include "uvm_macros.svh"
 
-import pmd901_agent_pkg::*;
+import enc_bus_agent_pkg::*;
+import decoder_8b10b_agent_pkg::*;
 import env_pkg::*;
-import apb_bus_sequence_lib_pkg::*;
 
 `include "test_vseq_base.sv"
-`include "test_reg_vseq.sv"
-`include "test_randspd_vseq.sv"
+`include "test_streaming_illegal_vseq.sv"
+`include "test_streaming_legal_vseq.sv"
 
 endpackage:test_seq_lib_pkg

@@ -33,32 +33,19 @@ class test_vseq_base extends uvm_sequence #(uvm_sequence_item);
   endfunction
 
   // Virtual sequencer handles
-  pmd901_sequencer pmd901_sequencer_h;
+  enc_bus_sequencer enc_bus_sequencer_h;
 
   // Handle for env config to get to interrupt line
   env_config m_cfg;
 
   // This set up is required for child sequences to run
   task body;
-    pmd901_sequence pmd901_seq = pmd901_sequence::type_id::create("pmd901_seq");
-
-    if(pmd901_sequencer_h==null) begin
-      `uvm_fatal("SEQ_ERROR", "PMD901 sequencer handle is null")
+    if(enc_bus_sequencer_h==null) begin
+      `uvm_fatal("SEQ_ERROR", "Encoder bus sequencer handle is null")
     end
 
     if(m_cfg==null) begin
       `uvm_fatal("CFG_ERROR", "Configuration handle is null")
     end
-
-    fork
-        forever begin
-            pmd901_seq.start(pmd901_sequencer_h);
-        end
-    join_none
   endtask: body
-
-  function void apb_bus_seq_set_cfg(apb_bus_sequence_base seq_);
-    seq_.m_cfg = m_cfg;
-  endfunction
-
 endclass: test_vseq_base

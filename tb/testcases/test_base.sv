@@ -86,6 +86,5 @@ endfunction: configure_enc_bus_agent
 function void test_base::set_sequencers(test_vseq_base seq);
   seq.m_cfg = m_env_cfg;
 
-  seq.dec_8b10b_sequencer_h = m_env.m_dec_8b10b_agent.m_sequencer;
   seq.enc_bus_sequencer_h = m_env.m_enc_bus_agent.m_sequencer;
 endfunction
