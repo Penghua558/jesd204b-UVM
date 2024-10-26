@@ -56,18 +56,18 @@ endfunction
 task run();
     decoder_8b10b_trans item;
     decoder_8b10b_trans cloned_item;
-    bit [7:0] k_minus[$];
-    bit [7:0] k_plus[$];
+    byte k_minus[$];
+    byte k_plus[$];
     int k_minus_size;
     int k_plus_size;
-    bit [4:0] 5b_minus[$];
-    bit [4:0] 5b_plus[$];
-    bit [2:0] 3b_minus[$];
-    bit [2:0] 3b_plus[$];
-    int 5b_minus_size;
-    int 5b_plus_size;
-    int 3b_minus_size;
-    int 3b_plus_size;
+    bit [4:0] b5_minus[$];
+    bit [4:0] b5_plus[$];
+    bit [2:0] b3_minus[$];
+    bit [2:0] b3_plus[$];
+    int b5_minus_size;
+    int b5_plus_size;
+    int b3_minus_size;
+    int b3_plus_size;
     my_unpacked_10b_type data_10b_unpacked;
     my_unpacked_6b_type data_6b_unpacked;
     my_unpacked_4b_type data_4b_unpacked;
@@ -77,10 +77,10 @@ task run();
     forever begin
         k_minus.delete();
         k_plus.delete();
-        5b_minus.delete();
-        5b_plus.delete();
-        3b_minus.delete();
-        3b_plus.delete();
+        b5_minus.delete();
+        b5_plus.delete();
+        b3_minus.delete();
+        b3_plus.delete();
         @(posedge clk);
         item.k_not_valid_error = k_error;
 
@@ -114,18 +114,18 @@ task run();
         // data is not control word, we then test for data word
             item.is_control_word = 1'b0;
 
-            5b_minus = d_5b_minus.find_index with (item == data[9:4]);
-            5b_plus = d_5b_plus.find_index with (item == data[9:4]);
-            3b_minus = d_3b_minus.find_index with (item == data[3:0]);
-            3b_plus = d_3b_plus.find_index with (item == data[3:0]);
-            5b_minus_size = 5b_minus.size();
-            5b_plus_size = 5b_plus.size();
-            3b_minus_size = 3b_minus.size();
-            3b_plus_size = 3b_plus.size();
+            b5_minus = d_5b_minus.find_index with (item == data[9:4]);
+            b5_plus = d_5b_plus.find_index with (item == data[9:4]);
+            b3_minus = d_3b_minus.find_index with (item == data[3:0]);
+            b3_plus = d_3b_plus.find_index with (item == data[3:0]);
+            b5_minus_size = b5_minus.size();
+            b5_plus_size = b5_plus.size();
+            b3_minus_size = b3_minus.size();
+            b3_plus_size = b3_plus.size();
 
             // test if data is a data word
-            if ((!5b_minus_size && !5b_plus_size) ||
-                (!3b_minus_size && !3b_plus_size)) begin
+            if ((!b5_minus_size && !b5_plus_size) ||
+                (!b3_minus_size && !b3_plus_size)) begin
                 item.not_in_table_error = 1'b1;
                 item.data = 8'b0;
             end else begin
@@ -133,24 +133,24 @@ task run();
             end
 
             // decode abcdei
-            if (5b_minus_size || 5b_plus_size) begin
-                if (5b_minus_size)
-                    item.data[4:0] = 5b_minus.pop_front();
+            if (b5_minus_size || b5_plus_size) begin
+                if (b5_minus_size)
+                    item.data[4:0] = b5_minus.pop_front();
                 else
-                    item.data[4:0] = 5b_plus.pop_front();
+                    item.data[4:0] = b5_plus.pop_front();
             end
 
             // decode fghj
-            if (3b_minus_size || 3b_plus_size) begin
-                if (3b_minus_size)
-                    item.data[7:5] = 3b_minus.pop_front();
+            if (b3_minus_size || b3_plus_size) begin
+                if (b3_minus_size)
+                    item.data[7:5] = b3_minus.pop_front();
                 else
-                    item.data[7:5] = 3b_plus.pop_front();
+                    item.data[7:5] = b3_plus.pop_front();
             end
 
             item.disparity_error = 1'b0;
             // check&update abcedi running disparity
-            if ((!rd && 5b_plus_size) || (rd && 5b_minus_size)) begin
+            if ((!rd && b5_plus_size) || (rd && b5_minus_size)) begin
                 item.disparity_error = 1'b1;
             end
             data_6b_unpacked = my_unpacked_6b_type'(data[9:4]);
@@ -158,7 +158,7 @@ task run();
                 rd = ~rd;
 
             // check&update fghj running disparity
-            if ((!rd && 3b_plus_size) || (rd && 3b_minus_size)) begin
+            if ((!rd && b3_plus_size) || (rd && b3_minus_size)) begin
                 item.disparity_error = 1'b1;
             end
             data_4b_unpacked = my_unpacked_4b_type'(data[3:0]);

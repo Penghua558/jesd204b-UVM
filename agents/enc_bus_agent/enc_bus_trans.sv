@@ -22,8 +22,8 @@ rand bit control_word;
 
 constraint control_word_legal_c {
     if (control_word) {
-        data inside {[K28_0, K28_1, K28_2, K28_3, K28_4, K28_5, K28_6, K28_7,
-                    K23_7, K27_7, K29_7, K30_7]};
+        data inside {K28_0, K28_1, K28_2, K28_3, K28_4, K28_5, K28_6, K28_7,
+                    K23_7, K27_7, K29_7, K30_7};
     }
 }
 
@@ -52,11 +52,9 @@ function void enc_bus_trans::do_copy(uvm_object rhs);
   end
   super.do_copy(rhs);
   // Copy over wdata members:
-  addr = rhs_.addr;
-  wdata = rhs_.wdata;
-  wr = rhs_.wr;
-  delay = rhs_.delay;
-  rdata = rhs_.rdata;
+  data = rhs_.data;
+  valid = rhs_.valid;
+  control_word = rhs_.control_word;
 
 endfunction:do_copy
 
