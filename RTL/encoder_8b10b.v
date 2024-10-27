@@ -28,7 +28,10 @@ wire [9:0] symbol_minus;
 wire [9:0] symbol_plus;
 wire k_error_minus;
 wire k_error_plus;
-wire rd; // running disparity
+// running disparity
+// 1 - RD+
+// 0 - RD-
+wire rd; 
 
 wire [9:0] data_encode;
 wire k_error_encode;

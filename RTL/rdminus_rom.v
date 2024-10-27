@@ -45,7 +45,7 @@ reg [9:0] k_out;
 reg k_error;
 
 rom#(
-.FILE("D_RD_MINUS.mem"),
+.FILE("../RTL/D_RD_MINUS.mem"),
 .READ_ADDR_WIDTH(8),
 .WIDTH(10),
 .DEPTH(256)
