@@ -16,6 +16,7 @@ reg [WIDTH-1:0] data[0:DEPTH-1];
 
 initial begin
     $readmemh(FILE, data);
+    o_out <= {WIDTH{1'b0}};
 end
 
 always@(posedge clk) begin

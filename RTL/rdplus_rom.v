@@ -43,6 +43,7 @@ localparam K30_7_PLUS = 10'b100001_0111;
 wire [9:0] d_out;
 reg [9:0] k_out;
 reg k_error;
+reg i_k_d;
 
 rom#(
 .FILE("../RTL/D_RD_PLUS.mem"),
@@ -117,6 +118,10 @@ always@(posedge clk or negedge rst_n) begin
     end
 end
 
-assign o_out = (i_k)? k_out:d_out;
-assign o_k_error = (i_k)? k_error: 1'b0;
+always @(posedge clk) begin
+    i_k_d <= i_k;
+end
+
+assign o_out = (i_k_d)? k_out:d_out;
+assign o_k_error = (i_k_d)? k_error: 1'b0;
 endmodule

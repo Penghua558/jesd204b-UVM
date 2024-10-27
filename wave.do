@@ -11,10 +11,15 @@ add wave -noupdate /top/DUT/data_encode
 add wave -noupdate /top/DUT/rd
 add wave -noupdate /top/DUT/symbol_plus
 add wave -noupdate /top/DUT/symbol_minus
+add wave -noupdate -expand -group rdminus_rom /top/DUT/u_rdminus_rom/i_k
+add wave -noupdate -expand -group rdminus_rom /top/DUT/u_rdminus_rom/k_out
+add wave -noupdate -expand -group rdminus_rom /top/DUT/u_rdminus_rom/k_error
+add wave -noupdate -expand -group rdminus_rom /top/DUT/u_rdminus_rom/d_out
+add wave -noupdate -expand -group rdminus_rom /top/DUT/u_rdminus_rom/i_rd_en
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {170000 ps} 0}
+WaveRestoreCursors {{Cursor 1} {190000 ps} 0}
 quietly wave cursor active 1
-configure wave -namecolwidth 150
+configure wave -namecolwidth 272
 configure wave -valuecolwidth 100
 configure wave -justifyvalue left
 configure wave -signalnamewidth 0
@@ -28,4 +33,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ns
 update
-WaveRestoreZoom {147600 ps} {443 ns}
+WaveRestoreZoom {114 ns} {255100 ps}
