@@ -82,6 +82,7 @@ task run();
         b3_minus.delete();
         b3_plus.delete();
         @(posedge clk);
+        item.running_disparity = rd;
         item.k_not_valid_error = k_error;
 
         // test if input data is control word
