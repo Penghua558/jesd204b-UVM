@@ -18,7 +18,7 @@ logic running_disparity;
 // a valid character, however running disparity is wrong
 logic disparity_error;
 logic k_not_valid_error;
-// nor a control word or a data word
+// not a control word nor a data word
 logic not_in_table_error;
 
 

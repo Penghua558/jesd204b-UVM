@@ -30,6 +30,7 @@ import decoder_8b10b_agent_pkg::*;
 // import spi_reg_pkg::*;
 
 // Includes:
+`include "dec_predictor.sv"
 `include "env_config.svh"
 `include "env.svh"
 endpackage: env_pkg

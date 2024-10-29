@@ -4,7 +4,6 @@ class dec_predictor extends uvm_subscriber#(enc_bus_trans);
 
 uvm_analysis_port #(decoder_8b10b_trans) ap;
 
-
 //
 // Statistics:
 //
@@ -12,12 +11,15 @@ int no_transfers;
 int no_tx_errors;
 int no_rx_errors;
 int no_cs_errors;
-
 // running disparity for this predictor
 // by default it's RD-
 // 1 - RD+
 // 0 - RD-
 bit rd;
+// scoreboard can't detect not in table error since it doesn't has knowledge
+// of output of DUT, so it's up to testcase to tell scoreboard if the next 
+// transaction is expected to generate not_in_table_error or not
+bit not_in_table_error;
 // transaction which holds last valid transaction
 enc_bus_trans last_vld_item;
 
@@ -35,11 +37,14 @@ function void dec_predictor::build_phase(uvm_phase phase);
     last_vld_item = enc_bus_trans::type_id::create("last_vld_item");
     ap = new("ap", this);
     rd = 1'b0;
+    not_in_table_error = 1'b0;
 endfunction: build_phase
 
 function void dec_predictor::write(enc_bus_trans t);
+    bit[9:0] enc_data;
+    int num_ones;
     decoder_8b10b_trans item = decoder_8b10b_trans::type_id::create("item");
-    // a bunch of process here
+
     if (t.valid) begin
     // this transaction's data should be processed, so we update last_vld_item
         last_vld_item.copy(t);
@@ -47,8 +52,47 @@ function void dec_predictor::write(enc_bus_trans t);
     // since current transaction's data should not be processed, so we process
     // last transaction which holds valid data
     end
-    decoder_8b10b_trans.data = last_vld_item.data;
-    decoder_8b10b_trans.is_control_word = last_vld_item.control_word;
+    item.data = last_vld_item.data;
+    item.is_control_word = last_vld_item.control_word;
+    item.running_disparity = rd;
+    item.not_in_table_error = not_in_table_error;
+
+    if (item.is_control_word) begin
+    // encode data as a control word
+        // first we test if data is truly a control word
+        if (table_8b10b_pkg::k_8b_minus.exists(item.data) ||
+            table_8b10b_pkg::k_8b_plus.exists(item.data) begin
+            item.k_not_valid_error = 1'b0;
+        end else begin
+            item.k_not_valid_error = 1'b1;
+        end
+
+        // update running disparity if data is truly a control word
+        // otherwise running disparity should keep unchanged
+        if (!item.k_not_valid_error) begin
+            if (rd)
+                enc_data = table_8b10b_pkg::k_8b_plus[item.data];
+            else
+                enc_data = table_8b10b_pkg::k_8b_minus[item.data];
+
+            num_ones = 0;
+            repeat(10) begin
+                num_ones += enc_data[0];
+                enc_data = enc_data >> 1;
+            end
+
+            if (num_ones != 5) begin
+                rd = ~rd;
+                `uvm_info("SCB", 
+                    $sformatf("Running disparity changes from %s to %s", 
+                    (rd)? "RD-":"RD+", (rd)? "RD+":"RD-"), 
+                    UVM_MEDIUM)
+            end
+        end
+    end else begin
+    // encode data as a data word
+        item.k_not_valid_error = 1'b0;
+    end
     notify_transaction(item);
 endfunction
 
