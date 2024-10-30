@@ -7,10 +7,6 @@ uvm_analysis_port #(decoder_8b10b_trans) ap;
 //
 // Statistics:
 //
-int no_transfers;
-int no_tx_errors;
-int no_rx_errors;
-int no_cs_errors;
 // running disparity for this predictor
 // by default it's RD-
 // 1 - RD+
@@ -65,7 +61,7 @@ function void dec_predictor::write(enc_bus_trans t);
     // encode data as a control word
         // first we test if data is truly a control word
         if (table_8b10b_pkg::k_8b_minus.exists(item.data) ||
-            table_8b10b_pkg::k_8b_plus.exists(item.data) begin
+            table_8b10b_pkg::k_8b_plus.exists(item.data)) begin
             item.k_not_valid_error = 1'b0;
         end else begin
             item.k_not_valid_error = 1'b1;
@@ -112,9 +108,10 @@ function void dec_predictor::write(enc_bus_trans t);
                 $sformatf("Running disparity changes from %s to %s", 
                 (rd)? "RD-":"RD+", (rd)? "RD+":"RD-"), 
                 UVM_MEDIUM)
+        end
     end
     notify_transaction(item);
-endfunction
+endfunction: write
 
 function void dec_predictor::notify_transaction(
     decoder_8b10b_trans item);

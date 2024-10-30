@@ -27,6 +27,7 @@ import uvm_pkg::*;
 
 import enc_bus_agent_pkg::*;
 import decoder_8b10b_agent_pkg::*;
+import table_8b10b_pkg::*;
 // import spi_reg_pkg::*;
 
 // Includes:
