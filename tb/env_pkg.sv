@@ -32,6 +32,7 @@ import table_8b10b_pkg::*;
 
 // Includes:
 `include "dec_predictor.sv"
+`include "inorder_comparator.sv"
 `include "env_config.svh"
 `include "env.svh"
 endpackage: env_pkg
