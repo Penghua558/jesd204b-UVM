@@ -15,7 +15,7 @@ logic is_control_word;
 // 1 - RD+
 // 0 - RD-
 logic running_disparity;
-// a valid character, however running disparity is wrong
+// it's a valid character, however running disparity is wrong
 logic disparity_error;
 logic k_not_valid_error;
 // not a control word nor a data word

@@ -16,10 +16,12 @@ int no_cs_errors;
 // 1 - RD+
 // 0 - RD-
 bit rd;
-// scoreboard can't detect not in table error since it doesn't has knowledge
-// of output of DUT, so it's up to testcase to tell scoreboard if the next 
-// transaction is expected to generate not_in_table_error or not
+// scoreboard can't detect not in table error and disparity error since it 
+// doesn't has knowledge of output of DUT, so it's up to testcase to tell 
+// scoreboard if the next transaction is expected to generate 
+// not_in_table_error and disparity_err or not
 bit not_in_table_error;
+bit disparity_error;
 // transaction which holds last valid transaction
 enc_bus_trans last_vld_item;
 
@@ -38,6 +40,7 @@ function void dec_predictor::build_phase(uvm_phase phase);
     ap = new("ap", this);
     rd = 1'b0;
     not_in_table_error = 1'b0;
+    disparity_error = 1'b0;
 endfunction: build_phase
 
 function void dec_predictor::write(enc_bus_trans t);
@@ -56,6 +59,7 @@ function void dec_predictor::write(enc_bus_trans t);
     item.is_control_word = last_vld_item.control_word;
     item.running_disparity = rd;
     item.not_in_table_error = not_in_table_error;
+    item.disparity_error = disparity_error;
 
     if (item.is_control_word) begin
     // encode data as a control word
@@ -80,7 +84,6 @@ function void dec_predictor::write(enc_bus_trans t);
                 num_ones += enc_data[0];
                 enc_data = enc_data >> 1;
             end
-
             if (num_ones != 5) begin
                 rd = ~rd;
                 `uvm_info("SCB", 
@@ -92,6 +95,23 @@ function void dec_predictor::write(enc_bus_trans t);
     end else begin
     // encode data as a data word
         item.k_not_valid_error = 1'b0;
+        // update running disparity
+        if(!rd)
+            enc_data = table_8b10b_pkg::d_8b_minus[item.data];
+        else
+            enc_data = table_8b10b_pkg::d_8b_plus[item.data];
+
+        num_ones = 0;
+        repeat(10) begin
+            num_ones += enc_data[0];
+            enc_data = enc_data >> 1;
+        end
+        if (num_ones != 5) begin
+            rd = ~rd;
+            `uvm_info("SCB", 
+                $sformatf("Running disparity changes from %s to %s", 
+                (rd)? "RD-":"RD+", (rd)? "RD+":"RD-"), 
+                UVM_MEDIUM)
     end
     notify_transaction(item);
 endfunction
@@ -102,33 +122,4 @@ function void dec_predictor::notify_transaction(
 endfunction : notify_transaction
 
 function void dec_predictor::report_phase(uvm_phase phase);
-
-    if(no_transfers == 0) begin
-      `uvm_info("SPI_SB_REPORT:", "No SPI transfers took place", UVM_LOW)
-    end
-    if((no_cs_errors == 0) && (no_tx_errors == 0) && (no_rx_errors == 0) && 
-        (no_transfers > 0)) begin
-      `uvm_info("SPI_SB_REPORT:", 
-          $sformatf("Test Passed - %0d transfers occured with no errors", 
-          no_transfers), UVM_LOW)
-      `uvm_info("** UVM TEST PASSED **", 
-          $sformatf("Test Passed - %0d transfers occured with no errors", 
-          no_transfers), UVM_LOW)
-    end
-    if(no_tx_errors > 0) begin
-      `uvm_error("SPI_SB_REPORT:", 
-          $sformatf("Test Failed - %0d TX errors occured during %0d transfers",
-          no_tx_errors, no_transfers))
-    end
-    if(no_rx_errors > 0) begin
-      `uvm_error("SPI_SB_REPORT:", 
-          $sformatf("Test Failed - %0d RX errors occured during %0d transfers",
-          no_rx_errors, no_transfers))
-    end
-    if(no_cs_errors > 0) begin
-      `uvm_error("SPI_SB_REPORT:", 
-          $sformatf("Test Failed - %0d CS errors occured during %0d transfers",
-          no_cs_errors, no_transfers))
-    end
-
 endfunction: report_phase
