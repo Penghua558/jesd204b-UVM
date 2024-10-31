@@ -4,8 +4,8 @@ class inorder_comparator#(type T = uvm_sequence_item) extends uvm_component;
 
 `uvm_component_param_utils(inorder_comparator#(T))
 
-uvm_analysis_imp_golden#(T, inorder_comparator) golden_export;
-uvm_analysis_imp_sample#(T, inorder_comparator) sample_export;
+uvm_analysis_imp_golden#(T, inorder_comparator#(T)) golden_export;
+uvm_analysis_imp_sample#(T, inorder_comparator#(T)) sample_export;
 
 string object_name;
 int m_matches;
@@ -19,11 +19,18 @@ function new(string name, uvm_component parent);
     m_mismatches = 0;
 endfunction
 
+extern virtual function void build_phase(uvm_phase phase);
 extern virtual function void m_proc_data();
 extern virtual function void write_golden(T txn);
 extern virtual function void write_sample(T txn);
 extern virtual function void report_phase(uvm_phase phase);
 endclass
+
+function void inorder_comparator::build_phase(uvm_phase phase);
+    super.build_phase(phase);
+    golden_export = new("golden_export", this);
+    sample_export = new("sample_export", this);
+endfunction
 
 function void inorder_comparator::write_golden(T txn);
     m_golden.push_back(txn);

@@ -21,8 +21,6 @@ endclass
 function void enc_8b10b_scoreboard::build_phase(uvm_phase phase);
     super.build_phase(phase);
     predictor = dec_predictor::type_id::create("predictor", this);
-    predictor.not_in_table_error;
-    predictor.disparity_error;
 
     evaluator = inorder_comparator#(decoder_8b10b_trans)::type_id::
         create("evaluator", this);
@@ -38,7 +36,7 @@ function void enc_8b10b_scoreboard::connect_phase(uvm_phase phase);
     analysis_export_golden.connect(predictor.analysis_export);
     analysis_export_sample.connect(evaluator.sample_export);
 
-    evaluator.ap.connect(evaluator.golden_export);
+    predictor.ap.connect(evaluator.golden_export);
 endfunction
 
 function void enc_8b10b_scoreboard::set_not_in_table_error(bit error);
