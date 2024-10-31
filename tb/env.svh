@@ -31,6 +31,7 @@ class env extends uvm_env;
 //------------------------------------------
 decoder_8b10b_agent m_dec_8b10b_agent;
 enc_bus_agent m_enc_bus_agent;
+enc_8b10b_scoreboard m_scoreboard;
 
 env_config m_cfg;
 
@@ -50,7 +51,10 @@ function void env::build_phase(uvm_phase phase);
     m_dec_8b10b_agent = decoder_8b10b_agent::type_id::create(
         "m_dec_8b10b_agent", this);
     m_enc_bus_agent = enc_bus_agent::type_id::create("m_enc_bus_agent", this);
+    m_scoreboard = enc_8b10b_scoreboard::type_id::create("m_scoreboard", this);
 endfunction:build_phase
 
 function void env::connect_phase(uvm_phase phase);
+    m_dec_8b10b_agent.ap.connect(m_scoreboard.analysis_export_sample);
+    m_enc_bus_agent.ap.connect(m_scoreboard.analysis_export_golden);
 endfunction: connect_phase

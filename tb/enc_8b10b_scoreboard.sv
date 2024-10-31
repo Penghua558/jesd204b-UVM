@@ -20,18 +20,16 @@ endclass
 
 function void enc_8b10b_scoreboard::build_phase(uvm_phase phase);
     super.build_phase(phase);
-    predictor = dec_predictor::type_id::create("predictor");
+    predictor = dec_predictor::type_id::create("predictor", this);
     predictor.not_in_table_error;
     predictor.disparity_error;
 
     evaluator = inorder_comparator#(decoder_8b10b_trans)::type_id::
-        create("evaluator");
+        create("evaluator", this);
     evaluator.object_name = "decoder_8b10b_trans";
 
-    analysis_export_golden = uvm_analysis_export#(enc_bus_trans)::type_id::
-        create("analysis_export_golden");
-    analysis_export_sample = uvm_analysis_export#(decoder_8b10b_trans)::
-        type_id::create("analysis_export_sample");
+    analysis_export_golden = new("analysis_export_golden", this);
+    analysis_export_sample = new("analysis_export_sample", this);
 endfunction
 
 function void enc_8b10b_scoreboard::connect_phase(uvm_phase phase);
