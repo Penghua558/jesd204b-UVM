@@ -41,13 +41,13 @@ function void inorder_comparator::build_phase(uvm_phase phase);
     sample_export = new("sample_export", this);
 
     tr_db_err_rm = uvm_text_tr_database::type_id::create("tr_db_err_rm");
-    tr_db_err_rm.set_file_name($sformatf("%s_err_rm.log"));
+    tr_db_err_rm.set_file_name($sformatf("%s_err_rm.log", object_name));
     tr_strm_err_rm = tr_db_err_rm.open_stream("tr_strm_err_rm");
     rec_err_rm = tr_strm_err_rm.open_recorder("rec_err_rm");
 
     tr_db_err_sample = uvm_text_tr_database::type_id::
         create("tr_db_err_sample");
-    tr_db_err_sample.set_file_name($sformatf("%s_err_sample.log"));
+    tr_db_err_sample.set_file_name($sformatf("%s_err_sample.log", object_name));
     tr_strm_err_sample = tr_db_err_sample.open_stream("tr_strm_err_sample");
     rec_err_sample = tr_strm_err_sample.open_recorder("rec_err_sample");
 endfunction
