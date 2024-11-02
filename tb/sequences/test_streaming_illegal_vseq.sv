@@ -1,9 +1,6 @@
 //
-// Register test:
-//
-// Checks the reset values
-// Does a randomized read/write bit test using the front door
-//
+// randomly generate data or control characters, control character has
+// a chance to be invalid. Every transaction would be processed by DUT
 class test_streaming_illegal_vseq extends test_vseq_base;
 
   `uvm_object_utils(test_streaming_illegal_vseq)

@@ -1,8 +1,6 @@
 //
-// Register test:
-//
-// Checks the reset values
-// Does a randomized read/write bit test using the front door
+// randomly generate valid data or control characters. Every transactions
+// would be processed by DUT.
 //
 class test_streaming_legal_vseq extends test_vseq_base;
 
