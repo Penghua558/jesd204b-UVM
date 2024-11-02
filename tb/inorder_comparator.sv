@@ -13,6 +13,15 @@ int m_mismatches;
 protected T m_golden[$];
 protected T m_sample[$];
 
+// recorders for recording mismtached transactions
+uvm_text_tr_database tr_db_err_rm;
+uvm_tr_stream tr_strm_err_rm;
+uvm_recorder rec_err_rm;
+
+uvm_text_tr_database tr_db_err_sample;
+uvm_tr_stream tr_strm_err_sample;
+uvm_recorder rec_err_sample;
+
 function new(string name, uvm_component parent);
     super.new(name, parent);
     m_matches = 0;
@@ -30,6 +39,17 @@ function void inorder_comparator::build_phase(uvm_phase phase);
     super.build_phase(phase);
     golden_export = new("golden_export", this);
     sample_export = new("sample_export", this);
+
+    tr_db_err_rm = uvm_text_tr_database::type_id::create("tr_db_err_rm");
+    tr_db_err_rm.set_file_name($sformatf("%s_err_rm.log"));
+    tr_strm_err_rm = tr_db_err_rm.open_stream("tr_strm_err_rm");
+    rec_err_rm = tr_strm_err_rm.open_recorder("rec_err_rm");
+
+    tr_db_err_sample = uvm_text_tr_database::type_id::
+        create("tr_db_err_sample");
+    tr_db_err_sample.set_file_name($sformatf("%s_err_sample.log"));
+    tr_strm_err_sample = tr_db_err_sample.open_stream("tr_strm_err_sample");
+    rec_err_sample = tr_strm_err_sample.open_recorder("rec_err_sample");
 endfunction
 
 function void inorder_comparator::write_golden(T txn);
@@ -53,6 +73,8 @@ function void inorder_comparator::m_proc_data();
             $sformatf("transaction mismtach, golden transaction: %s\n\
             sample transaction: %s", golden_txn.sprint(), sample_txn.sprint()))
         m_mismatches++;
+        sample_txn.record(rec_err_sample);
+        golden_txn.record(rec_err_rm);
     end else begin
         m_matches++;
     end

@@ -32,6 +32,7 @@ import table_8b10b_pkg::*;
 
 // Includes:
 `include "dec_predictor.sv"
+`include "dec_predictor_recorder.sv"
 `include "inorder_comparator.sv"
 `include "enc_8b10b_scoreboard.sv"
 `include "env_config.svh"

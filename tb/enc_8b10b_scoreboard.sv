@@ -3,6 +3,7 @@ class enc_8b10b_scoreboard extends uvm_component;
 `uvm_component_utils(enc_8b10b_scoreboard)
 
 dec_predictor predictor;
+dec_predictor_recorder recorder;
 inorder_comparator#(decoder_8b10b_trans) evaluator;
 
 uvm_analysis_export#(enc_bus_trans) analysis_export_golden;
@@ -21,6 +22,7 @@ endclass
 function void enc_8b10b_scoreboard::build_phase(uvm_phase phase);
     super.build_phase(phase);
     predictor = dec_predictor::type_id::create("predictor", this);
+    recorder = dec_predictor_recorder::type_id::create("recorder", this);
 
     evaluator = inorder_comparator#(decoder_8b10b_trans)::type_id::
         create("evaluator", this);
@@ -37,6 +39,7 @@ function void enc_8b10b_scoreboard::connect_phase(uvm_phase phase);
     analysis_export_sample.connect(evaluator.sample_export);
 
     predictor.ap.connect(evaluator.golden_export);
+    predictor.ap.connect(recorder.analysis_export);
 endfunction
 
 function void enc_8b10b_scoreboard::set_not_in_table_error(bit error);
