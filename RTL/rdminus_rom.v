@@ -49,7 +49,8 @@ rom#(
 .FILE("../RTL/D_RD_MINUS.mem"),
 .READ_ADDR_WIDTH(8),
 .WIDTH(10),
-.DEPTH(256)
+.DEPTH(256),
+.RESET_OUTPUT(10'h274)
 ) d_minus_rom(
 .clk(clk),
 .i_addr(i_addr),
@@ -123,5 +124,5 @@ always @(posedge clk) begin
 end
 
 assign o_out = (i_k_d)? k_out:d_out;
-assign o_k_error = (i_k_d)? k_error: 1'b0;
+assign o_k_error = (i_k_d)? k_error:1'b0;
 endmodule

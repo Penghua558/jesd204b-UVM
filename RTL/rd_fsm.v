@@ -6,36 +6,26 @@ module rd_fsm(
     // running disparity,
     // 1 - RD+
     // 0 - RD-
-    output reg o_rd
+    output wire o_rd
 );
 
 
-    localparam [1:0] RD_MINUS = 2'b01;
-    localparam [1:0] RD_PLUS = 2'b10;
+localparam [1:0] RD_MINUS = 2'b01;
+localparam [1:0] RD_PLUS = 2'b10;
 
-    reg [1:0] next_state;
-    reg [1:0] current_state;
+reg [1:0] next_state;
+reg [1:0] current_state;
 
-  always@(posedge clk or negedge rst_n) begin
-      if (rst_n) begin
-          current_state <= RD_MINUS;
-          o_rd <= 1'b0;
-      end else begin
-          current_state <= next_state;
+always@(posedge clk or negedge rst_n) begin
+    if (!rst_n) begin
+      current_state <= RD_MINUS;
+    end else begin
+      current_state <= next_state;
+    end
+end
 
-          case(current_state)
-              RD_MINUS: begin
-                  o_rd <= 1'b0;
-              end
-              RD_PLUS: begin
-                  o_rd <= 1'b1;
-              end
-              default: begin
-                  o_rd <= 1'b0;
-              end
-          endcase
-      end
-  end
+assign o_rd = (current_state == RD_MINUS)? 1'b0:
+    (current_state == RD_PLUS)? 1'b1:1'b0;
 
 always@(*) begin
     case(current_state)
@@ -54,5 +44,6 @@ always@(*) begin
         default: next_state = RD_MINUS;
     endcase
 end
+
 
 endmodule

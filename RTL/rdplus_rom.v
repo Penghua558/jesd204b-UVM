@@ -49,7 +49,8 @@ rom#(
 .FILE("../RTL/D_RD_PLUS.mem"),
 .READ_ADDR_WIDTH(8),
 .WIDTH(10),
-.DEPTH(256)
+.DEPTH(256),
+.RESET_OUTPUT(10'h18b)
 ) d_plus_rom(
 .clk(clk),
 .i_addr(i_addr),
@@ -123,5 +124,5 @@ always @(posedge clk) begin
 end
 
 assign o_out = (i_k_d)? k_out:d_out;
-assign o_k_error = (i_k_d)? k_error: 1'b0;
+assign o_k_error = (i_k_d)? k_error:1'b0;
 endmodule
