@@ -26,14 +26,17 @@ enc_bus_monitor proxy;
 //------------------------------------------
 task automatic wait_for_reset();
     @(posedge rst_n);
+    @(posedge clk);
 endtask
 
 // BFM Methods:
 task run();
-  enc_bus_trans item;
-  enc_bus_trans cloned_item;
+    enc_bus_trans item;
+    enc_bus_trans cloned_item;
 
-  item = enc_bus_trans::type_id::create("item");
+    item = enc_bus_trans::type_id::create("item");
+
+    wait_for_reset();
 
     forever begin
         @(posedge clk);

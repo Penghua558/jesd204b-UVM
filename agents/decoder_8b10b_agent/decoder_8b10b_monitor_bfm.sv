@@ -40,7 +40,7 @@ bit rd;
 task automatic wait_for_reset();
     @(posedge rst_n);
     rd = 1'b0;
-    @(posedge clk);
+    repeat(3) @(posedge clk);
 endtask
 
 function bit is_disparity_neutral(bit data[]);
@@ -74,6 +74,8 @@ task run();
 
     item = decoder_8b10b_trans::type_id::create("item");
 
+    wait_for_reset();
+
     forever begin
         k_minus.delete();
         k_plus.delete();
@@ -82,6 +84,7 @@ task run();
         b3_minus.delete();
         b3_plus.delete();
         @(posedge clk);
+        `uvm_info("DEBUG", $sformatf("data: %h", data), UVM_MEDIUM)
         item.running_disparity = rd;
         item.k_not_valid_error = k_error;
 
