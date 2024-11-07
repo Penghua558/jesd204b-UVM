@@ -87,6 +87,7 @@ task run();
         `uvm_info("DEBUG", $sformatf("data: %h", data), UVM_MEDIUM)
         item.running_disparity = rd;
         item.k_not_valid_error = k_error;
+        item.disparity_error = 1'b0;
 
         // test if input data is control word
         k_minus = k_8b_minus.find_index with (item == data);
@@ -136,35 +137,38 @@ task run();
                 item.not_in_table_error = 1'b0;
             end
 
-            // decode abcdei
+            // decode abcdei & check running disparity error
             if (b5_minus_size || b5_plus_size) begin
-                if (b5_minus_size)
+                if (b5_minus_size) begin
                     item.data[4:0] = b5_minus.pop_front();
-                else
+                    if (rd && !b5_plus_size)
+                        item.disparity_error = 1'b1;
+                end else begin
                     item.data[4:0] = b5_plus.pop_front();
+                    if (!rd && !b5_minus_size)
+                        item.disparity_error = 1'b1;
+                end
             end
 
-            // decode fghj
-            if (b3_minus_size || b3_plus_size) begin
-                if (b3_minus_size)
-                    item.data[7:5] = b3_minus.pop_front();
-                else
-                    item.data[7:5] = b3_plus.pop_front();
-            end
-
-            item.disparity_error = 1'b0;
-            // check&update abcedi running disparity
-            if ((!rd && b5_plus_size) || (rd && b5_minus_size)) begin
-                item.disparity_error = 1'b1;
-            end
+            // update abcdei running disparity
             data_6b_unpacked = my_unpacked_6b_type'(data[9:4]);
             if(!is_disparity_neutral(data_6b_unpacked))
                 rd = ~rd;
 
-            // check&update fghj running disparity
-            if ((!rd && b3_plus_size) || (rd && b3_minus_size)) begin
-                item.disparity_error = 1'b1;
+            // decode fghj & check running disparity error
+            if (b3_minus_size || b3_plus_size) begin
+                if (b3_minus_size) begin
+                    item.data[7:5] = b3_minus.pop_front();
+                    if (rd && !b3_plus_size)
+                        item.disparity_error = 1'b1;
+                end else begin
+                    item.data[7:5] = b3_plus.pop_front();
+                    if (!rd && !b3_minus_size)
+                        item.disparity_error = 1'b1;
+                end
             end
+
+            // update fghj running disparity
             data_4b_unpacked = my_unpacked_4b_type'(data[3:0]);
             if(!is_disparity_neutral(data_4b_unpacked))
                 rd = ~rd;
