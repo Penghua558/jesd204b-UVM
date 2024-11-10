@@ -72,27 +72,29 @@ package decoder_8b10b_agent_dec;
         };
 
     // D word array, value is fghj, index is HGF, running disparity is RD-
-    bit [3:0] d_3b_minus[bit[2:0]] = {
-        3'd0:4'b1011,
-        3'd1:4'b1001,
-        3'd2:4'b0101,
-        3'd3:4'b1100,
-        3'd4:4'b1101,
-        3'd5:4'b1010,
-        3'd6:4'b0110,
-        3'd7:4'b1110
+    bit [3:0] d_3b_minus[bit[3:0]] = {
+        4'd0:4'b1011,
+        4'd1:4'b1001,
+        4'd2:4'b0101,
+        4'd3:4'b1100,
+        4'd4:4'b1101,
+        4'd5:4'b1010,
+        4'd6:4'b0110,
+        4'd7:4'b1110, // primary encode of D.x.7
+        4'd8:4'b0111 // alternate encode of D.x.7
     };
 
     // D word array, value is fghj, index is HGF, running disparity is RD+
-    bit [3:0] d_3b_plus[bit[2:0]] = {
-        3'd0:4'b0100,
-        3'd1:4'b1001,
-        3'd2:4'b0101,
-        3'd3:4'b0011,
-        3'd4:4'b0010,
-        3'd5:4'b1010,
-        3'd6:4'b0110,
-        3'd7:4'b0001
+    bit [3:0] d_3b_plus[bit[3:0]] = {
+        4'd0:4'b0100,
+        4'd1:4'b1001,
+        4'd2:4'b0101,
+        4'd3:4'b0011,
+        4'd4:4'b0010,
+        4'd5:4'b1010,
+        4'd6:4'b0110,
+        4'd7:4'b0001, // primary encode of D.x.7
+        4'd8:4'b1000 // alternate encode of D.x.7
     };
 
     // K word array, value is abcdeifghj, index is HGFEDCBA, running disparity

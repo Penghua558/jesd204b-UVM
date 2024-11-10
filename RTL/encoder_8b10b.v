@@ -4,7 +4,8 @@
 `include "rdminus_rom.v"
 `include "rdplus_rom.v"
 
-// 
+// output latency: 2 clock cycles
+//
 module encoder_8b10b
 (
     input wire clk,

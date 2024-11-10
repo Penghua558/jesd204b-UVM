@@ -62,12 +62,13 @@ task run();
     int k_plus_size;
     bit [4:0] b5_minus[$];
     bit [4:0] b5_plus[$];
-    bit [2:0] b3_minus[$];
-    bit [2:0] b3_plus[$];
+    bit [3:0] b3_minus[$];
+    bit [3:0] b3_plus[$];
     int b5_minus_size;
     int b5_plus_size;
     int b3_minus_size;
     int b3_plus_size;
+    bit [3:0] d_3b_temp;
     my_unpacked_10b_type data_10b_unpacked;
     my_unpacked_6b_type data_6b_unpacked;
     my_unpacked_4b_type data_4b_unpacked;
@@ -158,11 +159,47 @@ task run();
             // decode fghj & check running disparity error
             if (b3_minus_size || b3_plus_size) begin
                 if (b3_minus_size) begin
-                    item.data[7:5] = b3_minus.pop_front();
+                    d_3b_temp = b3_minus.pop_front();
+
+                    // check alternate encode of D.x.7
+                    if (d_3b_temp == 4'd8)
+                        item.data[7:5] = 3'd7;
+                    else
+                        item.data[7:5] = d_3b_temp[2:0];
+
+                    // for D.x.7,
+                    // at running disparity of RD-, if x = 17, 18 or 20,
+                    // it must uses alternate encode, otherwise the code
+                    // received is not in table
+                    if ((item.data[4:0] == 17 ||
+                        item.data[4:0] == 18 ||
+                        item.data[4:0] == 20) &&
+                        d_3b_temp == 4'd7) begin
+                        item.not_in_table_error = 1'b1;
+                    end
+
                     if (rd && !b3_plus_size)
                         item.disparity_error = 1'b1;
                 end else begin
-                    item.data[7:5] = b3_plus.pop_front();
+                    d_3b_temp = b3_plus.pop_front();
+
+                    // check alternate encode of D.x.7
+                    if (d_3b_temp == 4'd8)
+                        item.data[7:5] = 3'd7;
+                    else
+                        item.data[7:5] = d_3b_temp[2:0];
+
+                    // for D.x.7,
+                    // at running disparity of RD+, if x = 11, 13 or 14,
+                    // it must uses alternate encode, otherwise the code
+                    // received is not in table
+                    if ((item.data[4:0] == 11 ||
+                        item.data[4:0] == 13 ||
+                        item.data[4:0] == 14) &&
+                        d_3b_temp == 4'd7) begin
+                        item.not_in_table_error = 1'b1;
+                    end
+
                     if (!rd && !b3_minus_size)
                         item.disparity_error = 1'b1;
                 end
