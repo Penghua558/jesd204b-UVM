@@ -69,9 +69,9 @@ function bit decoder_8b10b_trans::do_compare(uvm_object rhs,
     return 0;
   end
 
-    // if received character is not in table, then we don't care whether we
-    // decoded the character correctly or not
-    if (not_in_table_error) begin
+    // if received character is not in table or it's an invalid contro word, 
+    // then we don't care whether we decoded the character correctly or not
+    if (not_in_table_error || k_not_valid_error) begin
     return super.do_compare(rhs, comparer) &&
          disparity_error == rhs_.disparity_error &&
          running_disparity == rhs_.running_disparity &&

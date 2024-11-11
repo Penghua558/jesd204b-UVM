@@ -112,7 +112,11 @@ always@(posedge clk or negedge rst_n) begin
             k_error <= 1'b0;
         end
         default: begin
-            k_out <= 10'b0;
+        // even if input character is invalid for a control word,
+        // we still need to mantain good line toggling to CDR on receiver side
+        // work continue to work correctly, so we choose K28.7 which has
+        // neutral running disparity
+            k_out <= K28_7_PLUS;
             k_error <= 1'b1;
         end
     endcase
