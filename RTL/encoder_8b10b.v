@@ -3,6 +3,7 @@
 `include "rd_fsm.v"
 `include "rdminus_rom.v"
 `include "rdplus_rom.v"
+`include "clk_gen.sv"
 
 // output latency: 2 clock cycles
 //

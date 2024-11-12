@@ -31,13 +31,13 @@ work:
 	vlib work
 
 rtl_build:
-	vlog -64 -incr -override_timescale $(TIMESCALE) -F ./RTL/rtl_filelist.f -l comp_rtl.log
+	vlog -64 -sv -incr -override_timescale $(TIMESCALE) -F ./RTL/rtl_filelist.f -l comp_rtl.log
 
 env_build:
 	vlog -64 -incr -override_timescale $(TIMESCALE) -F ./env_filelist.f -l comp_env.log
 
 build:
-	vlog -64 -incr -override_timescale $(TIMESCALE) -F ./RTL/rtl_filelist.f -l comp_rtl.log
+	vlog -64 -sv -incr -override_timescale $(TIMESCALE) -F ./RTL/rtl_filelist.f -l comp_rtl.log
 	vlog -64 -incr -override_timescale $(TIMESCALE) -F ./env_filelist.f -l comp_env.log
 
 sim:

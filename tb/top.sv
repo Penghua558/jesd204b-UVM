@@ -71,8 +71,9 @@ end
 // Clock and reset initial block:
 //
 initial begin
+  // 125MHz, targeting at line speed of 1.25Gbps
   clk = 0;
-  forever #10ns clk = ~clk;
+  forever #4ns clk = ~clk;
 end
 initial begin
   rst_n = 0;
