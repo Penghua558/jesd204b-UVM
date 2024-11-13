@@ -2,7 +2,7 @@ module serializer(
     // bit clock is 10 times faster than character clock
     input wire bit_clk,
     input wire [9:0] in_data,
-    output wire out_data
+    output reg out_data
 );
 
 reg [9:0] phase = 10'b0000_0000_01;

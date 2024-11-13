@@ -1,3 +1,8 @@
+`include "timescale.v"
+`include "clk_gen.sv"
+`include "tx_link_layer/tx_link_layer.v"
+`include "tx_phy_layer/tx_phy_layer.v"
+
 // This module is designed to run at 1.25Gbps, device clock frequency is thus
 // 125MHz
 module tx_jesd204b(
@@ -12,7 +17,7 @@ module tx_jesd204b(
 
 reg [9:0] o_link_data;
 reg o_link_k_error;
-reg bitclk;
+reg bitclk; // 1.25GHz
 
 tx_link_layer link_layer(
     .clk(clk),

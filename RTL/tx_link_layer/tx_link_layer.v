@@ -1,3 +1,5 @@
+`include "encoder_8b10b.v"
+
 module tx_link_layer(
     input wire clk,
     input wire rst_n,

@@ -1,3 +1,5 @@
+`include "serializer.v"
+
 module tx_phy_layer(
     input wire clk,
     input wire [9:0] in_data,
