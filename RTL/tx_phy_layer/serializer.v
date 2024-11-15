@@ -2,6 +2,7 @@ module serializer(
     // bit clock is 10 times faster than character clock
     input wire bit_clk,
     input wire [9:0] in_data,
+    // MSB is sent first
     output reg out_data
 );
 

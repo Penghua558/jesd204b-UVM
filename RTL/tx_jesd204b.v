@@ -3,7 +3,7 @@
 `include "tx_link_layer/tx_link_layer.v"
 `include "tx_phy_layer/tx_phy_layer.v"
 
-// This module is designed to run at 1.25Gbps, device clock frequency is thus
+// This module targets at lane speed 1.25Gbps, device clock frequency is thus
 // 125MHz
 module tx_jesd204b(
     input wire clk, // 125MHz
@@ -11,6 +11,7 @@ module tx_jesd204b(
     input wire [7:0] i_data,
     input wire i_vld,
     input wire i_k,
+    // MSB is sent first, in other word a in sent first, j is sent last
     output reg tx_p,
     output reg tx_n
 );

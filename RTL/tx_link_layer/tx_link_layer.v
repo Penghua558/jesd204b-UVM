@@ -3,9 +3,11 @@
 module tx_link_layer(
     input wire clk,
     input wire rst_n,
+    // HGFEDCBA
     input wire [7:0] i_data,
     input wire i_vld,
     input wire i_k,
+    // abcdeifghj
     output reg [9:0] o_data,
     output reg o_k_error
 );
