@@ -1,7 +1,6 @@
 //
 // BFM Interface Description:
 //
-//
 interface deserializer_monitor_bfm (
     input clk,
 
@@ -25,6 +24,7 @@ deserializer_agent_config m_cfg;
 //------------------------------------------
 // Component Members
 //------------------------------------------
+bit lock = 1'b0;
 
 //------------------------------------------
 // Methods
@@ -48,8 +48,20 @@ task run();
             item.data = item.data << 1;
             item.data[0] = rx_p;
         end
-        // detect & synchronize with K28.5
 
+        // detect & synchronize with K28.5
+        // if the data is COMMA, then we declare symbol is locked, otherwise 
+        // we wait for a clock cycle before sampling a new character again
+        if (!lock) begin
+            if (item.data inside {COMMA}) begin
+                lock = 1'b1;
+            end else begin
+                @(posedge clk);
+                lock = 1'b0;
+            end
+        end
+
+        item.lock = lock;
         // Clone and publish the cloned item to the subscribers
         $cast(cloned_item, item.clone());
         proxy.notify_transaction(cloned_item);

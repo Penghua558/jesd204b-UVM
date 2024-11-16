@@ -11,8 +11,7 @@ class deserializer_trans extends uvm_sequence_item;
 // abcdeifghj
 logic [9:0] data;
 // 1 - 8b10b symbol locked
-// 0 - 8b10b symbol not locked, we shouldn't send
-// the transaction as it's garbage
+// 0 - 8b10b symbol not locked
 bit lock;
 
 
