@@ -17,7 +17,6 @@ logic is_control_word;
 logic running_disparity;
 // it's a valid character, however running disparity is wrong
 logic disparity_error;
-logic k_not_valid_error;
 // not a control word nor a data word
 logic not_in_table_error;
 
@@ -55,7 +54,6 @@ function void decoder_8b10b_trans::do_copy(uvm_object rhs);
   is_control_word = rhs_.is_control_word;
   running_disparity = rhs_.running_disparity;
   disparity_error = rhs_.disparity_error;
-  k_not_valid_error = rhs_.k_not_valid_error;
   not_in_table_error = rhs_.not_in_table_error;
 
 endfunction:do_copy
@@ -71,11 +69,10 @@ function bit decoder_8b10b_trans::do_compare(uvm_object rhs,
 
     // if received character is not in table or it's an invalid contro word, 
     // then we don't care whether we decoded the character correctly or not
-    if (not_in_table_error || k_not_valid_error) begin
+    if (not_in_table_error) begin
     return super.do_compare(rhs, comparer) &&
          disparity_error == rhs_.disparity_error &&
          running_disparity == rhs_.running_disparity &&
-         k_not_valid_error == rhs_.k_not_valid_error &&
          is_control_word == rhs_.is_control_word &&
          not_in_table_error == rhs_.not_in_table_error;
     end else begin
@@ -83,7 +80,6 @@ function bit decoder_8b10b_trans::do_compare(uvm_object rhs,
         data == rhs_.data &&
         disparity_error == rhs_.disparity_error &&
         running_disparity == rhs_.running_disparity &&
-        k_not_valid_error == rhs_.k_not_valid_error &&
         is_control_word == rhs_.is_control_word &&
         not_in_table_error == rhs_.not_in_table_error;
     end
@@ -96,8 +92,6 @@ function void decoder_8b10b_trans::do_print(uvm_printer printer);
     printer.print_string("Running disparity", (running_disparity)? "RD+":"RD-");
     printer.print_int("Disparity error", disparity_error, 
         $bits(disparity_error), UVM_BIN);
-    printer.print_int("k not valid error", k_not_valid_error, 
-        $bits(k_not_valid_error), UVM_BIN);
     printer.print_int("Not in table error", not_in_table_error, 
         $bits(not_in_table_error), UVM_BIN);
 endfunction:do_print
