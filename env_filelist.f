@@ -4,6 +4,7 @@
 #-F ./agents/apb_agent/apb_agent_filelist.f
 -F ./agents/enc_bus_agent/enc_bus_agent_filelist.f
 -F ./agents/decoder_8b10b_agent/decoder_8b10b_agent_filelist.f
+-F ./agents/deserializer_agent/deserializer_agent_filelist.f
 
 #################
 ## environment ##

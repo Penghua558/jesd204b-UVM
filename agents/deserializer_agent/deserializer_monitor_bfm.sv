@@ -5,8 +5,8 @@ interface deserializer_monitor_bfm (
     input clk,
 
     // MSB is received first, that is, a is received frist
-    input logic rx_p;
-    input logic rx_n;
+    input logic rx_p,
+    input logic rx_n
 );
 
 `include "uvm_macros.svh"
