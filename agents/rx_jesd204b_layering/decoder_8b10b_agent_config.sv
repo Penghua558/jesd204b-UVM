@@ -49,11 +49,11 @@ endtask
 //
 function decoder_8b10b_agent_config decoder_8b10b_agent_config::get_config( 
     uvm_component c );
-  decoder_8b10b_agent_config t;
+    decoder_8b10b_agent_config t;
 
-  if (!uvm_config_db#(decoder_8b10b_agent_config)::get(c, "", 
+    if (!uvm_config_db#(decoder_8b10b_agent_config)::get(c, "", 
       s_my_config_id, t))
-     `uvm_fatal("DECODER_8B10B_AGENT_CONFIG", 
+        `uvm_fatal("DECODER_8B10B_AGENT_CONFIG", 
          $sformatf("Cannot get() configuration %s \
         from uvm_config_db. Have you set() it?", s_my_config_id))
 

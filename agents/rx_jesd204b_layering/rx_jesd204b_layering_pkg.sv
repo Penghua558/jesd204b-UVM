@@ -8,9 +8,7 @@ import deserializer_agent_pkg::*;
 
 `include "deser2dec_monitor.sv"
 
-`include "decoder_8b10b_agent_config.sv"
+`include "deser2dec_recorder.sv"
 
-`include "decoder_8b10b_recorder.sv"
-
-`include "decoder_8b10b_agent.sv"
+`include "rx_jesd204b_layering.sv"
 endpackage: rx_jesd204b_layering_pkg

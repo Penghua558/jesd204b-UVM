@@ -1,5 +1,5 @@
-class decoder_8b10b_recorder extends uvm_subscriber#(decoder_8b10b_trans);
-    `uvm_component_utils(decoder_8b10b_recorder)
+class deser2dec_recorder extends uvm_subscriber#(decoder_8b10b_trans);
+    `uvm_component_utils(deser2dec_recorder)
 
     uvm_text_tr_database tr_db;
     uvm_tr_stream tr_strm;
