@@ -13,6 +13,8 @@ class rx_jesd204b_layering extends uvm_subscriber#(deserializer_trans);
 uvm_analysis_port #(decoder_8b10b_trans) ap;
 deser2dec_monitor m_monitor;
 deser2dec_recorder m_recorder;
+
+deserializer_agent m_deser_agent;
 //------------------------------------------
 // Methods
 //------------------------------------------

@@ -36,7 +36,7 @@ package deser2dec_monitor_dec;
         };
 
     // D word array, value is abcdei, index is EDCBA, running disparity is RD+
-    bit [5:0] d_5b_plus[bit[4:0]] = {
+    bit [5:0] d_5b_plus[bit[4:0]] = '{
         5'd0:6'b011000,
         5'd1:6'b100010,
         5'd2:6'b010010,
@@ -72,7 +72,7 @@ package deser2dec_monitor_dec;
         };
 
     // D word array, value is fghj, index is HGF, running disparity is RD-
-    bit [3:0] d_3b_minus[bit[3:0]] = {
+    bit [3:0] d_3b_minus[bit[3:0]] = '{
         4'd0:4'b1011,
         4'd1:4'b1001,
         4'd2:4'b0101,
@@ -85,7 +85,7 @@ package deser2dec_monitor_dec;
     };
 
     // D word array, value is fghj, index is HGF, running disparity is RD+
-    bit [3:0] d_3b_plus[bit[3:0]] = {
+    bit [3:0] d_3b_plus[bit[3:0]] = '{
         4'd0:4'b0100,
         4'd1:4'b1001,
         4'd2:4'b0101,

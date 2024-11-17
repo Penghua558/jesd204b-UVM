@@ -1,4 +1,5 @@
-class deser2dec_monitor extends uvm_subsciber#(deserializer_trans);
+import deser2dec_monitor_dec::*;
+class deser2dec_monitor extends uvm_subscriber#(deserializer_trans);
 
 // UVM Factory Registration Macro
 //
@@ -49,7 +50,7 @@ function void deser2dec_monitor::build_phase(uvm_phase phase);
     rd = 1'b0;
 endfunction: build_phase
 
-function bit deserializer_monitor::is_disparity_neutral(bit data[]);
+function bit deser2dec_monitor::is_disparity_neutral(bit data[]);
     bit [3:0] num_ones;
     num_ones = data.sum() with(int'(item));
     if (num_ones == (data.size()/2))
@@ -59,7 +60,7 @@ function bit deserializer_monitor::is_disparity_neutral(bit data[]);
 endfunction
 
 function void deser2dec_monitor::write(deserializer_trans t);
-    `uvm_info("Received deserializer item", t.print(), UVM_MEDIUM)
+    `uvm_info("Received deserializer item", t.sprint(), UVM_MEDIUM)
     // if symbol is not locked then we don't need to process
     // deserializer_trans, since what it contains is garbage
     if (t.lock) begin
@@ -87,8 +88,8 @@ function void deser2dec_monitor::write(deserializer_trans t);
     dec_out.disparity_error = 1'b0;
 
     // test if input data is control word
-    k_minus = k_8b_minus.find_index with (dec_out == t.data);
-    k_plus = k_8b_plus.find_index with (dec_out == t.data);
+    k_minus = k_8b_minus.find_index with (item == t.data);
+    k_plus = k_8b_plus.find_index with (item == t.data);
     k_minus_size = k_minus.size();
     k_plus_size = k_plus.size();
 
@@ -109,17 +110,17 @@ function void deser2dec_monitor::write(deserializer_trans t);
             dec_out.disparity_error = 1'b1;
 
         // update running disparity
-        data_10b_unpacked = my_unpacked_10b_type'(data);
+        data_10b_unpacked = my_unpacked_10b_type'(t.data);
         if(!is_disparity_neutral(data_10b_unpacked))
             rd = ~rd;
     end else begin
     // data is not control word, we then test for data word
         dec_out.is_control_word = 1'b0;
 
-        b5_minus = d_5b_minus.find_index with (dec_out == t.data[9:4]);
-        b5_plus = d_5b_plus.find_index with (dec_out == t.data[9:4]);
-        b3_minus = d_3b_minus.find_index with (dec_out == t.data[3:0]);
-        b3_plus = d_3b_plus.find_index with (dec_out == t.data[3:0]);
+        b5_minus = d_5b_minus.find_index with (item == t.data[9:4]);
+        b5_plus = d_5b_plus.find_index with (item == t.data[9:4]);
+        b3_minus = d_3b_minus.find_index with (item == t.data[3:0]);
+        b3_plus = d_3b_plus.find_index with (item == t.data[3:0]);
         b5_minus_size = b5_minus.size();
         b5_plus_size = b5_plus.size();
         b3_minus_size = b3_minus.size();
@@ -148,7 +149,7 @@ function void deser2dec_monitor::write(deserializer_trans t);
         end
 
         // update abcdei running disparity
-        data_6b_unpacked = my_unpacked_6b_type'(data[9:4]);
+        data_6b_unpacked = my_unpacked_6b_type'(t.data[9:4]);
         if(!is_disparity_neutral(data_6b_unpacked))
             rd = ~rd;
 
@@ -202,7 +203,7 @@ function void deser2dec_monitor::write(deserializer_trans t);
         end
 
         // update fghj running disparity
-        data_4b_unpacked = my_unpacked_4b_type'(data[3:0]);
+        data_4b_unpacked = my_unpacked_4b_type'(t.data[3:0]);
         if(!is_disparity_neutral(data_4b_unpacked))
             rd = ~rd;
     end
