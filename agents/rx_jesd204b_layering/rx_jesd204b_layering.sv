@@ -1,4 +1,4 @@
-class rx_jesd204b_layering extends uvm_subscriber#(deserializer_trans);
+class rx_jesd204b_layering extends uvm_component;
 
 // UVM Factory Registration Macro
 //
@@ -11,8 +11,8 @@ class rx_jesd204b_layering extends uvm_subscriber#(deserializer_trans);
 // Component Members
 //------------------------------------------
 uvm_analysis_port #(decoder_8b10b_trans) ap;
-deser2dec_monitor m_monitor;
-deser2dec_recorder m_recorder;
+deser2dec_monitor m_deser2dec_monitor;
+deser2dec_recorder m_deser2dec_recorder;
 
 deserializer_agent m_deser_agent;
 //------------------------------------------
@@ -33,12 +33,17 @@ endfunction
 
 function void rx_jesd204b_layering::build_phase(uvm_phase phase);
     // Monitor is always present
-    m_monitor = deser2dec_monitor::type_id::create("m_monitor", this);
+    m_deser2dec_monitor = deser2dec_monitor::type_id::
+        create("m_deser2dec_monitor", this);
 
-    m_recorder = deser2dec_recorder::type_id::create("m_recorder", this);
+    m_deser2dec_recorder = deser2dec_recorder::type_id::
+        create("m_deser2dec_recorder", this);
+
+    m_deser_agent = deserializer_agent::type_id::create("m_deser_agent", this);
 endfunction: build_phase
 
 function void rx_jesd204b_layering::connect_phase(uvm_phase phase);
-  ap = m_monitor.ap;
-  ap.connect(m_recorder.analysis_export);
+    m_deser_agent.ap.connect(m_deser2dec_monitor.analysis_export);
+    ap = m_deser2dec_monitor.ap;
+    ap.connect(m_deser2dec_recorder.analysis_export);
 endfunction: connect_phase
