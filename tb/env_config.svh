@@ -36,22 +36,21 @@ localparam string s_my_config_type_error_id = "config type error";
 //------------------------------------------
 // Data Members
 //------------------------------------------
-decoder_8b10b_agent_config m_decoder_8b10b_agent_cfg;
+rx_jesd204b_layering_config m_rx_jesd204b_layering_cfg;
 enc_bus_agent_config m_enc_bus_agent_cfg;
 
 //------------------------------------------
 // Methods
 //------------------------------------------
 extern static function env_config get_config( uvm_component c);
-extern task wait_for_reset();
 extern function new(string name = "env_config");
 
 endclass: env_config
 
 function env_config::new(string name = "env_config");
   super.new(name);
-    m_decoder_8b10b_agent_cfg = decoder_8b10b_agent_config::type_id::create(
-      "m_decoder_8b10b_agent_cfg");
+    m_rx_jesd204b_layering_cfg = rx_jesd204b_layering_config::type_id::create(
+      "m_rx_jesd204b_layering_cfg");
     m_enc_bus_agent_cfg = enc_bus_agent_config::type_id::create(
       "m_enc_bus_agent_cfg");
 endfunction
@@ -84,9 +83,5 @@ function env_config env_config::get_config( uvm_component c );
 
   return t;
 endfunction
-
-task env_config::wait_for_reset();
-    m_enc_bus_agent_cfg.wait_for_reset();
-endtask
 
 `endif // env_config

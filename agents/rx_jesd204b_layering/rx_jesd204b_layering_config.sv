@@ -18,10 +18,12 @@ bit has_functional_coverage = 0;
 // Include the APB RAM based scoreboard
 bit has_scoreboard = 0;
 
+deserializer_agent_config m_deserializer_agent_cfg;
+
 //------------------------------------------
 // Methods
 //------------------------------------------
-extern static function rx_jesd204b_layering_config get_config( uvm_component c );
+extern static function rx_jesd204b_layering_config get_config(uvm_component c);
 // Standard UVM Methods:
 extern function new(string name = "rx_jesd204b_layering_config");
 
@@ -29,7 +31,9 @@ endclass: rx_jesd204b_layering_config
 
 function rx_jesd204b_layering_config::new(string name = 
     "rx_jesd204b_layering_config");
-  super.new(name);
+    super.new(name);
+    m_deserializer_agent_cfg = deserializer_agent_config::type_id::
+        create("m_deserializer_agent_cfg");
 endfunction
 
 //
