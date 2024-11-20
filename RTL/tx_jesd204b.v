@@ -12,8 +12,8 @@ module tx_jesd204b(
     input wire i_vld,
     input wire i_k,
     // MSB is sent first, in other word a in sent first, j is sent last
-    output reg tx_p,
-    output reg tx_n
+    output reg o_tx_p,
+    output reg o_tx_n
 );
 
 reg [9:0] o_link_data;
@@ -39,7 +39,7 @@ clk_gen#(
 tx_phy_layer phy_layer(
     .clk(bit_clk),
     .in_data(o_link_data),
-    .tx_p(tx_p),
-    .tx_n(tx_n)
+    .tx_p(o_tx_p),
+    .tx_n(o_tx_n)
 );
 endmodule

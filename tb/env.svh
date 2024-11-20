@@ -29,7 +29,7 @@ class env extends uvm_env;
 //------------------------------------------
 // Data Members
 //------------------------------------------
-decoder_8b10b_agent m_dec_8b10b_agent;
+rx_jesd204b_layering m_rx_jesd204b_layering;
 enc_bus_agent m_enc_bus_agent;
 enc_8b10b_scoreboard m_scoreboard;
 
@@ -48,13 +48,13 @@ endfunction
 
 function void env::build_phase(uvm_phase phase);
     m_cfg = env_config::get_config(this);
-    m_dec_8b10b_agent = decoder_8b10b_agent::type_id::create(
-        "m_dec_8b10b_agent", this);
+    m_rx_jesd204b_layering = rx_jesd204b_layering::type_id::create(
+        "m_rx_jesd204b_layering", this);
     m_enc_bus_agent = enc_bus_agent::type_id::create("m_enc_bus_agent", this);
     m_scoreboard = enc_8b10b_scoreboard::type_id::create("m_scoreboard", this);
 endfunction:build_phase
 
 function void env::connect_phase(uvm_phase phase);
-    m_dec_8b10b_agent.ap.connect(m_scoreboard.analysis_export_sample);
+    m_rx_jesd204b_layering.ap.connect(m_scoreboard.analysis_export_sample);
     m_enc_bus_agent.ap.connect(m_scoreboard.analysis_export_golden);
 endfunction: connect_phase

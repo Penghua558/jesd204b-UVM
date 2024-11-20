@@ -12,17 +12,16 @@ logic rst_n;
 //
 // Instantiate the pin interfaces:
 //
-decoder_8b10b_if u_dec_8b10b_if(clk, rst_n);
+deserializer_if u_deser_if(clk);
 enc_bus_if u_enc_bus_if(clk, rst_n);
 
 //
 // Instantiate the BFM interfaces:
 //
-decoder_8b10b_monitor_bfm u_dec_8b10b_mon_bfm(
-    .clk(u_dec_8b10b_if.clk),
-    .rst_n(u_dec_8b10b_if.rst_n),
-    .data(u_dec_8b10b_if.data),
-    .k_error(u_dec_8b10b_if.k_error)
+deserializer_monitor_bfm u_deser_mon_bfm(
+    .clk(u_deser_if.clk),
+    .rx_p(u_deser_if.rx_p),
+    .rx_n(u_deser_if.rx_n)
 );
 
 enc_bus_driver_bfm u_enc_bus_drv_bfm(
@@ -42,22 +41,22 @@ enc_bus_monitor_bfm u_enc_bus_mon_bfm(
 );
 
 // DUT
-encoder_8b10b DUT(
+tx_jesd204b DUT(
     .clk(clk),
     .rst_n(rst_n),
     .i_data(u_enc_bus_if.data),
     .i_vld(u_enc_bus_if.valid),
     .i_k(u_enc_bus_if.k),
-    .o_data(u_dec_8b10b_if.data),
-    .o_k_error(u_dec_8b10b_if.k_error)
+    .o_tx_p(u_deser_if.rx_p),
+    .o_tx_n(u_deser_if.rx_n)
 );
 
 // UVM initial block:
 // Virtual interface wrapping & run_test()
 initial begin
     import uvm_pkg::uvm_config_db;
-    uvm_config_db#(virtual decoder_8b10b_monitor_bfm)::set(null, "uvm_test_top",
-      "dec_8b10b_mon_bfm", u_dec_8b10b_mon_bfm);
+    uvm_config_db#(virtual deserializer_monitor_bfm)::set(null, "uvm_test_top",
+      "deserializer_monitor_bfm", u_deser_mon_bfm);
 
 
     uvm_config_db #(virtual enc_bus_monitor_bfm)::set(null, "uvm_test_top",

@@ -26,7 +26,8 @@ import uvm_pkg::*;
 `include "uvm_macros.svh"
 
 import enc_bus_agent_pkg::*;
-import decoder_8b10b_agent_pkg::*;
+// import decoder_8b10b_agent_pkg::*;
+import rx_jesd204b_layering_pkg::*;
 import table_8b10b_pkg::*;
 // import spi_reg_pkg::*;
 

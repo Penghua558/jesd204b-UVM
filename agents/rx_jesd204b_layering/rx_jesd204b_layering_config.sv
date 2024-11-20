@@ -1,15 +1,12 @@
-class decoder_8b10b_agent_config extends uvm_object;
+class rx_jesd204b_layering_config extends uvm_object;
 
-localparam string s_my_config_id = "decoder_8b10b_agent_config";
+localparam string s_my_config_id = "rx_jesd204b_layering_config";
 localparam string s_no_config_id = "no config";
 localparam string s_my_config_type_error_id = "config type error";
 
 // UVM Factory Registration Macro
 //
-`uvm_object_utils(decoder_8b10b_agent_config)
-
-// BFM Virtual Interfaces
-virtual decoder_8b10b_monitor_bfm mon_bfm;
+`uvm_object_utils(rx_jesd204b_layering_config)
 
 //------------------------------------------
 // Data Members
@@ -24,21 +21,16 @@ bit has_scoreboard = 0;
 //------------------------------------------
 // Methods
 //------------------------------------------
-extern static function decoder_8b10b_agent_config get_config( uvm_component c );
+extern static function rx_jesd204b_layering_config get_config( uvm_component c );
 // Standard UVM Methods:
-extern function new(string name = "decoder_8b10b_agent_config");
-extern task wait_for_reset();
+extern function new(string name = "rx_jesd204b_layering_config");
 
-endclass: decoder_8b10b_agent_config
+endclass: rx_jesd204b_layering_config
 
-function decoder_8b10b_agent_config::new(string name = 
-    "decoder_8b10b_agent_config");
+function rx_jesd204b_layering_config::new(string name = 
+    "rx_jesd204b_layering_config");
   super.new(name);
 endfunction
-
-task decoder_8b10b_agent_config::wait_for_reset();
-    mon_bfm.wait_for_reset();
-endtask
 
 //
 // Function: get_config
@@ -47,13 +39,13 @@ endtask
 // the two kinds of error which may occur with this kind of
 // operation.
 //
-function decoder_8b10b_agent_config decoder_8b10b_agent_config::get_config( 
+function rx_jesd204b_layering_config rx_jesd204b_layering_config::get_config( 
     uvm_component c );
-    decoder_8b10b_agent_config t;
+    rx_jesd204b_layering_config t;
 
-    if (!uvm_config_db#(decoder_8b10b_agent_config)::get(c, "", 
+    if (!uvm_config_db#(rx_jesd204b_layering_config)::get(c, "", 
       s_my_config_id, t))
-        `uvm_fatal("DECODER_8B10B_AGENT_CONFIG", 
+        `uvm_fatal("RX_JESD204B_LAYERING_CONFIG", 
          $sformatf("Cannot get() configuration %s \
         from uvm_config_db. Have you set() it?", s_my_config_id))
 
