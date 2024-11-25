@@ -19,7 +19,7 @@
 #------------------------------------------------------------------------------
 TESTNAME := test
 SEED := random
-TIMESCALE := 1ns/100ps
+TIMESCALE := 1ns/10ps
 UVM_VERBOSITY := UVM_MEDIUM
 DO_COMMAND := "run 0; uvm setverbosity $(UVM_VERBOSITY); run -all; quit"
 

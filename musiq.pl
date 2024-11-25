@@ -9,7 +9,7 @@ use Getopt::Long;
 use Pod::Usage;
 use POSIX qw(strftime);
 
-our $version_number = 'v0.6.2';
+our $version_number = 'v0.6.3';
 
 # switch to show help message
 my $help = '';
@@ -207,7 +207,7 @@ musiq.pl --sim test_example --seed 1234567890
 
 musiq.pl --sim test_example --uvmv UVM_LOW
 
-=head2 to change timescale from default 1ns/100ps to 1ns/1ps
+=head2 to change timescale from default 1ns/10ps to 1ns/1ps
 
 musiq.pl --com --ts 1ns/1ps
 

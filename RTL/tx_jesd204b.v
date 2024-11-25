@@ -3,10 +3,10 @@
 `include "tx_link_layer/tx_link_layer.v"
 `include "tx_phy_layer/tx_phy_layer.v"
 
-// This module targets at lane speed 1.25Gbps, device clock frequency is thus
-// 125MHz
+// This module targets at lane speed 12.5Gbps, thus character clock frequency
+// is 1.25GHz
 module tx_jesd204b(
-    input wire clk, // 125MHz
+    input wire clk, // 1.25GHz
     input wire rst_n,
     input wire [7:0] i_data,
     input wire i_vld,

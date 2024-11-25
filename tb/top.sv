@@ -7,12 +7,13 @@ import testcase_lib_pkg::*;
 // clk and rst_n
 //
 logic clk;
+logic agent_bitclk;
 logic rst_n;
 
 //
 // Instantiate the pin interfaces:
 //
-deserializer_if u_deser_if(clk);
+deserializer_if u_deser_if(agent_bitclk);
 enc_bus_if u_enc_bus_if(clk, rst_n);
 
 //
@@ -70,9 +71,13 @@ end
 // Clock and reset initial block:
 //
 initial begin
-  // 125MHz, targeting at line speed of 1.25Gbps
+  // targeting at lane speed of 12.5Gbps
+  // character clock frequency 1.25GHz
+  // bit clock frequency 12.5GHz
   clk = 0;
-  forever #4ns clk = ~clk;
+  agent_bitclk = 0;
+  forever #0.4ns clk = ~clk;
+  forever #0.04ns agent_bitclk = ~agent_bitclk;
 end
 initial begin
   rst_n = 0;
