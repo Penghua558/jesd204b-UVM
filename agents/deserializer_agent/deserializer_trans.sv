@@ -13,6 +13,7 @@ logic [9:0] data;
 // 1 - 8b10b symbol locked
 // 0 - 8b10b symbol not locked
 bit lock;
+bit sync_n;
 
 
 //------------------------------------------
@@ -35,6 +36,7 @@ endclass:deserializer_trans
 function deserializer_trans::new(string name = "deserializer_trans");
   super.new(name);
   lock = 1'b0;
+  sync_n = 1'b1;
 endfunction
 
 function void deserializer_trans::do_copy(uvm_object rhs);
@@ -47,6 +49,7 @@ function void deserializer_trans::do_copy(uvm_object rhs);
     // Copy over wdata members:
     data = rhs_.data;
     lock = rhs_.lock;
+    sync_n = rhs_.sync_n;
 endfunction:do_copy
 
 function bit deserializer_trans::do_compare(uvm_object rhs, 
@@ -63,10 +66,12 @@ function bit deserializer_trans::do_compare(uvm_object rhs,
     if (lock) begin
     return super.do_compare(rhs, comparer) &&
         data == rhs_.data &&
-        lock == rhs_.lock;
+        lock == rhs_.lock &&
+        sync_n == rhs_.sync_n;
     end else begin
     return super.do_compare(rhs, comparer) &&
-        lock == rhs_.lock;
+        lock == rhs_.lock &&
+        sync_n == rhs_.sync_n;
     end
 endfunction:do_compare
 
@@ -74,6 +79,7 @@ function void deserializer_trans::do_print(uvm_printer printer);
     super.do_print(printer);
     printer.print_int("Deserialized data", data, $bits(data), UVM_BIN);
     printer.print_string("Symbol locked?", (lock)? "Yes":"No");
+    printer.print_int("SYNC~", sync_n, $bits(sync_n), UVM_BIN);
 endfunction:do_print
 
 function void deserializer_trans:: do_record(uvm_recorder recorder);

@@ -6,7 +6,9 @@ interface deserializer_monitor_bfm (
 
     // MSB is received first, that is, a is received frist
     input logic rx_p,
-    input logic rx_n
+    input logic rx_n,
+    // SYNC~
+    input logic sync_n
 );
 
 `include "uvm_macros.svh"
@@ -61,6 +63,7 @@ task run();
             end
         end
 
+        item.sync_n = sync_n;
         item.lock = lock;
         // Clone and publish the cloned item to the subscribers
         $cast(cloned_item, item.clone());
