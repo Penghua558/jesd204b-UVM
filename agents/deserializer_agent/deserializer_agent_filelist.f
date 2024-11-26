@@ -4,3 +4,4 @@
 # module & BFMs
 ./deserializer_if.sv
 ./deserializer_monitor_bfm.sv
+./deserializer_driver_bfm.sv

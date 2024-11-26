@@ -1,7 +1,7 @@
 //
 // BFM Interface Description:
 //
-interface deserializer_monitor_bfm (
+interface deserializer_driver_bfm (
     input bitclk,
     input device_clk,
     input rst_n,
@@ -10,7 +10,7 @@ interface deserializer_monitor_bfm (
     input logic rx_p,
     input logic rx_n,
     // SYNC~
-    input logic sync_n
+    output logic sync_n
 );
 
 `include "uvm_macros.svh"
@@ -33,12 +33,15 @@ bit lock = 1'b0;
 //------------------------------------------
 // Methods
 //------------------------------------------
-task automatic wait_for_reset();
-    @(posedge rst_n);
+task automatic reset();
+    while (!rst_n) begin
+        sync_n <= 1'b1;
+        @(posedge bitclk);
+    end
 endtask
 
 // BFM Methods:
-task run();
+task drive();
     deserializer_trans item;
     deserializer_trans cloned_item;
 
@@ -76,4 +79,4 @@ task run();
     end
 endtask: run
 
-endinterface: deserializer_monitor_bfm
+endinterface: deserializer_driver_bfm

@@ -7,13 +7,16 @@ import testcase_lib_pkg::*;
 // clk and rst_n
 //
 logic clk;
+// 312.5MHz
+logic device_clk;
+// 12.5GHz
 logic agent_bitclk;
 logic rst_n;
 
 //
 // Instantiate the pin interfaces:
 //
-deserializer_if u_deser_if(agent_bitclk);
+deserializer_if u_deser_if(agent_bitclk, device_clk, rst_n);
 enc_bus_if u_enc_bus_if(clk, rst_n);
 
 //
@@ -74,10 +77,13 @@ initial begin
   // targeting at lane speed of 12.5Gbps
   // character clock frequency 1.25GHz
   // bit clock frequency 12.5GHz
+  // device clock frequency 312.5MHz
   clk = 0;
   agent_bitclk = 0;
+  device_clk = 0;
   forever #0.4ns clk = ~clk;
   forever #0.04ns agent_bitclk = ~agent_bitclk;
+  forever #1.6ns device_clk = ~device_clk;
 end
 initial begin
   rst_n = 0;

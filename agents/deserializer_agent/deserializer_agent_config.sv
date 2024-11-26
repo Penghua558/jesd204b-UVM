@@ -10,6 +10,7 @@ localparam string s_my_config_type_error_id = "config type error";
 
 // BFM Virtual Interfaces
 virtual deserializer_monitor_bfm mon_bfm;
+virtual deserializer_driver_bfm drv_bfm;
 
 //------------------------------------------
 // Data Members
@@ -35,6 +36,7 @@ extern static function deserializer_agent_config get_config( uvm_component c );
 // Standard UVM Methods:
 extern function new(string name = "deserializer_agent_config");
 extern function void do_print(uvm_printer printer);
+extern task wait_for_reset();
 
 endclass: deserializer_agent_config
 
@@ -42,6 +44,10 @@ function deserializer_agent_config::new(string name =
     "deserializer_agent_config");
   super.new(name);
 endfunction
+
+task deserializer_agent_config::wait_for_reset();
+    mon_bfm.wait_for_reset();
+endtask
 
 //
 // Function: get_config
