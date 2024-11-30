@@ -208,6 +208,8 @@ function void deser2dec_monitor::write(deserializer_trans t);
             rd = ~rd;
     end
 
+    dec_out.sync_n = t.sync_n;
+
     // Clone and publish the cloned item to the subscribers
     $cast(cloned_dec_out, dec_out.clone());
     notify_transaction(cloned_dec_out);

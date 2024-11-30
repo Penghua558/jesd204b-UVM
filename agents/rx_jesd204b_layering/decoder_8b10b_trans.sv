@@ -20,6 +20,8 @@ logic disparity_error;
 // not a control word nor a data word
 logic not_in_table_error;
 
+logic sync_n;
+
 
 //------------------------------------------
 // Constraints
@@ -55,6 +57,7 @@ function void decoder_8b10b_trans::do_copy(uvm_object rhs);
   running_disparity = rhs_.running_disparity;
   disparity_error = rhs_.disparity_error;
   not_in_table_error = rhs_.not_in_table_error;
+  sync_n = rhs_.sync_n;
 
 endfunction:do_copy
 
@@ -74,14 +77,16 @@ function bit decoder_8b10b_trans::do_compare(uvm_object rhs,
          disparity_error == rhs_.disparity_error &&
          running_disparity == rhs_.running_disparity &&
          is_control_word == rhs_.is_control_word &&
-         not_in_table_error == rhs_.not_in_table_error;
+         not_in_table_error == rhs_.not_in_table_error &&
+         sync_n == rhs_.sync_n;
     end else begin
     return super.do_compare(rhs, comparer) &&
         data == rhs_.data &&
         disparity_error == rhs_.disparity_error &&
         running_disparity == rhs_.running_disparity &&
         is_control_word == rhs_.is_control_word &&
-        not_in_table_error == rhs_.not_in_table_error;
+        not_in_table_error == rhs_.not_in_table_error &&
+        sync_n == rhs_.sync_n;
     end
 endfunction:do_compare
 
@@ -94,6 +99,7 @@ function void decoder_8b10b_trans::do_print(uvm_printer printer);
         $bits(disparity_error), UVM_BIN);
     printer.print_int("Not in table error", not_in_table_error, 
         $bits(not_in_table_error), UVM_BIN);
+    printer.print_int("SYNC~", sync_n, $bits(sync_n), UVM_BIN);
 endfunction:do_print
 
 function void decoder_8b10b_trans:: do_record(uvm_recorder recorder);
