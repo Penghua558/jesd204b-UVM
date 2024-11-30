@@ -7,6 +7,7 @@ import uvm_pkg::*;
 import env_pkg::*;
 import enc_bus_agent_pkg::*;
 // import decoder_8b10b_agent_pkg::*;
+import deserializer_agent_pkg::*;
 import rx_jesd204b_layering_pkg::*;
 import test_seq_lib_pkg::*;
 

@@ -20,10 +20,10 @@ env_config m_env_cfg;
 //------------------------------------------
 // Methods
 //------------------------------------------
-extern function void configure_deserializer_agent(
-deserializer_agent_config cfg);
 extern function void configure_rx_jesd204b_layering(
 rx_jesd204b_layering_config cfg);
+extern function void configure_deserializer_agent(
+deserializer_agent_config cfg);
 extern function void configure_enc_bus_agent(enc_bus_agent_config cfg);
 // Standard UVM Methods:
 extern function new(string name = "test_base", uvm_component parent = null);
