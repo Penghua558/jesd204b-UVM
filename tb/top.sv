@@ -16,7 +16,7 @@ logic rst_n;
 //
 // Instantiate the pin interfaces:
 //
-deserializer_if u_deser_if(agent_bitclk, device_clk, rst_n);
+deserializer_if u_deser_if(agent_bitclk, rst_n);
 enc_bus_if u_enc_bus_if(clk, rst_n);
 
 //

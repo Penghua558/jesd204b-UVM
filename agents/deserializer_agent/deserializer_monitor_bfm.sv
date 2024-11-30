@@ -3,7 +3,6 @@
 //
 interface deserializer_monitor_bfm (
     input bitclk,
-    input device_clk,
     input rst_n,
 
     // MSB is received first, that is, a is received frist

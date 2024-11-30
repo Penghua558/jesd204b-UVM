@@ -3,7 +3,6 @@
 //
 interface deserializer_driver_bfm (
     input bitclk,
-    input device_clk,
     input rst_n,
 
     // MSB is received first, that is, a is received frist
@@ -21,14 +20,12 @@ import deserializer_agent_pkg::*;
 //------------------------------------------
 // Data Members
 //------------------------------------------
-deserializer_monitor proxy;
 deserializer_agent_config m_cfg;
 
 
 //------------------------------------------
 // Component Members
 //------------------------------------------
-bit lock = 1'b0;
 
 //------------------------------------------
 // Methods
@@ -41,42 +38,15 @@ task automatic reset();
 endtask
 
 // BFM Methods:
-task drive();
-    deserializer_trans item;
-    deserializer_trans cloned_item;
-
-    item = deserializer_trans::type_id::create("item");
-
-    // to mimic the time it takes CDR to recover bit clock, so sampling start
-    // point is not at the boundary of a valid 8b10b character
-    repeat(m_cfg.delay) @(posedge bitclk);
-
-    forever begin
-        // construct 8b10b character from serial line
-        repeat(10) begin
-            @(posedge bitclk);
-            item.data = item.data << 1;
-            item.data[0] = rx_p;
-        end
-
-        // detect & synchronize with K28.5
-        // if the data is COMMA, then we declare symbol is locked, otherwise 
-        // we wait for a clock cycle before sampling a new character again
-        if (!lock) begin
-            if (item.data inside {COMMA}) begin
-                lock = 1'b1;
-            end else begin
-                @(posedge bitclk);
-                lock = 1'b0;
-            end
-        end
-
-        item.sync_n = sync_n;
-        item.lock = lock;
-        // Clone and publish the cloned item to the subscribers
-        $cast(cloned_item, item.clone());
-        proxy.notify_transaction(cloned_item);
+task drive(deserializer_trans req);
+    // though JESD204B launches sync_n via frame clock, it is an agent here as
+    // we can not have timing information in other higher agent layerings, so 
+    // frame clock can only be constructed in this agent which would leads to
+    // more nasty problems.
+    sync_n <= req.sync_n;
+    repeat(10) begin
+        @(posedge bitclk);
     end
-endtask: run
+endtask: drive 
 
 endinterface: deserializer_driver_bfm

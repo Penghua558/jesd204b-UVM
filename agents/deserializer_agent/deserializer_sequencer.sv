@@ -1,14 +1,14 @@
 //------------------------------------------------------------
 //   Copyright 2010-2018 Mentor Graphics Corporation
 //   All Rights Reserved Worldwide
-//
+//   
 //   Licensed under the Apache License, Version 2.0 (the
 //   "License"); you may not use this file except in
 //   compliance with the License.  You may obtain a copy of
 //   the License at
-//
+//   
 //       http://www.apache.org/licenses/LICENSE-2.0
-//
+//   
 //   Unless required by applicable law or agreed to in
 //   writing, software distributed under the License is
 //   distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
@@ -17,17 +17,23 @@
 //   permissions and limitations under the License.
 //------------------------------------------------------------
 
-package test_seq_lib_pkg;
+//
+// Class Description:
+//
+//
+class deserializer_sequencer extends uvm_sequencer#(deserializer_trans);
 
-import uvm_pkg::*;
-`include "uvm_macros.svh"
+// UVM Factory Registration Macro
+//
+`uvm_component_utils(deserializer_sequencer)
 
-import enc_bus_agent_pkg::*;
-//import decoder_8b10b_agent_pkg::*;
-import env_pkg::*;
+// Standard UVM Methods:
+extern function new(string name="deserializer_sequencer", 
+uvm_component parent = null);
 
-`include "test_vseq_base.sv"
-//`include "test_streaming_illegal_vseq.sv"
-//`include "test_streaming_legal_vseq.sv"
+endclass: deserializer_sequencer
 
-endpackage:test_seq_lib_pkg
+function deserializer_sequencer::new(string name="deserializer_sequencer", 
+    uvm_component parent = null);
+  super.new(name, parent);
+endfunction

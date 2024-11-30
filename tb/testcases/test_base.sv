@@ -20,10 +20,10 @@ env_config m_env_cfg;
 //------------------------------------------
 // Methods
 //------------------------------------------
-extern function void configure_rx_jesd204b_layering(
-rx_jesd204b_layering_config cfg);
 extern function void configure_deserializer_agent(
 deserializer_agent_config cfg);
+extern function void configure_rx_jesd204b_layering(
+rx_jesd204b_layering_config cfg);
 extern function void configure_enc_bus_agent(enc_bus_agent_config cfg);
 // Standard UVM Methods:
 extern function new(string name = "test_base", uvm_component parent = null);
@@ -88,7 +88,7 @@ endfunction: configure_rx_jesd204b_layering
 
 function void test_base::configure_deserializer_agent(
     deserializer_agent_config cfg);
-    cfg.active = UVM_PASSIVE;
+    cfg.active = UVM_ACTIVE;
     // maximum clock cycle delay between DUT's output and agent's input
     cfg.max_delay = 7;
 endfunction: configure_deserializer_agent 

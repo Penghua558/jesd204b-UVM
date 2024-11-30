@@ -7,6 +7,8 @@ import uvm_pkg::*;
 
 `include "deserializer_monitor.sv"
 `include "deserializer_recorder.sv"
+`include "deserializer_driver.sv"
+`include "deserializer_sequencer.sv"
 
 `include "deserializer_agent.sv"
 endpackage: deserializer_agent_pkg
