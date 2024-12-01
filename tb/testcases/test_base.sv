@@ -82,7 +82,7 @@ endfunction: build_phase
 // This can be overloaded by extensions to this base class
 function void test_base::configure_rx_jesd204b_layering(
     rx_jesd204b_layering_config cfg);
-    cfg.active = UVM_PASSIVE;
+    cfg.active = UVM_ACTIVE;
     configure_deserializer_agent(cfg.m_deserializer_agent_cfg);
 endfunction: configure_rx_jesd204b_layering
 
