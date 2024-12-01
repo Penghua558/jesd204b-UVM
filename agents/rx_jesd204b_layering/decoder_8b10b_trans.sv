@@ -10,15 +10,15 @@ class decoder_8b10b_trans extends uvm_sequence_item;
 // decoded data
 // HGFEDCBA
 logic [7:0] data;
-logic is_control_word;
+bit is_control_word;
 // running disparity used to decode in this transaction
 // 1 - RD+
 // 0 - RD-
-logic running_disparity;
+bit running_disparity;
 // it's a valid character, however running disparity is wrong
-logic disparity_error;
+bit disparity_error;
 // not a control word nor a data word
-logic not_in_table_error;
+bit not_in_table_error;
 
 logic sync_n;
 

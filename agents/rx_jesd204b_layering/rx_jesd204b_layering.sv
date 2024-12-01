@@ -62,9 +62,8 @@ function void rx_jesd204b_layering::connect_phase(uvm_phase phase);
 endfunction: connect_phase
 
 task rx_jesd204b_layering::run_phase(uvm_phase phase);
-    super.run_phase(phase);
-
     dec8b10b2des_seq dec2des_seq;
+    super.run_phase(phase);
 
     dec2des_seq = dec8b10b2des_seq::type_id::create("dec2des_seq", this);
 
