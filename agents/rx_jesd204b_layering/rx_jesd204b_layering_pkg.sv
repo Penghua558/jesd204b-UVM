@@ -6,6 +6,7 @@ import deserializer_agent_pkg::*;
 `include "uvm_macros.svh"
 
 `include "cgsnfs_trans.sv"
+`include "dec2cgs_monitor.sv"
 
 `include "decoder_8b10b_trans.sv"
 `include "decoder_sequencer.sv"
