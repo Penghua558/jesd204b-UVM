@@ -20,7 +20,7 @@ bit disparity_error;
 // not a control word nor a data word
 bit not_in_table_error;
 
-logic sync_n;
+rand logic sync_n;
 
 
 //------------------------------------------

@@ -29,7 +29,9 @@ ifsstate_e ifsstate;
 // however, sync_request is not the only signal driving SYNC~
 // SYNC~ = !(sync_request || time since last sync_request assertion < 5 frames
 // + 9 octets)
-rand bit sync_request;
+bit sync_request;
+
+rand logic sync_n;
 
 //------------------------------------------
 // Constraints
@@ -66,6 +68,7 @@ function void cgsnfs_trans::do_copy(uvm_object rhs);
   cgsstate = rhs_.cgsstate;
   ifsstate = rhs_.ifsstate;
   sync_request = rhs_.sync_request;
+  sync_n = rhs_.sync_n;
 endfunction:do_copy
 
 function bit cgsnfs_trans::do_compare(uvm_object rhs, 
@@ -86,14 +89,16 @@ function bit cgsnfs_trans::do_compare(uvm_object rhs,
         valid == rhs_.valid &&
         cgsstate == rhs_.cgsstate &&
         ifsstate == rhs_.ifsstate &&
-        sync_request == rhs_.sync_request;
+        sync_request == rhs_.sync_request &&
+        sync_n == rhs_.sync_n;
     end else begin
     return super.do_compare(rhs, comparer) &&
         is_control_word == rhs_.is_control_word &&
         valid == rhs_.valid &&
         cgsstate == rhs_.cgsstate &&
         ifsstate == rhs_.ifsstate &&
-        sync_request == rhs_.sync_request;
+        sync_request == rhs_.sync_request &&
+        sync_n == rhs_.sync_n;
     end
 endfunction:do_compare
 
@@ -106,6 +111,7 @@ function void cgsnfs_trans::do_print(uvm_printer printer);
     printer.print_string("IFS state", ifsstate.name());
     printer.print_int("sync request", sync_request, $bits(sync_request), 
         UVM_BIN);
+    printer.print_int("SYNC~", sync_n, $bits(sync_n), UVM_BIN);
 endfunction:do_print
 
 function void cgsnfs_trans::do_record(uvm_recorder recorder);
