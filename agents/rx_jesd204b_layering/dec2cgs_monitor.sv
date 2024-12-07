@@ -9,10 +9,9 @@ class dec2cgs_monitor extends uvm_subscriber#(decoder_8b10b_trans);
 //------------------------------------------
 cgsnfs_trans cgs_out;
 cgsnfs_trans cloned_cgs_out;
-// running disparity
-// 1 - RD+
-// 0 - RD-
-bit rd;
+cgsstate_e cgsstate;
+ifsstate_e ifsstate;
+
 //------------------------------------------
 // Component Members
 //------------------------------------------
@@ -42,7 +41,8 @@ endfunction
 
 function void dec2cgs_monitor::build_phase(uvm_phase phase);
     ap = new("ap", this);
-    rd = 1'b0;
+    cgsstate = CS_INIT;
+    ifsstate = FS_INIT;
 endfunction: build_phase
 
 
@@ -58,15 +58,14 @@ function void dec2cgs_monitor::write(decoder_8b10b_trans t);
     cgs_out.valid = !(t.disparity_error || t.not_in_table_error);
     cgs_out.sync_n = t.sync_n;
 
-    cgs_out.cgsstate;
-    cgs_out.ifsstate;
-    cgs_out.sync_request;
+    //cgs_out.cgsstate;
+    //cgs_out.ifsstate;
+    //cgs_out.sync_request;
 
 
     // Clone and publish the cloned item to the subscribers
     $cast(cloned_cgs_out, cgs_out.clone());
     notify_transaction(cloned_cgs_out);
-    end
 endfunction
 
 

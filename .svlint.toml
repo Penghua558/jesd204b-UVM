@@ -19,7 +19,6 @@ genvar_declaration_in_loop = true
 interface_identifier_matches_filename = true
 loop_variable_declaration = true
 module_identifier_matches_filename = true
-package_identifier_matches_filename = true
 procedural_continuous_assignment = true
 program_identifier_matches_filename = true
 style_indent = true
