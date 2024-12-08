@@ -20,12 +20,16 @@ bit has_scoreboard = 0;
 
 deserializer_agent_config m_deserializer_agent_cfg;
 
+// number of octets per frame
+rand int F;
+
 //------------------------------------------
 // Methods
 //------------------------------------------
 extern static function rx_jesd204b_layering_config get_config(uvm_component c);
 // Standard UVM Methods:
 extern function new(string name = "rx_jesd204b_layering_config");
+extern function void do_print(uvm_printer printer);
 
 endclass: rx_jesd204b_layering_config
 
@@ -55,3 +59,8 @@ function rx_jesd204b_layering_config rx_jesd204b_layering_config::get_config(
 
   return t;
 endfunction
+
+function void rx_jesd204b_layering_config::do_print(uvm_printer printer);
+    super.do_print(printer);
+    printer.print_int("F", F, $bits(F), UVM_DEC);
+endfunction:do_print

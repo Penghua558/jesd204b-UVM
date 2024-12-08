@@ -5,6 +5,7 @@ import deserializer_agent_pkg::*;
 
 `include "uvm_macros.svh"
 
+`include "rx_jesd204b_layering_config.sv"
 
 `include "decoder_8b10b_trans.sv"
 `include "decoder_sequencer.sv"
@@ -16,6 +17,5 @@ import deserializer_agent_pkg::*;
 `include "cgsnfs_fsm.sv"
 `include "dec2cgs_monitor.sv"
 
-`include "rx_jesd204b_layering_config.sv"
 `include "rx_jesd204b_layering.sv"
 endpackage: rx_jesd204b_layering_pkg

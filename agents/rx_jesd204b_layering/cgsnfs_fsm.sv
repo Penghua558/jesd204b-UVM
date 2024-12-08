@@ -104,6 +104,7 @@ function void CGS_StateMachine::state_func(cgsnfs_trans cgs);
 endfunction
 
 class IFS_StateMachine;
+    rx_jesd204b_layering_config m_cfg;
     ifsstate_e currentState;
     ifsstate_e nextState;
     bit [2:0] kcounter;

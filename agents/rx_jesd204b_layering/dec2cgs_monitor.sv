@@ -11,6 +11,7 @@ cgsnfs_trans cgs_out;
 cgsnfs_trans cloned_cgs_out;
 CGS_StateMachine cgs_fsm;
 IFS_StateMachine ifs_fsm;
+rx_jesd204b_layering_config m_cfg;
 
 //------------------------------------------
 // Component Members
@@ -40,6 +41,8 @@ function dec2cgs_monitor::new(string name = "dec2cgs_monitor",
 endfunction
 
 function void dec2cgs_monitor::build_phase(uvm_phase phase);
+    m_cfg = rx_jesd204b_layering_config::get_config(this);
+    ifs_fsm.m_cfg = m_cfg;
     ap = new("ap", this);
     cgs_fsm = new;
     ifs_fsm = new;
