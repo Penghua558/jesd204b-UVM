@@ -108,19 +108,56 @@ class IFS_StateMachine;
     ifsstate_e currentState;
     ifsstate_e nextState;
     bit [2:0] kcounter;
+    int ocounter;
     // in software FSM, transition is called event, data/stimulus from
     // external associated with the event is event data
     // In this FSM, event data to cause transition is decoded symbol from
-    // deser2dec_monitor
-    decoder_8b10b_trans eventData;
+    // CGS FSM
+    cgsnfs_trans eventData;
 
     function new();
         currentState = FS_INIT;
         kcounter = 3'd0;
+        ocounter = 0;
     endfunction
 
     extern function void update_currentstate();
-    extern function void get_nextstate(decoder_8b10b_trans eventData);
+    extern function void get_nextstate(cgsnfs_trans eventData);
     // do things based on current state and updated cgsnfs_trans
     extern function void state_func(cgsnfs_trans cgs);
+    extern function void check_alignment(cgsnfs_trans t);
 endclass
+
+function void IFS_StateMachine::update_currentstate();
+    currentState = nextState;
+endfunction
+
+function void IFS_StateMachine::get_nextstate(cgsnfs_trans eventData);
+    case(currentState)
+        FS_INIT: begin
+            if (!(eventData.sync_request ||
+                (eventData.data == K && eventData.is_control_word)))
+                nextState = FS_DATA;
+            else
+                nextState = FS_INIT;
+        end
+        FS_DATA: begin
+            if (eventData.data == K && eventData.is_control_word)
+                nextState = FS_CHECK;
+            else
+                nextState = FS_DATA;
+        end
+        FS_CHECK: begin
+            if (kcounter == 3'd4)
+                nextState = FS_INIT;
+            else if (!(eventData.data == K && eventData.is_control_word))
+                nextState = FS_DATA;
+            else
+                nextState = FS_CHECK;
+        end
+        default: nextState = FS_INIT;
+    endcase
+endfunction
+
+function void IFS_StateMachine::state_func(cgsnfs_trans cgs);
+endfunction
