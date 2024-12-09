@@ -83,8 +83,9 @@ endfunction: build_phase
 function void test_base::configure_rx_jesd204b_layering(
     rx_jesd204b_layering_config cfg);
     cfg.active = UVM_ACTIVE;
-    cfg.randomize();
+    assert(cfg.randomize());
     cfg.F = 8;
+    cfg.scrambling_enable = 1'b1;
     configure_deserializer_agent(cfg.m_deserializer_agent_cfg);
 endfunction: configure_rx_jesd204b_layering
 
@@ -93,7 +94,7 @@ function void test_base::configure_deserializer_agent(
     cfg.active = UVM_ACTIVE;
     // maximum clock cycle delay between DUT's output and agent's input
     cfg.max_delay = 7;
-    cfg.randomize();
+    assert(cfg.randomize());
 endfunction: configure_deserializer_agent 
 
 function void test_base::configure_enc_bus_agent(enc_bus_agent_config cfg);

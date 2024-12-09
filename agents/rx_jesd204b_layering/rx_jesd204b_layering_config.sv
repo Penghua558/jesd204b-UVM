@@ -22,6 +22,9 @@ deserializer_agent_config m_deserializer_agent_cfg;
 
 // number of octets per frame
 rand int F;
+// 0 - disable scrambling
+// 1 - enable scrambling
+rand bit scrambling_enable;
 
 //------------------------------------------
 // Methods
@@ -63,4 +66,5 @@ endfunction
 function void rx_jesd204b_layering_config::do_print(uvm_printer printer);
     super.do_print(printer);
     printer.print_int("F", F, $bits(F), UVM_DEC);
+    printer.print_string("scrambling enable?", scrambling_enable? "Yes":"No");
 endfunction:do_print

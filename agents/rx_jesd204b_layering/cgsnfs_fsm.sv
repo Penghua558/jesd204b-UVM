@@ -64,7 +64,7 @@ function void CGS_StateMachine::state_func(cgsnfs_trans cgs);
             // only check if it's a control and valid, if the check passes
             // then we check if it's a K28.5 symbol, so we don't need to
             // constantly check all 3 conditions
-            if (cgs.is_control_word && valid) begin
+            if (cgs.is_control_word && cgs.valid) begin
                 if (cgs.data == K)
                     kcounter++;
                 else
@@ -92,7 +92,7 @@ function void CGS_StateMachine::state_func(cgsnfs_trans cgs);
             // only check if it's a control and valid, if the check passes
             // then we check if it's a K28.5 symbol, so we don't need to
             // constantly check all 3 conditions
-            if (cgs.is_control_word && valid) begin
+            if (cgs.is_control_word && cgs.valid) begin
                 if (cgs.data == K)
                     kcounter++;
                 else
@@ -109,6 +109,10 @@ class IFS_StateMachine;
     ifsstate_e nextState;
     bit [2:0] kcounter;
     int ocounter;
+    // 0 - increment ocounter at reception of next octet
+    // 1 - reset ocounter at reception of next octet
+    bit reset_octet_counter;
+    int previous_af_position;
     // in software FSM, transition is called event, data/stimulus from
     // external associated with the event is event data
     // In this FSM, event data to cause transition is decoded symbol from
@@ -119,6 +123,8 @@ class IFS_StateMachine;
         currentState = FS_INIT;
         kcounter = 3'd0;
         ocounter = 0;
+        reset_octet_counter = 1'b0;
+        previous_af_position = 0;
     endfunction
 
     extern function void update_currentstate();
@@ -126,6 +132,7 @@ class IFS_StateMachine;
     // do things based on current state and updated cgsnfs_trans
     extern function void state_func(cgsnfs_trans cgs);
     extern function void check_alignment(cgsnfs_trans t);
+    extern function bit cross_coupling();
 endclass
 
 function void IFS_StateMachine::update_currentstate();
@@ -160,4 +167,47 @@ function void IFS_StateMachine::get_nextstate(cgsnfs_trans eventData);
 endfunction
 
 function void IFS_StateMachine::state_func(cgsnfs_trans cgs);
+    cgs.ifsstate = currentState;
+    case(currentState)
+        FS_INIT: ocounter = 0;
+        FS_DATA: begin
+            kcounter = 3'd0;
+            if (reset_octet_counter)
+                ocounter = 0;
+            else
+                ocounter = (ocounter + 1) % m_cfg.F;
+            check_alignment(cgs);
+        end
+        FS_CHECK: begin
+            kcounter++;
+            if (reset_octet_counter)
+                ocounter = 0;
+            else
+                ocounter = (ocounter + 1) % m_cfg.F;
+            check_alignment(cgs);
+        end
+        default: ocounter = 0;
+    endcase
+endfunction
+
+function void IFS_StateMachine::check_alignment(cgsnfs_trans t);
+    if (t.is_control_word) begin
+        if ((t.data == A || t.data == F) && t.valid) begin
+            // discrambling enabled
+            if (m_cfg.scrambling_enable)
+                t.is_control_word = 1'b0;
+
+            if (((ocounter == previous_af_position) || cross_coupling()) &&
+                t.valid)
+                reset_octet_counter = 1'b1;
+            if (t.valid || ocounter == (m_cfg.F-1))
+                previous_af_position = ocounter;
+        end
+    end
+endfunction
+
+function bit IFS_StateMachine::cross_coupling();
+// when frame misalignment is expected to happen transmitter disable IFS
+// via control interface, for now it's a PLACEHOLDER
+    return 0;
 endfunction
