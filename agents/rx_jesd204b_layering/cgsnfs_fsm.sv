@@ -176,6 +176,7 @@ function void IFS_StateMachine::state_func(cgsnfs_trans cgs);
                 ocounter = 0;
             else
                 ocounter = (ocounter + 1) % m_cfg.F;
+            reset_octet_counter = 1'b0;
             check_alignment(cgs);
         end
         FS_CHECK: begin
@@ -184,6 +185,7 @@ function void IFS_StateMachine::state_func(cgsnfs_trans cgs);
                 ocounter = 0;
             else
                 ocounter = (ocounter + 1) % m_cfg.F;
+            reset_octet_counter = 1'b0;
             check_alignment(cgs);
         end
         default: ocounter = 0;
@@ -193,13 +195,16 @@ endfunction
 function void IFS_StateMachine::check_alignment(cgsnfs_trans t);
     if (t.is_control_word) begin
         if ((t.data == A || t.data == F) && t.valid) begin
+            `uvm_info("IFS", "A/F detected", UVM_HIGH)
             // discrambling enabled
             if (m_cfg.scrambling_enable)
                 t.is_control_word = 1'b0;
 
             if (((ocounter == previous_af_position) || cross_coupling()) &&
-                t.valid)
+                t.valid) begin
+                `uvm_info("IFS", "frame aligned, resetting ocounter", UVM_HIGH)
                 reset_octet_counter = 1'b1;
+            end
             if (t.valid || ocounter == (m_cfg.F-1))
                 previous_af_position = ocounter;
         end
