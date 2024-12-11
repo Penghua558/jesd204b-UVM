@@ -12,6 +12,9 @@ class cgsnfs_trans extends uvm_sequence_item;
 // HGFEDCBA
 logic [7:0] data;
 bit is_control_word;
+// position of octet within a frame
+// 0 ~ F-1
+int o_position;
 
 // 1 - It is a valid word given current running disparity
 // 0 - invalid word, due to wrong running disparity or not in table error
@@ -64,6 +67,7 @@ function void cgsnfs_trans::do_copy(uvm_object rhs);
   // Copy over wdata members:
   data = rhs_.data;
   is_control_word = rhs_.is_control_word;
+  o_position == rhs_.o_position;
   valid = rhs_.valid;
   cgsstate = rhs_.cgsstate;
   ifsstate = rhs_.ifsstate;
@@ -86,6 +90,7 @@ function bit cgsnfs_trans::do_compare(uvm_object rhs,
     return super.do_compare(rhs, comparer) &&
         data == rhs_.data &&
         is_control_word == rhs_.is_control_word &&
+        o_position == rhs_.o_position &&
         valid == rhs_.valid &&
         cgsstate == rhs_.cgsstate &&
         ifsstate == rhs_.ifsstate &&
@@ -94,6 +99,7 @@ function bit cgsnfs_trans::do_compare(uvm_object rhs,
     end else begin
     return super.do_compare(rhs, comparer) &&
         is_control_word == rhs_.is_control_word &&
+        o_position == rhs_.o_position &&
         valid == rhs_.valid &&
         cgsstate == rhs_.cgsstate &&
         ifsstate == rhs_.ifsstate &&
@@ -106,6 +112,7 @@ function void cgsnfs_trans::do_print(uvm_printer printer);
     super.do_print(printer);
     printer.print_int("Decoded data", data, $bits(data), UVM_HEX);
     printer.print_string("Is control word?", (is_control_word)? "Yes":"No");
+    printer.print_int("Octet position", o_position, $bits(o_position), UVM_DEC);
     printer.print_string("Valid word?", (valid)? "Yes":"No");
     printer.print_string("CGS state", cgsstate.name());
     printer.print_string("IFS state", ifsstate.name());

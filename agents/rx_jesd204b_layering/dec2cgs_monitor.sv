@@ -66,6 +66,10 @@ function void dec2cgs_monitor::write(decoder_8b10b_trans t);
     cgs_fsm.get_nextstate(t);
     cgs_fsm.update_currentstate();
 
+    ifs_fsm.state_func(cgs_out);
+    ifs_fsm.get_nextstate(cgs_out);
+    ifs_fsm.update_currentstate();
+
 
     // Clone and publish the cloned item to the subscribers
     $cast(cloned_cgs_out, cgs_out.clone());

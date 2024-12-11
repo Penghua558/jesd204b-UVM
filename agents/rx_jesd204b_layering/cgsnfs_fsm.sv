@@ -167,7 +167,6 @@ function void IFS_StateMachine::get_nextstate(cgsnfs_trans eventData);
 endfunction
 
 function void IFS_StateMachine::state_func(cgsnfs_trans cgs);
-    cgs.ifsstate = currentState;
     case(currentState)
         FS_INIT: ocounter = 0;
         FS_DATA: begin
@@ -190,6 +189,8 @@ function void IFS_StateMachine::state_func(cgsnfs_trans cgs);
         end
         default: ocounter = 0;
     endcase
+    cgs.ifsstate = currentState;
+    cgs.o_position = ocounter;
 endfunction
 
 function void IFS_StateMachine::check_alignment(cgsnfs_trans t);
