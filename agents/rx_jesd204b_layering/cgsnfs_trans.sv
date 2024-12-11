@@ -67,7 +67,7 @@ function void cgsnfs_trans::do_copy(uvm_object rhs);
   // Copy over wdata members:
   data = rhs_.data;
   is_control_word = rhs_.is_control_word;
-  o_position == rhs_.o_position;
+  o_position = rhs_.o_position;
   valid = rhs_.valid;
   cgsstate = rhs_.cgsstate;
   ifsstate = rhs_.ifsstate;

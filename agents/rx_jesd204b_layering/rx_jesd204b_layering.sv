@@ -9,11 +9,15 @@ class rx_jesd204b_layering extends uvm_component;
 //------------------------------------------
 // Component Members
 //------------------------------------------
-uvm_analysis_port #(decoder_8b10b_trans) ap;
+uvm_analysis_port #(cgsnfs_trans) ap;
 
 rx_jesd204b_layering_config m_cfg;
 
 decoder_sequencer dec_sequencer;
+cgsnfs_sequencer cgs_sequencer;
+
+dec2cgs_monitor m_dec2cgs_moitor;
+dec2cgs_recorder m_dec2cgs_recorder;
 
 deser2dec_monitor m_deser2dec_monitor;
 deser2dec_recorder m_deser2dec_recorder;
@@ -40,6 +44,12 @@ function void rx_jesd204b_layering::build_phase(uvm_phase phase);
     ap = new("ap", this);
     m_cfg = rx_jesd204b_layering_config::get_config(this);
     // Monitor is always present
+    m_dec2cgs_moitor = dec2cgs_monitor::type_id::
+        create("m_dec2cgs_moitor", this);
+
+    m_dec2cgs_recorder = dec2cgs_recorder::type_id::
+        create("m_dec2cgs_recorder", this);
+
     m_deser2dec_monitor = deser2dec_monitor::type_id::
         create("m_deser2dec_monitor", this);
 
@@ -51,27 +61,36 @@ function void rx_jesd204b_layering::build_phase(uvm_phase phase);
     if (m_cfg.active == UVM_ACTIVE) begin
         dec_sequencer = decoder_sequencer::type_id::create(
             "dec_sequencer", this);
+        cgs_sequencer = cgsnfs_sequencer::type_id::create(
+            "cgs_sequencer", this);
     end
 endfunction: build_phase
 
 function void rx_jesd204b_layering::connect_phase(uvm_phase phase);
     m_deser_agent.ap.connect(m_deser2dec_monitor.analysis_export);
-    ap = m_deser2dec_monitor.ap;
+    m_deser2dec_monitor.ap.connect(m_dec2cgs_moitor.analysis_export);
+
+    ap = m_dec2cgs_moitor.ap;
 
     m_deser2dec_monitor.ap.connect(m_deser2dec_recorder.analysis_export);
+    m_dec2cgs_moitor.ap.connect(m_dec2cgs_recorder.analysis_export);
 endfunction: connect_phase
 
 task rx_jesd204b_layering::run_phase(uvm_phase phase);
     dec8b10b2des_seq dec2des_seq;
+    cgsnfs2dec_seq cgs2dec_seq;
     super.run_phase(phase);
 
     dec2des_seq = dec8b10b2des_seq::type_id::create("dec2des_seq", this);
+    cgs2dec_seq = cgsnfs2dec_seq::type_id::create("cgs2dec_seq", this);
 
     // connect translation sequences to their respective upstream sequencers
     dec2des_seq.up_sequencer = dec_sequencer;
+    cgs2dec_seq.up_sequencer = cgs_sequencer;
 
     // start the translation sequences
     fork
+        cgs2dec_seq.start(dec_sequencer);
         dec2des_seq.start(m_deser_agent.m_sequencer);
     join_none
 endtask

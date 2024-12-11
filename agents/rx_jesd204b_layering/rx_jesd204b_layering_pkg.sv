@@ -14,8 +14,11 @@ import deserializer_agent_pkg::*;
 `include "deser2dec_recorder.sv"
 
 `include "cgsnfs_trans.sv"
+`include "cgsnfs_sequencer.sv"
+`include "cgsnfs2dec_seq.sv"
 `include "cgsnfs_fsm.sv"
 `include "dec2cgs_monitor.sv"
+`include "dec2cgs_recorder.sv"
 
 `include "rx_jesd204b_layering.sv"
 endpackage: rx_jesd204b_layering_pkg
