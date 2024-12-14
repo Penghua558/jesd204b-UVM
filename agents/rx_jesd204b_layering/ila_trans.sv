@@ -11,6 +11,8 @@ class ila_trans extends uvm_sequence_item;
 // HGFEDCBA
 // all incoming frames for transport layer only 
 // contain data symbols
+// first index will always stores the first incoming octet,
+// which is MSB, which is first sent out from transmitter
 logic [7:0] data[];
 // position of frame within a multiframe
 // 0 ~ K-1
