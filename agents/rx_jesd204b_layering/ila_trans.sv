@@ -70,7 +70,7 @@ function void ila_trans::do_print(uvm_printer printer);
     if (data.size) begin
         foreach(data[i]) begin
             printer.print_int($sformatf("Decoded frame[%0d]", i), 
-                data[i], $bits(data[i], UVM_HEX));
+                data[i], $bits(data[i]), UVM_HEX);
         end
     end else begin
         printer.print_string("Decoded frame", "No data");
