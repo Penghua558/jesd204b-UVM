@@ -85,6 +85,7 @@ function void test_base::configure_rx_jesd204b_layering(
     cfg.active = UVM_ACTIVE;
     assert(cfg.randomize());
     cfg.F = 8;
+    cfg.K = 4;
     cfg.scrambling_enable = 1'b1;
     configure_deserializer_agent(cfg.m_deserializer_agent_cfg);
 endfunction: configure_rx_jesd204b_layering

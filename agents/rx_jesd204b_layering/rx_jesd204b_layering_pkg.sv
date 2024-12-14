@@ -20,5 +20,7 @@ import deserializer_agent_pkg::*;
 `include "dec2cgs_monitor.sv"
 `include "dec2cgs_recorder.sv"
 
+`include "ila_trans.sv"
+
 `include "rx_jesd204b_layering.sv"
 endpackage: rx_jesd204b_layering_pkg
