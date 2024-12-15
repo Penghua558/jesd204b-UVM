@@ -74,6 +74,7 @@ function void rx_jesd204b_layering::connect_phase(uvm_phase phase);
 
     m_deser2dec_monitor.ap.connect(m_deser2dec_recorder.analysis_export);
     m_dec2cgs_moitor.ap.connect(m_dec2cgs_recorder.analysis_export);
+    m_dec2cgs_moitor.ap.connect(cgs_sequencer.sequencer_export);
 endfunction: connect_phase
 
 task rx_jesd204b_layering::run_phase(uvm_phase phase);

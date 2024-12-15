@@ -2,9 +2,6 @@ class ila2cgs_seq extends uvm_sequence #(cgsnfs_trans);
     `uvm_object_utils(ila2cgs_seq)
 
     uvm_sequencer #(ila_trans) up_sequencer;
-    // add an uvm_analysis_imp in cgs sequencer to store cgs trans, then
-    // this sequence can get the stored transactions
-
     // Standard UVM Methods:
     extern function new(string name = "ila2cgs_seq");
     extern task body;
