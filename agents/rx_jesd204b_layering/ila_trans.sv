@@ -18,6 +18,9 @@ logic [7:0] data[];
 // 0 ~ K-1
 int f_position;
 
+// passed from lower layer
+bit sync_request;
+
 //------------------------------------------
 // Constraints
 //------------------------------------------
@@ -49,6 +52,7 @@ function void ila_trans::do_copy(uvm_object rhs);
     // Copy over wdata members:
     data = rhs_.data;
     f_position = rhs_.f_position;
+    sync_request = rhs_.sync_request;
 endfunction:do_copy
 
 function bit ila_trans::do_compare(uvm_object rhs, 
@@ -62,7 +66,8 @@ function bit ila_trans::do_compare(uvm_object rhs,
 
     return super.do_compare(rhs, comparer) &&
       data == rhs_.data &&
-      f_position == rhs_.f_position;
+      f_position == rhs_.f_position &&
+      sync_request == rhs_.sync_request;
 endfunction:do_compare
 
 function void ila_trans::do_print(uvm_printer printer);
@@ -77,6 +82,8 @@ function void ila_trans::do_print(uvm_printer printer);
     end
     printer.print_int("Frame position inside a multiframe", 
         f_position, $bits(f_position), UVM_DEC);
+    printer.print_int("Sync request", 
+        sync_request, $bits(sync_request), UVM_BIT);
 endfunction:do_print
 
 function void ila_trans::do_record(uvm_recorder recorder);
