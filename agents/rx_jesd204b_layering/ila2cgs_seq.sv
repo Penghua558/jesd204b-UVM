@@ -85,6 +85,7 @@ task ila2cgs_seq::body;
         if (!sync_request_prev_frame && ila_req.sync_request) begin
             syncn_assertion_length = 0;
         end
+
         sync_n = 
             (!ila_req.sync_request && 
             (syncn_assertion_length >= min_syncn_assertion_length) && 
