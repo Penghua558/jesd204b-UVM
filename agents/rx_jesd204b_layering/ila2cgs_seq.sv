@@ -26,6 +26,9 @@ task ila2cgs_seq::body;
     int num_valid_octet;
     int self_o_position;
     int o_position;
+    // frame position in current multiframe, 0 ~ K-1
+    // 0 is considered at the boundary of LMFC
+    int fcounter;
     // minimum number of frames to last when SYNC~ is asserted
     int min_syncn_assertion_length;
     // length of assertion of SYNC~ in unit of frame
@@ -40,6 +43,7 @@ task ila2cgs_seq::body;
     syncn_assertion_frame_length = 0;
     sync_request_prev_frame = 1'b0;
     syncn_assertion_length = 15;
+    fcounter = 0;
 
     forever begin
         up_sequencer.get_next_item(ila_req);
@@ -81,8 +85,10 @@ task ila2cgs_seq::body;
         if (!sync_request_prev_frame && ila_req.sync_request) begin
             syncn_assertion_length = 0;
         end
-        sync_n = !(ila_req.sync_request || 
-            syncn_assertion_length < min_syncn_assertion_length);
+        sync_n = 
+            (!ila_req.sync_request && 
+            (syncn_assertion_length >= min_syncn_assertion_length) && 
+            (fcounter == 0)) || (!ila_req.sync_request && !sync_n_prev_frame);
 
         repeat(m_cfg.F) begin
             cgs_trans = cgsnfs_trans::type_ceilingid::create("cgs_trans");
@@ -95,6 +101,7 @@ task ila2cgs_seq::body;
         if (!sync_n)
             syncn_assertion_length++;
 
+        fcounter = (fcounter++) % m_cfg.K;
         sync_n_prev_frame = sync_n;
         sync_request_prev_frame = ila_req.sync_request;
         up_sequencer.item_done();
