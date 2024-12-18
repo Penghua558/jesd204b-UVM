@@ -83,7 +83,7 @@ function void ila_trans::do_print(uvm_printer printer);
     printer.print_int("Frame position inside a multiframe", 
         f_position, $bits(f_position), UVM_DEC);
     printer.print_int("Sync request", 
-        sync_request, $bits(sync_request), UVM_BIT);
+        sync_request, $bits(sync_request), UVM_BIN);
 endfunction:do_print
 
 function void ila_trans::do_record(uvm_recorder recorder);

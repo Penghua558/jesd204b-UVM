@@ -40,7 +40,7 @@ task ila2cgs_seq::body;
     bit sync_request_prev_frame;
 
     m_cfg = rx_jesd204b_layering_config::get_config(m_sequencer);
-    syncn_assertion_frame_length = 0;
+    syncn_assertion_length = 0;
     sync_request_prev_frame = 1'b0;
     syncn_assertion_length = 15;
     fcounter = 0;
@@ -79,7 +79,7 @@ task ila2cgs_seq::body;
         // minimum lengths for SYNC~ asssertion is 5 frames + 9 octets, since
         // SYNC~ deassertion should happen at LMFC boundaries so we should
         // round it up to the minimum frames
-        min_syncn_assertion_frame_length = 5 + $ceil(9 / m_cfg.F);
+        min_syncn_assertion_length = 5 + $ceil(9 / m_cfg.F);
         // access phase, drive SYNC~ according to sync_request and the length
         // of assertion of SYNC~
         if (!sync_request_prev_frame && ila_req.sync_request) begin
@@ -91,7 +91,7 @@ task ila2cgs_seq::body;
             (fcounter == 0)) || (!ila_req.sync_request && !sync_n_prev_frame);
 
         repeat(m_cfg.F) begin
-            cgs_trans = cgsnfs_trans::type_ceilingid::create("cgs_trans");
+            cgs_trans = cgsnfs_trans::type_id::create("cgs_trans");
             start_item(cgs_trans);
             // manipulate cgs_trans meant to be sent to lower layering
             cgs_trans.sync_n = sync_n;
