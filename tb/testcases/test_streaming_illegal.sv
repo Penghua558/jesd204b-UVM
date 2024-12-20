@@ -36,7 +36,7 @@ function void test_streaming_illegal::build_phase(uvm_phase phase);
     super.build_phase(phase);
 endfunction: build_phase
 
-task test_streaming_illegal::run_phase(uvm_phase phase);
+task test_streaming_illegal::main_phase(uvm_phase phase);
     test_streaming_illegal_vseq t_seq = test_streaming_illegal_vseq::type_id::
         create("t_seq");
     set_sequencers(t_seq);
@@ -45,7 +45,7 @@ task test_streaming_illegal::run_phase(uvm_phase phase);
     phase.raise_objection(this, "Test started");
     m_env_cfg.wait_for_reset();
     `uvm_info("TEST", "DUT reset completed", UVM_MEDIUM)
-    t_seq.start(null);  
+    t_seq.start(null);
     #100ns;
     phase.drop_objection(this, "Test finished");
 endtask

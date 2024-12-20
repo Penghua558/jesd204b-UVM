@@ -9,7 +9,7 @@ class rx_jesd204b_layering extends uvm_component;
 //------------------------------------------
 // Component Members
 //------------------------------------------
-uvm_analysis_port #(cgsnfs_trans) ap;
+uvm_analysis_port #(ila_trans) ap;
 
 rx_jesd204b_layering_config m_cfg;
 

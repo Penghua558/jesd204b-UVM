@@ -13,6 +13,7 @@ import test_seq_lib_pkg::*;
 
 // testcases
 `include "test_base.sv"
+`include "test_base_long.sv"
 //`include "test_streaming_legal.sv"
 //`include "test_streaming_illegal.sv"
 
