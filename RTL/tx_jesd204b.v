@@ -2,6 +2,7 @@
 `include "clk_gen.sv"
 `include "tx_link_layer/tx_link_layer.v"
 `include "tx_phy_layer/tx_phy_layer.v"
+`include "control/tx_control.v"
 
 // This module targets at lane speed 12.5Gbps, thus character clock frequency
 // is 1.25GHz
@@ -30,8 +31,9 @@ tx_link_layer link_layer(
     .o_k_error(o_link_k_error)
 );
 
+// bit clock frequency is 12.5GHz to hit bitrate of 12.5Gbps
 clk_gen#(
-.half_period(400ps)
+.half_period(40ps)
 ) bitclk_gen(
     .out_clk(bit_clk)
 );
