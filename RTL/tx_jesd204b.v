@@ -3,6 +3,7 @@
 `include "tx_link_layer/tx_link_layer.v"
 `include "tx_phy_layer/tx_phy_layer.v"
 `include "control/tx_control.v"
+`include "control/frame_lmfc_clk_gen.v"
 
 // This module targets at lane speed 12.5Gbps, thus character clock frequency
 // is 1.25GHz
