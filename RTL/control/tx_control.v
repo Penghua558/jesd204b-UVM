@@ -10,6 +10,12 @@ module tx_control(
     // 0 - disable link test sequence
     input wire i_reg_link_test_en,
     input wire [1:0] i_reg_link_test_sel,
+    // number of octets per frame
+    // 1 ~ 256, encoding: binary value - 1
+    input wire [7:0] i_F,
+    // number of multiframes an ILA lasts
+    // 1 ~ 256, encoding: binary value - 1
+    input wire [7:0] i_ila_multiframe_length,
 
     // select which octect stream should be fed into 8b/10b encoder
     // 0: user data
@@ -36,10 +42,32 @@ localparam [2:0] SEND_LINK_TEST_SEQ = 3'd3;
 
 reg [2:0] next_state;
 reg [2:0] current_state;
-// 1 - K sequence's length is shorter than 1 frame + 9 octets
-reg k_sequence_too_short;
-// assert to indicate end of ILA sequence
-reg lane_seq_end;
+// number of frames the K sequence has been sent in
+// current link re-initialization procedure
+reg [3:0] k_frame_cnt;
+reg [3:0] k_sequence_min_frame;
+
+// number of multiframes ILA sequence has been sent during
+// initial lane alignment procedure
+reg [8:0] ila_multiframe_cnt;
+
+wire [8:0] i_F_decode;
+wire [8:0] i_ila_multiframe_length_decode;
+assign i_F_decode = i_F + 9'd1;
+assign i_ila_multiframe_length_decode = i_ila_multiframe_length + 9'd1;
+
+always@(posedge clk) begin
+    if (i_F_decode == 9'd1)
+        k_sequence_min_frame <= 4'd10;
+    else if (i_F_decode == 9'd2)
+        k_sequence_min_frame <= 4'd6;
+    else if (i_F_decode == 9'd3 || i_F_decode == 9'd4)
+        k_sequence_min_frame <= 4'd4;
+    else if (i_F_decode >= 9'd5 && i_F_decode <= 4'd8)
+        k_sequence_min_frame <= 4'd3;
+    else
+        k_sequence_min_frame <= 4'd2;
+end
 
 always@(posedge clk or negedge rst_n) begin
     if (!rst_n) begin
@@ -63,13 +91,15 @@ end
 always@(*) begin
     case(current_state)
         SYNC: begin
-            if (i_sync_request_tx || !lmfc_clk || k_sequence_too_short)
+            if (i_sync_request_tx || !lmfc_clk ||
+                (k_frame_cnt <= k_sequence_min_frame))
                 next_state = SYNC;
             else
                 next_state = INIT_LANE;
         end
         INIT_LANE: begin
-            if (!lane_seq_end)
+            // ILA sequence does not end
+            if (ila_multiframe_cnt <= i_ila_multiframe_length_decode)
                 next_state = INIT_LANE;
             else
                 next_state = DATA_ENC;
@@ -82,6 +112,34 @@ always@(*) begin
         end
         default: next_state = SYNC;
     endcase
+end
+
+always@(posedge clk or negedge rst_n) begin
+    if (!rst_n) begin
+        k_frame_cnt <= 4'd0;
+    end else begin
+        if (current_state == SYNC) begin
+            if (frame_clk)
+                k_frame_cnt <= k_frame_cnt + 4'd1;
+            else
+                k_frame_cnt <= k_frame_cnt;
+        end else
+            k_frame_cnt <= 4'd0;
+    end
+end
+
+always@(posedge clk or negedge rst_n) begin
+    if (!rst_n) begin
+        ila_multiframe_cnt <= 9'd0;
+    end else begin
+        if (current_state == INIT_LANE) begin
+            if (lmfc_clk)
+                ila_multiframe_cnt <= ila_multiframe_cnt + 9'd1;
+            else
+                ila_multiframe_cnt <= ila_multiframe_cnt;
+        end else
+            ila_multiframe_cnt <= 9'd0;
+    end
 end
 
 always@(posedge clk) begin
