@@ -21,7 +21,7 @@ module tx_control(
     // 0: user data
     // 1: continous K
     // 2: ILA
-    // 3: link layer test sequence, exact test sequence type is controled by
+    // 3: link layer test sequence, exact test sequence type is controlled by
     //      o_link_test_sel
     output reg [2:0] o_link_mux,
     // link layer test sequence select
