@@ -7,6 +7,8 @@ module tx_link_layer(
     input wire [7:0] i_data,
     input wire i_vld,
     input wire i_k,
+
+    input wire [2:0] i_link_mux,
     // abcdeifghj
     output reg [9:0] o_data,
     output reg o_k_error

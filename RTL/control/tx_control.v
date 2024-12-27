@@ -5,11 +5,6 @@ module tx_control(
     input wire lmfc_clk,
     // assert when link re-initialization is detected
     input wire i_sync_request_tx,
-    // this signal only works when the FSM is at DATA_ENC
-    // 1 - enable link test sequence
-    // 0 - disable link test sequence
-    input wire i_reg_link_test_en,
-    input wire [1:0] i_reg_link_test_sel,
     // number of octets per frame
     // 1 ~ 256, encoding: binary value - 1
     input wire [7:0] i_F,
@@ -23,9 +18,7 @@ module tx_control(
     // 2: ILA
     // 3: link layer test sequence, exact test sequence type is controlled by
     //      o_link_test_sel
-    output reg [2:0] o_link_mux,
-    // link layer test sequence select
-    output reg [1:0] o_link_test_sel
+    output reg [2:0] o_link_mux
 );
 
 // states
@@ -35,10 +28,9 @@ localparam [2:0] DATA_ENC = 3'b100;
 
 
 // FSM actions encode
-localparam [2:0] SEND_USER_DATA = 3'd0;
-localparam [2:0] SEND_K = 3'd1;
-localparam [2:0] SEND_LANE_SEQ = 3'd2;
-localparam [2:0] SEND_LINK_TEST_SEQ = 3'd3;
+localparam [2:0] SEND_USER_DATA = 3'b001;
+localparam [2:0] SEND_K = 3'b010;
+localparam [2:0] SEND_LANE_SEQ = 3'b100;
 
 reg [2:0] next_state;
 reg [2:0] current_state;
@@ -79,10 +71,7 @@ always@(posedge clk or negedge rst_n) begin
         case(current_state)
             SYNC: o_link_mux <= SEND_K;
             INIT_LANE: o_link_mux <= SEND_LANE_SEQ;
-            DATA_ENC: begin
-                o_link_mux <=
-                    (i_reg_link_test_en)? SEND_LINK_TEST_SEQ:SEND_USER_DATA;
-            end
+            DATA_ENC: o_link_mux <= SEND_USER_DATA;
             default: o_link_mux <= SEND_K;
         endcase
     end
@@ -140,9 +129,5 @@ always@(posedge clk or negedge rst_n) begin
         end else
             ila_multiframe_cnt <= 9'd0;
     end
-end
-
-always@(posedge clk) begin
-    o_link_test_sel <= i_reg_link_test_sel;
 end
 endmodule
