@@ -101,9 +101,9 @@ initial begin
 end
 initial begin
   rst_n = 0;
-  repeat(4) @(posedge clk);
+  repeat(4) @(posedge device_clk);
   rst_n = 0;
-  repeat(4) @(posedge clk);
+  repeat(4) @(posedge device_clk);
   rst_n = 1;
 end
 
