@@ -57,6 +57,11 @@ function void test_base::build_phase(uvm_phase phase);
       m_env_cfg.m_rx_jesd204b_layering_cfg.m_deserializer_agent_cfg.mon_bfm))
     `uvm_error("build_phase", "uvm_config_db #(virtual \
         deserializer monitor BFM)::get() failed");
+  if (!uvm_config_db #(virtual deserializer_driver_bfm)::get(this, "", 
+      "deserializer_driver_bfm", 
+      m_env_cfg.m_rx_jesd204b_layering_cfg.m_deserializer_agent_cfg.drv_bfm))
+    `uvm_error("build_phase", "uvm_config_db #(virtual \
+        deserializer driver BFM)::get() failed");
 
   if (!uvm_config_db #(virtual enc_bus_monitor_bfm)::get(this, "", 
       "enc_bus_mon_bfm", m_env_cfg.m_enc_bus_agent_cfg.mon_bfm))

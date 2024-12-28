@@ -21,9 +21,9 @@ module tx_link_layer(
     output reg o_k_error
 );
 
-wire [7:0] data_after_mux;
-wire data_vld_after_mux;
-wire k_flag_after_mux;
+reg [7:0] data_after_mux;
+reg data_vld_after_mux;
+reg k_flag_after_mux;
 
 wire [7:0] k_seq_data;
 wire k_seq_vld;
