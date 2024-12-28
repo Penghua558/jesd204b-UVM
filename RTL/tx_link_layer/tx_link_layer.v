@@ -1,25 +1,78 @@
 `include "encoder_8b10b.v"
+`include "k_sequence_gen.v"
 
 module tx_link_layer(
-    input wire clk,
+    input wire clk, // character clock
     input wire rst_n,
     // HGFEDCBA
     input wire [7:0] i_data,
     input wire i_vld,
     input wire i_k,
 
+    // select which octect stream should be fed into 8b/10b encoder
+    // 0: user data
+    // 1: continous K
+    // 2: ILA
+    // 3: link layer test sequence, exact test sequence type is controlled by
+    //      o_link_test_sel
     input wire [2:0] i_link_mux,
     // abcdeifghj
     output reg [9:0] o_data,
     output reg o_k_error
 );
 
+wire [7:0] data_after_mux;
+wire data_vld_after_mux;
+wire k_flag_after_mux;
+
+wire [7:0] k_seq_data;
+wire k_seq_vld;
+wire k_seq_k;
+
+k_sequence_gen k_seq_gen(
+    .clk(clk),
+    .o_data(k_seq_data),
+    .o_vld(k_seq_vld),
+    .o_k(k_seq_k)
+);
+
+// MUX to select data streams for 8b10b encoder
+always@(posedge clk) begin
+    case(i_link_mux)
+        3'd0: begin // user data
+            data_after_mux <= i_data;
+            data_vld_after_mux <= i_vld;
+            k_flag_after_mux <= i_k;
+        end
+        3'd1: begin // continous K
+            data_after_mux <= k_seq_data;
+            data_vld_after_mux <= k_seq_vld;
+            k_flag_after_mux <= k_seq_k;
+        end
+        3'd2: begin // ILA
+            data_after_mux <= 8'd0;
+            data_vld_after_mux <= 1'b1;
+            k_flag_after_mux <= 1'b0;
+        end
+        3'd3: begin // link layer test sequence
+            data_after_mux <= 8'd10;
+            data_vld_after_mux <= 1'b1;
+            k_flag_after_mux <= 1'b0;
+        end
+        default: begin
+            data_after_mux <= i_data;
+            data_vld_after_mux <= i_vld;
+            k_flag_after_mux <= i_k;
+        end
+    endcase
+end
+
 encoder_8b10b u_encoder_8b10b(
     .clk(clk),
     .rst_n(rst_n),
-    .i_data(i_data),
-    .i_vld(i_vld),
-    .i_k(i_k),
+    .i_data(data_after_mux),
+    .i_vld(data_vld_after_mux),
+    .i_k(k_flag_after_mux),
     .o_data(o_data),
     .o_k_error(o_k_error)
 );
