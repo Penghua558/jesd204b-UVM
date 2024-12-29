@@ -95,10 +95,13 @@ initial begin
   character_clk = 0;
   agent_bitclk = 0;
   device_clk = 0;
+  fork
   forever #0.4ns character_clk = ~character_clk;
   forever #0.04ns agent_bitclk = ~agent_bitclk;
   forever #1.6ns device_clk = ~device_clk;
+  join_none
 end
+
 initial begin
   rst_n = 0;
   repeat(4) @(posedge device_clk);

@@ -61,6 +61,7 @@ endfunction
 
 function void deser2dec_monitor::write(deserializer_trans t);
     `uvm_info("Received deserializer item", t.sprint(), UVM_MEDIUM)
+    dec_out = decoder_8b10b_trans::type_id::create("dec_out");
     // if symbol is not locked then we don't need to process
     // deserializer_trans, since what it contains is garbage
     if (t.lock) begin
@@ -82,7 +83,6 @@ function void deser2dec_monitor::write(deserializer_trans t);
     my_unpacked_6b_type data_6b_unpacked;
     my_unpacked_4b_type data_4b_unpacked;
 
-    dec_out = decoder_8b10b_trans::type_id::create("dec_out");
 
     dec_out.running_disparity = rd;
     dec_out.disparity_error = 1'b0;
