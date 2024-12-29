@@ -53,10 +53,10 @@ function void test_base_long::report_phase(uvm_phase phase);
 //   svr = get_report_server();
 
    if(svr.get_severity_count(UVM_ERROR) == 0) begin
-     `uvm_info("** UVM TEST PASSED **", "SPI Register/reset test passed \
+     `uvm_info("** UVM TEST PASSED **", "test passed \
      with no errors", UVM_LOW)
    end else begin
-     `uvm_error("!! UVM TEST FAILED !!", "SPI Register/reset test failed")
+     `uvm_error("!! UVM TEST FAILED !!", "test failed")
    end
 
 endfunction: report_phase

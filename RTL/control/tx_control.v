@@ -16,8 +16,6 @@ module tx_control(
     // 0: user data
     // 1: continous K
     // 2: ILA
-    // 3: link layer test sequence, exact test sequence type is controlled by
-    //      o_link_test_sel
     output reg [2:0] o_link_mux
 );
 
@@ -28,9 +26,9 @@ localparam [2:0] DATA_ENC = 3'b100;
 
 
 // FSM actions encode
-localparam [2:0] SEND_USER_DATA = 3'b001;
-localparam [2:0] SEND_K = 3'b010;
-localparam [2:0] SEND_LANE_SEQ = 3'b100;
+localparam [2:0] SEND_USER_DATA = 3'd0;
+localparam [2:0] SEND_K = 3'd1;
+localparam [2:0] SEND_LANE_SEQ = 3'd2;
 
 reg [2:0] next_state;
 reg [2:0] current_state;

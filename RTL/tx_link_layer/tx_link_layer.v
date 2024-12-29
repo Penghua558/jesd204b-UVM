@@ -13,8 +13,6 @@ module tx_link_layer(
     // 0: user data
     // 1: continous K
     // 2: ILA
-    // 3: link layer test sequence, exact test sequence type is controlled by
-    //      o_link_test_sel
     input wire [2:0] i_link_mux,
     // abcdeifghj
     output reg [9:0] o_data,
@@ -24,6 +22,12 @@ module tx_link_layer(
 reg [7:0] data_after_mux;
 reg data_vld_after_mux;
 reg k_flag_after_mux;
+
+reg link_test_en;
+
+wire [7:0] user_data;
+wire user_vld;
+wire user_k;
 
 wire [7:0] k_seq_data;
 wire k_seq_vld;
@@ -36,13 +40,18 @@ k_sequence_gen k_seq_gen(
     .o_k(k_seq_k)
 );
 
+assign user_data = (link_test_en)? 8'd10:i_data;
+assign user_vld = (link_test_en)? 1'd1:i_vld;
+assign user_k = (link_test_en)? 1'd0:i_k;
+
+
 // MUX to select data streams for 8b10b encoder
 always@(posedge clk) begin
     case(i_link_mux)
         3'd0: begin // user data
-            data_after_mux <= i_data;
-            data_vld_after_mux <= i_vld;
-            k_flag_after_mux <= i_k;
+            data_after_mux <= user_data;
+            data_vld_after_mux <= user_vld;
+            k_flag_after_mux <= user_k;
         end
         3'd1: begin // continous K
             data_after_mux <= k_seq_data;
@@ -51,11 +60,6 @@ always@(posedge clk) begin
         end
         3'd2: begin // ILA
             data_after_mux <= 8'd0;
-            data_vld_after_mux <= 1'b1;
-            k_flag_after_mux <= 1'b0;
-        end
-        3'd3: begin // link layer test sequence
-            data_after_mux <= 8'd10;
             data_vld_after_mux <= 1'b1;
             k_flag_after_mux <= 1'b0;
         end
