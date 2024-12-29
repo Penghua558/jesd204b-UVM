@@ -13,7 +13,7 @@ endfunction
 
 
 task ila_seq::body;
-    ila_trans req = ila_trans::type_id::create("req", this);
+    ila_trans req = ila_trans::type_id::create("req");
 
     start_item(req);
     assert(req.randomize());

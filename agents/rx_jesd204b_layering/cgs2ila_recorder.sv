@@ -17,7 +17,7 @@ class cgs2ila_recorder extends uvm_subscriber#(ila_trans);
         rec = tr_strm.open_recorder("rec");
     endfunction
 
-    function void write(decoder_8b10b_trans t);
+    function void write(ila_trans t);
         `uvm_info("ILA recorder", 
             "printing and recording transaction...", UVM_MEDIUM)
         t.print();
