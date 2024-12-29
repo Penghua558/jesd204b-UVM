@@ -59,7 +59,7 @@ always@(posedge clk) begin
             k_flag_after_mux <= k_seq_k;
         end
         3'd2: begin // ILA
-            data_after_mux <= 8'd0;
+            data_after_mux <= 8'd1;
             data_vld_after_mux <= 1'b1;
             k_flag_after_mux <= 1'b0;
         end

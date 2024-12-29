@@ -40,7 +40,7 @@ task test_base_long::main_phase(uvm_phase phase);
     super.run_phase(phase);
     phase.raise_objection(this, "Test started");
     `uvm_info("TEST", "DUT reset completed", UVM_MEDIUM)
-    #100us;
+    #1us;
     phase.drop_objection(this, "Test finished");
 endtask
 
