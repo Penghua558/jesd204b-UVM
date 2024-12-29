@@ -42,10 +42,10 @@ endfunction
 
 function void dec2cgs_monitor::build_phase(uvm_phase phase);
     m_cfg = rx_jesd204b_layering_config::get_config(this);
-    ifs_fsm.m_cfg = m_cfg;
-    ap = new("ap", this);
     cgs_fsm = new;
     ifs_fsm = new;
+    ap = new("ap", this);
+    ifs_fsm.m_cfg = m_cfg;
 endfunction: build_phase
 
 
