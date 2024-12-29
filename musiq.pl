@@ -9,7 +9,7 @@ use Getopt::Long;
 use Pod::Usage;
 use POSIX qw(strftime);
 
-our $version_number = 'v0.6.3';
+our $version_number = 'v0.6.4';
 
 # switch to show help message
 my $help = '';
@@ -101,7 +101,7 @@ if($com_n_sim){
 }
 
 sub mkdir_n_simulate{
-    my $directory_name = 'tc_';
+    my $directory_name = '';
 
     #make simulation directory
     $directory_name .= $_[0];

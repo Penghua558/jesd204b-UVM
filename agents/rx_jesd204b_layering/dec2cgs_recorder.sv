@@ -17,7 +17,7 @@ class dec2cgs_recorder extends uvm_subscriber#(cgsnfs_trans);
         rec = tr_strm.open_recorder("rec");
     endfunction
 
-    function void write(decoder_8b10b_trans t);
+    function void write(cgsnfs_trans t);
         `uvm_info("CGS&IFS recorder", 
             "printing and recording transaction...", UVM_MEDIUM)
         t.print();

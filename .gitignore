@@ -10,3 +10,4 @@ transcript
 *.wlf
 *.log
 tc_*/
+test_*/

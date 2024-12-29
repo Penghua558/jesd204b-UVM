@@ -54,7 +54,7 @@ function void dec2cgs_monitor::write(decoder_8b10b_trans t);
     // if symbol is not locked then we don't need to process
     // deserializer_trans, since what it contains is garbage
 
-    cgs_out = decoder_8b10b_trans::type_id::create("cgs_out");
+    cgs_out = cgsnfs_trans::type_id::create("cgs_out");
 
     cgs_out.data = t.data;
     cgs_out.is_control_word = t.is_control_word;
