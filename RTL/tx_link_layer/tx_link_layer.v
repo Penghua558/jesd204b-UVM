@@ -23,7 +23,7 @@ reg [7:0] data_after_mux;
 reg data_vld_after_mux;
 reg k_flag_after_mux;
 
-reg link_test_en;
+reg link_test_en = 1'b0;
 
 wire [7:0] user_data;
 wire user_vld;
@@ -64,9 +64,9 @@ always@(posedge clk) begin
             k_flag_after_mux <= 1'b0;
         end
         default: begin
-            data_after_mux <= i_data;
-            data_vld_after_mux <= i_vld;
-            k_flag_after_mux <= i_k;
+            data_after_mux <= user_data;
+            data_vld_after_mux <= user_vld;
+            k_flag_after_mux <= user_k;
         end
     endcase
 end

@@ -86,7 +86,9 @@ always@(*) begin
         end
         INIT_LANE: begin
             // ILA sequence does not end
-            if (ila_multiframe_cnt <= i_ila_multiframe_length_decode)
+            if (i_sync_request_tx)
+                next_state = SYNC;
+            else if (ila_multiframe_cnt <= i_ila_multiframe_length_decode)
                 next_state = INIT_LANE;
             else
                 next_state = DATA_ENC;
