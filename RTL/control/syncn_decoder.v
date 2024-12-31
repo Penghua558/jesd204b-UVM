@@ -49,7 +49,7 @@ always@(posedge clk) begin
     if (i_sync_n) begin
         o_sync_request_tx <= 1'b0;
     end else begin
-        if (sync_requset_frame_cnt >= 3'd4)
+        if (sync_requset_frame_cnt >= 3'd5)
             o_sync_request_tx <= 1'b1;
         else
             o_sync_request_tx <= 1'b0;
