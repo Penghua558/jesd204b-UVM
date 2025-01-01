@@ -80,7 +80,6 @@ task ila2cgs_seq::body;
         // SYNC~ deassertion should happen at LMFC boundaries so we should
         // round it up to the minimum frames
         min_syncn_assertion_length = 5 + $ceil(9.0 / m_cfg.F);
-            min_syncn_assertion_length), UVM_LOW)
         // access phase, drive SYNC~ according to sync_request and the length
         // of assertion of SYNC~
         if (!sync_request_prev_frame && ila_req.sync_request) begin

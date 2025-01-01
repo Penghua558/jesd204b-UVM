@@ -41,7 +41,7 @@ build:
 	vlog -64 -incr -override_timescale $(TIMESCALE) -F ./env_filelist.f -l comp_env.log
 
 sim:
-	vsim -64 -voptargs=+acc -uvmcontrol=all,-certe -sv_seed $(SEED) +UVM_TESTNAME=$(TESTNAME) top -c -do $(DO_COMMAND) -wlf test.wlf -l sim.log
+	vsim -64 -voptargs=+acc -msgmode both -classdebug -uvmcontrol=all -sv_seed $(SEED) +UVM_TESTNAME=$(TESTNAME) top -c -do $(DO_COMMAND) -wlf test.wlf -l sim.log
 
 clean_up:
 	rm -rf work ../*.tgz

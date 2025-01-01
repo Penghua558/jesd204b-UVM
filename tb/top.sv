@@ -71,6 +71,8 @@ tx_jesd204b DUT(
 // Virtual interface wrapping & run_test()
 initial begin
     import uvm_pkg::uvm_config_db;
+    // enable Questasim's transaction recording function
+    uvm_config_db#(int)::set(null, "*", "recording_detail", 1);
     uvm_config_db#(virtual deserializer_monitor_bfm)::set(null, "uvm_test_top",
       "deserializer_monitor_bfm", u_deser_mon_bfm);
     uvm_config_db#(virtual deserializer_driver_bfm)::set(null, "uvm_test_top",
@@ -81,6 +83,8 @@ initial begin
       "enc_bus_mon_bfm", u_enc_bus_mon_bfm);
     uvm_config_db #(virtual enc_bus_driver_bfm)::set(null, "uvm_test_top",
       "enc_bus_drv_bfm", u_enc_bus_drv_bfm);
+
+    $wlfdumpvars();
     run_test();
 end
 
@@ -108,10 +112,6 @@ initial begin
   rst_n = 0;
   repeat(4) @(posedge device_clk);
   rst_n = 1;
-end
-
-initial begin
-  $wlfdumpvars();
 end
 
 endmodule: top
