@@ -78,16 +78,20 @@ function void cgs2ila_monitor::write(cgsnfs_trans t);
         ila_out.f_position = f_position;
         ila_out.sync_request = t.sync_request;
     end else begin
-        assert(ila_out != null);
-        ila_out.data[o_position] = t.data;
+        assert(ila_out != null) begin
+            ila_out.data[o_position] = t.data;
 
-        if (o_position == (m_cfg.F-1)) begin
-            `uvm_info("CGS2ILA Monitor", "Sending out a new frame", UVM_HIGH)
-            // Clone and publish the cloned item to the subscribers
-            $cast(cloned_ila_out, ila_out.clone());
-            notify_transaction(cloned_ila_out);
+            if (o_position == (m_cfg.F-1)) begin
+                `uvm_info("CGS2ILA Monitor", "Sending out a new frame", 
+                    UVM_HIGH)
+                // Clone and publish the cloned item to the subscribers
+                $cast(cloned_ila_out, ila_out.clone());
+                notify_transaction(cloned_ila_out);
 
-            f_position = (f_position++) % m_cfg.K;
+                f_position = (f_position++) % m_cfg.K;
+            end
+        end else begin
+            $warning("No valid octet received so far in CGS FSM");
         end
     end
     self_o_position = (self_o_position++) % m_cfg.F;

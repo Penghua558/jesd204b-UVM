@@ -54,6 +54,8 @@ task ila2cgs_seq::body;
         // setup phase, get sync_request from lower layer
         // wait for F valid octets
         while (num_valid_octet != m_cfg.F) begin
+            `uvm_info("TEST", $sformatf("num_valid_octet in a frame: %0d", 
+                num_valid_octet), UVM_HIGH)
             // wait for cgsnfs_trans sent from dec2cgs_monitor
             wait(p_sequencer.instruction_trans.size());
             sample_trans = p_sequencer.instruction_trans.pop_front();
@@ -86,6 +88,8 @@ task ila2cgs_seq::body;
             syncn_assertion_length = 0;
         end
 
+        `uvm_info("TEST", $sformatf("SYNC~ assertion frame length: %0d", 
+            syncn_assertion_length), UVM_HIGH)
         sync_n = 
             (!ila_req.sync_request && 
             (syncn_assertion_length >= min_syncn_assertion_length) && 

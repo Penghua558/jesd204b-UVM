@@ -209,6 +209,11 @@ function void deser2dec_monitor::write(deserializer_trans t);
     end
 
     dec_out.sync_n = t.sync_n;
+    end else begin
+    // for not yet bit locked symbols, we regard them as having both disparity
+    // error and not-in-table error
+        dec_out.disparity_error = 1'b1;
+        dec_out.not_in_table_error = 1'b1;
     end
 
     // Clone and publish the cloned item to the subscribers
