@@ -72,7 +72,7 @@ function void cgs2ila_monitor::write(cgsnfs_trans t);
     if (o_position == 0 && t.valid) begin
     // start of a frame, we create a new transaction to store a new frame
         `uvm_info("CGS2ILA Monitor", "Start of a new frame", UVM_HIGH)
-        ila_out = ila_trans::type_id::create("cgs_out");
+        ila_out = ila_trans::type_id::create("ila_out");
         ila_out.data = new[m_cfg.F];
         ila_out.data[o_position] = t.data;
         ila_out.f_position = f_position;
