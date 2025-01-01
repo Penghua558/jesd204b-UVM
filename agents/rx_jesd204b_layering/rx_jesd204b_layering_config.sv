@@ -66,6 +66,7 @@ function rx_jesd204b_layering_config rx_jesd204b_layering_config::get_config(
 endfunction
 
 function void rx_jesd204b_layering_config::do_print(uvm_printer printer);
+    m_deserializer_agent_cfg.print();
     super.do_print(printer);
     printer.print_int("F", F, $bits(F), UVM_DEC);
     printer.print_int("K", K, $bits(K), UVM_DEC);

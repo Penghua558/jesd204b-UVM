@@ -52,6 +52,9 @@ function void test_base::build_phase(uvm_phase phase);
   configure_rx_jesd204b_layering(m_env_cfg.m_rx_jesd204b_layering_cfg);
   configure_enc_bus_agent(m_env_cfg.m_enc_bus_agent_cfg);
 
+  `uvm_info("TEST", "environment configuration", UVM_LOW)
+  m_env_cfg.print();
+
   if (!uvm_config_db #(virtual deserializer_monitor_bfm)::get(this, "", 
       "deserializer_monitor_bfm", 
       m_env_cfg.m_rx_jesd204b_layering_cfg.m_deserializer_agent_cfg.mon_bfm))

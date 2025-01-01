@@ -43,6 +43,7 @@ enc_bus_agent_config m_enc_bus_agent_cfg;
 // Methods
 //------------------------------------------
 extern static function env_config get_config( uvm_component c);
+extern function void do_print(uvm_printer printer);
 extern function new(string name = "env_config");
 
 endclass: env_config
@@ -83,5 +84,11 @@ function env_config env_config::get_config( uvm_component c );
 
   return t;
 endfunction
+
+function void env_config::do_print(uvm_printer printer);
+    m_rx_jesd204b_layering_cfg.print();
+    m_enc_bus_agent_cfg.print();
+    //super.do_print(printer);
+endfunction:do_print
 
 `endif // env_config

@@ -20,9 +20,9 @@ endfunction
 
 task ila2cgs_seq::body;
     cgsnfs_trans cgs_trans;
+    // transition sampled from monitor
     cgsnfs_trans sample_trans;
     ila_trans ila_req;
-    ila_trans ila_rsp;
     int num_valid_octet;
     int self_o_position;
     int o_position;
@@ -79,7 +79,8 @@ task ila2cgs_seq::body;
         // minimum lengths for SYNC~ asssertion is 5 frames + 9 octets, since
         // SYNC~ deassertion should happen at LMFC boundaries so we should
         // round it up to the minimum frames
-        min_syncn_assertion_length = 5 + $ceil(9 / m_cfg.F);
+        min_syncn_assertion_length = 5 + $ceil(9.0 / m_cfg.F);
+            min_syncn_assertion_length), UVM_LOW)
         // access phase, drive SYNC~ according to sync_request and the length
         // of assertion of SYNC~
         if (!sync_request_prev_frame && ila_req.sync_request) begin
