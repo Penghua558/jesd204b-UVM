@@ -69,7 +69,7 @@ function void cgs2ila_monitor::write(cgsnfs_trans t);
         o_position = o_position;
     end
 
-    if (o_position == 0 && t.valid) begin
+    if (o_position == 0) begin
     // start of a frame, we create a new transaction to store a new frame
         `uvm_info("CGS2ILA Monitor", "Start of a new frame", UVM_HIGH)
         ila_out = ila_trans::type_id::create("ila_out");
@@ -77,9 +77,11 @@ function void cgs2ila_monitor::write(cgsnfs_trans t);
         ila_out.data[o_position] = t.data;
         ila_out.f_position = f_position;
         ila_out.sync_request = t.sync_request;
+        ila_out.valid = t.valid;
     end else begin
         assert(ila_out != null) begin
             ila_out.data[o_position] = t.data;
+            ila_out.valid &= t.valid;
 
             if (o_position == (m_cfg.F-1)) begin
                 `uvm_info("CGS2ILA Monitor", "Sending out a new frame", 
@@ -88,13 +90,13 @@ function void cgs2ila_monitor::write(cgsnfs_trans t);
                 $cast(cloned_ila_out, ila_out.clone());
                 notify_transaction(cloned_ila_out);
 
-                f_position = (f_position++) % m_cfg.K;
+                f_position = (f_position+1) % m_cfg.K;
             end
         end else begin
-            $warning("No valid octet received so far in CGS FSM");
+            $warning("Something went wrong with o_position");
         end
     end
-    self_o_position = (self_o_position++) % m_cfg.F;
+    self_o_position = (self_o_position+1) % m_cfg.F;
 endfunction
 
 

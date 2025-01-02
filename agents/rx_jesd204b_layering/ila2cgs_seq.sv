@@ -23,7 +23,7 @@ task ila2cgs_seq::body;
     // transition sampled from monitor
     cgsnfs_trans sample_trans;
     ila_trans ila_req;
-    int num_valid_octet;
+    int num_octet;
     int self_o_position;
     int o_position;
     // frame position in current multiframe, 0 ~ K-1
@@ -47,15 +47,15 @@ task ila2cgs_seq::body;
 
     forever begin
         up_sequencer.get_next_item(ila_req);
-        num_valid_octet = 0;
+        num_octet = 0;
         self_o_position = 0;
         sync_n = 1'b1;
         sync_n_prev_frame = 1'b1;
         // setup phase, get sync_request from lower layer
         // wait for F valid octets
-        while (num_valid_octet != m_cfg.F) begin
-            `uvm_info("TEST", $sformatf("num_valid_octet in a frame: %0d", 
-                num_valid_octet), UVM_HIGH)
+        while (num_octet != m_cfg.F) begin
+            `uvm_info("TEST", $sformatf("num_octet in a frame: %0d", 
+                num_octet), UVM_HIGH)
             // wait for cgsnfs_trans sent from dec2cgs_monitor
             wait(p_sequencer.instruction_trans.size());
             sample_trans = p_sequencer.instruction_trans.pop_front();
@@ -68,12 +68,14 @@ task ila2cgs_seq::body;
                 o_position = o_position;
             end
 
-            if (sample_trans.valid && o_position == 0) begin
-                num_valid_octet = 0;
+            if (num_octet == 0) begin
                 ila_req.sync_request = sample_trans.sync_request;
+                ila_req.valid = sample_trans.valid;
             end else begin
-                num_valid_octet++;
+                ila_req.sync_request |= sample_trans.sync_request;
+                ila_req.valid &= sample_trans.valid;
             end
+            num_octet++;
 
             self_o_position = (self_o_position++) % m_cfg.F;
         end

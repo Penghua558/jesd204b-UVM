@@ -14,6 +14,9 @@ class ila_trans extends uvm_sequence_item;
 // first index will always stores the first incoming octet,
 // which is MSB, which is first sent out from transmitter
 logic [7:0] data[];
+// 1 - all octets in this frame are valid
+// 0 - there is at least 1 octet in this frame is not valid
+bit valid;
 // position of frame within a multiframe
 // 0 ~ K-1
 int f_position;
@@ -51,6 +54,7 @@ function void ila_trans::do_copy(uvm_object rhs);
     super.do_copy(rhs);
     // Copy over wdata members:
     data = rhs_.data;
+    valid = rhs_.valid;
     f_position = rhs_.f_position;
     sync_request = rhs_.sync_request;
 endfunction:do_copy
@@ -66,6 +70,7 @@ function bit ila_trans::do_compare(uvm_object rhs,
 
     return super.do_compare(rhs, comparer) &&
       data == rhs_.data &&
+      valid == rhs_.valid &&
       f_position == rhs_.f_position &&
       sync_request == rhs_.sync_request;
 endfunction:do_compare
@@ -80,6 +85,7 @@ function void ila_trans::do_print(uvm_printer printer);
     end else begin
         printer.print_string("Decoded frame", "No data");
     end
+    printer.print_int("All octets valid?", valid, $bits(valid), UVM_BIN);
     printer.print_int("Frame position inside a multiframe", 
         f_position, $bits(f_position), UVM_DEC);
     printer.print_int("Sync request", 
