@@ -77,7 +77,7 @@ task ila2cgs_seq::body;
             end
             num_octet++;
 
-            self_o_position = (self_o_position++) % m_cfg.F;
+            self_o_position = (self_o_position+1) % m_cfg.F;
         end
 
         // minimum lengths for SYNC~ asssertion is 5 frames + 9 octets, since
@@ -108,7 +108,7 @@ task ila2cgs_seq::body;
         if (!sync_n)
             syncn_assertion_length++;
 
-        fcounter = (fcounter++) % m_cfg.K;
+        fcounter = (fcounter+1) % m_cfg.K;
         sync_n_prev_frame = sync_n;
         sync_request_prev_frame = ila_req.sync_request;
         up_sequencer.item_done();
