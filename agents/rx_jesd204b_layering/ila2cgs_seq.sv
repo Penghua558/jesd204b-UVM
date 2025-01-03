@@ -39,13 +39,13 @@ task ila2cgs_seq::body;
     m_cfg = rx_jesd204b_layering_config::get_config(m_sequencer);
     syncn_assertion_length = 0;
     fcounter = 0;
+    sync_n_prev_frame = 1'b1;
 
     forever begin
         up_sequencer.get_next_item(ila_req);
         num_octet = 0;
         self_o_position = 0;
         sync_n = 1'b1;
-        sync_n_prev_frame = 1'b1;
         // setup phase, get sync_request from lower layer
         // wait for F valid octets
         while (num_octet != m_cfg.F) begin
@@ -84,6 +84,15 @@ task ila2cgs_seq::body;
 
         `uvm_info("TEST", $sformatf("SYNC~ assertion frame length: %0d", 
             syncn_assertion_length), UVM_HIGH)
+        `uvm_info("TEST", $sformatf("minimum SYNC~ assertion frame length: %0d",
+            min_syncn_assertion_length), UVM_HIGH)
+        `uvm_info("TEST", $sformatf("sync request: %b", ila_req.sync_request), 
+            UVM_HIGH)
+        `uvm_info("TEST", $sformatf("Current frame position: %0d", fcounter), 
+            UVM_HIGH)
+        `uvm_info("TEST", $sformatf("SYNC~ at previous frame: %b", 
+            sync_n_prev_frame), UVM_HIGH)
+
         sync_n = 
             (!ila_req.sync_request && 
             (syncn_assertion_length >= min_syncn_assertion_length) && 
