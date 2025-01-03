@@ -103,7 +103,7 @@ function void test_base::configure_deserializer_agent(
     deserializer_agent_config cfg);
     cfg.active = UVM_ACTIVE;
     // maximum clock cycle delay between DUT's output and agent's input
-    cfg.max_delay = 7;
+    cfg.max_delay = 80;
     assert(cfg.randomize());
 endfunction: configure_deserializer_agent 
 
