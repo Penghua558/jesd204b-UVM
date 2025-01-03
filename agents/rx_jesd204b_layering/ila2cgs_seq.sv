@@ -35,14 +35,9 @@ task ila2cgs_seq::body;
     int syncn_assertion_length;
     bit sync_n;
     bit sync_n_prev_frame;
-    // sync_request from previous frame, we need this to detect when is the
-    // start of SYNC~ assertion
-    bit sync_request_prev_frame;
 
     m_cfg = rx_jesd204b_layering_config::get_config(m_sequencer);
     syncn_assertion_length = 0;
-    sync_request_prev_frame = 1'b0;
-    syncn_assertion_length = 15;
     fcounter = 0;
 
     forever begin
@@ -86,16 +81,13 @@ task ila2cgs_seq::body;
         min_syncn_assertion_length = 5 + $ceil(9.0 / m_cfg.F);
         // access phase, drive SYNC~ according to sync_request and the length
         // of assertion of SYNC~
-        if (!sync_request_prev_frame && ila_req.sync_request) begin
-            syncn_assertion_length = 0;
-        end
 
         `uvm_info("TEST", $sformatf("SYNC~ assertion frame length: %0d", 
             syncn_assertion_length), UVM_HIGH)
         sync_n = 
             (!ila_req.sync_request && 
             (syncn_assertion_length >= min_syncn_assertion_length) && 
-            (fcounter == 0)) || (!ila_req.sync_request && !sync_n_prev_frame);
+            (fcounter == 0)) || (!ila_req.sync_request && sync_n_prev_frame);
 
         repeat(m_cfg.F) begin
             cgs_trans = cgsnfs_trans::type_id::create("cgs_trans");
@@ -107,10 +99,11 @@ task ila2cgs_seq::body;
 
         if (!sync_n)
             syncn_assertion_length++;
+        else
+            syncn_assertion_length = 0;
 
         fcounter = (fcounter+1) % m_cfg.K;
         sync_n_prev_frame = sync_n;
-        sync_request_prev_frame = ila_req.sync_request;
         up_sequencer.item_done();
 
     end
