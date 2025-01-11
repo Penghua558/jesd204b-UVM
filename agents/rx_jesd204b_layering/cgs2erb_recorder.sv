@@ -1,5 +1,5 @@
-class cgs2ila_recorder extends uvm_subscriber#(ila_trans);
-    `uvm_component_utils(cgs2ila_recorder)
+class cgs2erb_recorder extends uvm_subscriber#(erb_trans);
+    `uvm_component_utils(cgs2erb_recorder)
 
     uvm_text_tr_database tr_db;
     uvm_tr_stream tr_strm;
@@ -17,8 +17,8 @@ class cgs2ila_recorder extends uvm_subscriber#(ila_trans);
         rec = tr_strm.open_recorder("rec");
     endfunction
 
-    function void write(ila_trans t);
-        `uvm_info("ILA recorder", 
+    function void write(erb_trans t);
+        `uvm_info("Elastic RX Buffer recorder", 
             "printing and recording transaction...", UVM_MEDIUM)
         t.print();
         t.record(rec);
