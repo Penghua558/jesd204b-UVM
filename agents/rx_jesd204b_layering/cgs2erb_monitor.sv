@@ -71,7 +71,7 @@ function void cgs2erb_monitor::write(cgsnfs_trans t);
 
     if (o_position == 0) begin
     // start of a frame, we create a new transaction to store a new frame
-        `uvm_info("CGS2ILA Monitor", "Start of a new frame", UVM_HIGH)
+        `uvm_info("CGS2ERB Monitor", "Start of a new frame", UVM_HIGH)
         erb_out = erb_trans::type_id::create("erb_out");
         erb_out.data = new[m_cfg.F];
         erb_out.data[o_position] = t.data;
@@ -84,7 +84,7 @@ function void cgs2erb_monitor::write(cgsnfs_trans t);
             erb_out.valid &= t.valid;
 
             if (o_position == (m_cfg.F-1)) begin
-                `uvm_info("CGS2ILA Monitor", "Sending out a new frame", 
+                `uvm_info("CGS2ERB Monitor", "Sending out a new frame", 
                     UVM_HIGH)
                 // Clone and publish the cloned item to the subscribers
                 $cast(cloned_erb_out, erb_out.clone());

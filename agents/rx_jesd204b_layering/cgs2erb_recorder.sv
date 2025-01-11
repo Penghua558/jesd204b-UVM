@@ -12,7 +12,7 @@ class cgs2erb_recorder extends uvm_subscriber#(erb_trans);
     function void build_phase(uvm_phase phase);
         super.build_phase(phase);
         tr_db = uvm_text_tr_database::type_id::create("tr_db");
-        tr_db.set_file_name("ILA_trans.log");
+        tr_db.set_file_name("ERB_trans.log");
         tr_strm = tr_db.open_stream("tr_strm");
         rec = tr_strm.open_recorder("rec");
     endfunction
