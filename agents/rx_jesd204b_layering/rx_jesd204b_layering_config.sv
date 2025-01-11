@@ -1,3 +1,5 @@
+let min(a, b) = (a <= b)? a:b;
+
 class rx_jesd204b_layering_config extends uvm_object;
 
 localparam string s_my_config_id = "rx_jesd204b_layering_config";
@@ -27,6 +29,31 @@ rand int K;
 // 0 - disable scrambling
 // 1 - enable scrambling
 rand bit scrambling_enable;
+// RX Buffer Delay, unit is frame
+// used to describe when Elastic RX Buffer is released
+rand int RBD;
+
+constraint dac_para_cons {
+    F >= 1;
+    F <= 256;
+
+    K >= $ceil(17.0/F);
+    K <= (min(32, 1024/F));
+
+    // a multiframe's period must be larger than maximum possible link delay
+    // the inequality is only valid for 12.5Gbps link operation
+    0.8*K*F > 3.28 + 1.6*F;
+
+    RBD >= 1;
+    RBD <= K;
+
+    // Elastic RX Buffer's release delay must be greater than maximum possible
+    // link delay, the inequality is only valid for 12.5Gbps link operation
+    0.8*RBD*F > 3.28 + 1.6*F;
+
+    solve F before K;
+    solve K before RBD;
+};
 
 //------------------------------------------
 // Methods
@@ -71,4 +98,5 @@ function void rx_jesd204b_layering_config::do_print(uvm_printer printer);
     printer.print_int("F", F, $bits(F), UVM_DEC);
     printer.print_int("K", K, $bits(K), UVM_DEC);
     printer.print_string("scrambling enable?", scrambling_enable? "Yes":"No");
+    printer.print_int("RBD", RBD, $bits(RBD), UVM_DEC);
 endfunction:do_print
