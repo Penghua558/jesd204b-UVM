@@ -18,6 +18,9 @@ int f_position;
 // the layering continue to operate
 // 0 ~ F-1
 int self_o_position;
+// Elastic RX Buffer, 1st index is position of frame in the buffer, 2nd index
+// is octet position in a frame
+logic [7:0] erb[][];
 rx_jesd204b_layering_config m_cfg;
 
 //------------------------------------------
@@ -53,6 +56,11 @@ function void cgs2erb_monitor::build_phase(uvm_phase phase);
     m_cfg = rx_jesd204b_layering_config::get_config(this);
     f_position = 0;
     self_o_position = 0;
+    erb = new[m_cfg.erb_size];
+    foreach(erb[i])
+        erb[i] = new[m_cfg.F];
+    foreach(erb[i, j])
+        erb[i][j] = 8'd0;
     ap = new("ap", this);
 endfunction: build_phase
 

@@ -32,6 +32,9 @@ rand bit scrambling_enable;
 // RX Buffer Delay, unit is frame
 // used to describe when Elastic RX Buffer is released
 rand int RBD;
+// size of Elastic RX Buffer in units of frames
+// size should be greater or equal to RBD
+rand int erb_size;
 
 constraint dac_para_cons {
     F >= 1;
@@ -51,8 +54,12 @@ constraint dac_para_cons {
     // link delay, the inequality is only valid for 12.5Gbps link operation
     0.8*RBD*F > 3.28 + 1.6*F;
 
+    erb_size >= RBD;
+    erb_size <= 33;
+
     solve F before K;
     solve K before RBD;
+    solve RBD before erb_size;
 };
 
 //------------------------------------------
@@ -99,4 +106,5 @@ function void rx_jesd204b_layering_config::do_print(uvm_printer printer);
     printer.print_int("K", K, $bits(K), UVM_DEC);
     printer.print_string("scrambling enable?", scrambling_enable? "Yes":"No");
     printer.print_int("RBD", RBD, $bits(RBD), UVM_DEC);
+    printer.print_int("ERB size in frames", erb_size, $bits(erb_size), UVM_DEC);
 endfunction:do_print

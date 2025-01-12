@@ -96,6 +96,8 @@ function void test_base::configure_rx_jesd204b_layering(
     cfg.F = 8;
     cfg.K = 4;
     cfg.scrambling_enable = 1'b1;
+    cfg.RBD = 4;
+    cfg.erb_size = 4;
     configure_deserializer_agent(cfg.m_deserializer_agent_cfg);
 endfunction: configure_rx_jesd204b_layering
 
