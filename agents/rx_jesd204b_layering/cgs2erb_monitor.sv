@@ -22,7 +22,7 @@ int f_position;
 int self_o_position;
 // Elastic RX Buffer, 1st index is position of frame in the buffer, 2nd index
 // is octet position in a frame
-circular_buffer#(frame_data) erb;
+circular_buffer#(frame_data) m_erb;
 rx_jesd204b_layering_config m_cfg;
 
 //------------------------------------------
@@ -58,9 +58,9 @@ function void cgs2erb_monitor::build_phase(uvm_phase phase);
     m_cfg = rx_jesd204b_layering_config::get_config(this);
     f_position = 0;
     self_o_position = 0;
-    erb = new(m_cfg.erb_size);
-    foreach(erb.buffer[i])
-        erb.buffer[i] = new[m_cfg.F];
+    m_erb = new(m_cfg.erb_size);
+    foreach(m_erb.buffer[i])
+        m_erb.buffer[i] = new[m_cfg.F];
     ap = new("ap", this);
 endfunction: build_phase
 
@@ -94,8 +94,14 @@ function void cgs2erb_monitor::write(cgsnfs_trans t);
             if (o_position == (m_cfg.F-1)) begin
                 // MSB should be the first octet ever received
                 erb_out.data.reverse();
-                // detect start of ILA and feed it into ERB
-                if (erb_out.data[m_cfg.F-1] == cgs2erb_monitor_dec::R) begin
+                if (t.ifsstate == FS_INIT)
+                    // Elastic RX Buffer will not be fed when we are still in
+                    // early synchronization stage
+                    m_erb.reset();
+                else begin
+                    // detect start of ILA and feed it into ERB
+                    if (erb_out.data[m_cfg.F-1] == cgs2erb_monitor_dec::R) begin
+                    end
                 end
                 `uvm_info("CGS2ERB Monitor", "Sending out a new frame", 
                     UVM_HIGH)

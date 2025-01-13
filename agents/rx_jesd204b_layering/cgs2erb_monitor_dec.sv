@@ -1,6 +1,6 @@
 package cgs2erb_monitor_dec;
 
-typedef logic [7:0] frame_data[];
+typedef bit[7:0] frame_data[];
 
 parameter bit[7:0] R = 8'h1c;
 
@@ -14,6 +14,13 @@ int readIndx = 0;
 function new(int capacity);
     N = capacity + 1;
     buffer = new[N];
+    writeIndx = 0;
+    readIndx = 0;
+endfunction
+
+
+function void reset();
+// empty the buffer
     writeIndx = 0;
     readIndx = 0;
 endfunction
