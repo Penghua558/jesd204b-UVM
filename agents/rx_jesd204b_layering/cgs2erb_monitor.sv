@@ -1,8 +1,10 @@
+import cgs2erb_monitor_dec::*;
 class cgs2erb_monitor extends uvm_subscriber#(cgsnfs_trans);
 
 // UVM Factory Registration Macro
 //
 `uvm_component_utils(cgs2erb_monitor);
+
 
 //------------------------------------------
 // Data Members
@@ -20,7 +22,7 @@ int f_position;
 int self_o_position;
 // Elastic RX Buffer, 1st index is position of frame in the buffer, 2nd index
 // is octet position in a frame
-logic [7:0] erb[][];
+circular_buffer#(frame_data) erb;
 rx_jesd204b_layering_config m_cfg;
 
 //------------------------------------------
@@ -56,11 +58,9 @@ function void cgs2erb_monitor::build_phase(uvm_phase phase);
     m_cfg = rx_jesd204b_layering_config::get_config(this);
     f_position = 0;
     self_o_position = 0;
-    erb = new[m_cfg.erb_size];
-    foreach(erb[i])
-        erb[i] = new[m_cfg.F];
-    foreach(erb[i, j])
-        erb[i][j] = 8'd0;
+    erb = new(m_cfg.erb_size);
+    foreach(erb.buffer[i])
+        erb.buffer[i] = new[m_cfg.F];
     ap = new("ap", this);
 endfunction: build_phase
 
@@ -92,6 +92,11 @@ function void cgs2erb_monitor::write(cgsnfs_trans t);
             erb_out.valid &= t.valid;
 
             if (o_position == (m_cfg.F-1)) begin
+                // MSB should be the first octet ever received
+                erb_out.data.reverse();
+                // detect start of ILA and feed it into ERB
+                if (erb_out.data[m_cfg.F-1] == cgs2erb_monitor_dec::R) begin
+                end
                 `uvm_info("CGS2ERB Monitor", "Sending out a new frame", 
                     UVM_HIGH)
                 // Clone and publish the cloned item to the subscribers
