@@ -22,7 +22,7 @@ int f_position;
 int self_o_position;
 // Elastic RX Buffer, 1st index is position of frame in the buffer, 2nd index
 // is octet position in a frame
-circular_buffer#(frame_data) m_erb;
+erb m_erb;
 rx_jesd204b_layering_config m_cfg;
 
 //------------------------------------------
@@ -59,8 +59,6 @@ function void cgs2erb_monitor::build_phase(uvm_phase phase);
     f_position = 0;
     self_o_position = 0;
     m_erb = new(m_cfg.erb_size);
-    foreach(m_erb.buffer[i])
-        m_erb.buffer[i] = new[m_cfg.F];
     ap = new("ap", this);
 endfunction: build_phase
 
@@ -82,27 +80,24 @@ function void cgs2erb_monitor::write(cgsnfs_trans t);
         `uvm_info("CGS2ERB Monitor", "Start of a new frame", UVM_HIGH)
         erb_out = erb_trans::type_id::create("erb_out");
         erb_out.data = new[m_cfg.F];
+        erb_out.is_control_word = new[m_cfg.F];
+
         erb_out.data[o_position] = t.data;
+        erb_out.is_control_word[o_position] = t.is_control_word;
         erb_out.f_position = f_position;
         erb_out.sync_request = t.sync_request;
         erb_out.valid = t.valid;
     end else begin
         assert(erb_out != null) begin
             erb_out.data[o_position] = t.data;
+            erb_out.is_control_word[o_position] = t.is_control_word;
             erb_out.valid &= t.valid;
 
             if (o_position == (m_cfg.F-1)) begin
                 // MSB should be the first octet ever received
                 erb_out.data.reverse();
-                if (t.ifsstate == FS_INIT)
-                    // Elastic RX Buffer will not be fed when we are still in
-                    // early synchronization stage
-                    m_erb.reset();
-                else begin
-                    // detect start of ILA and feed it into ERB
-                    if (erb_out.data[m_cfg.F-1] == cgs2erb_monitor_dec::R) begin
-                    end
-                end
+                erb_out.is_control_word.reverse();
+
                 `uvm_info("CGS2ERB Monitor", "Sending out a new frame", 
                     UVM_HIGH)
                 // Clone and publish the cloned item to the subscribers

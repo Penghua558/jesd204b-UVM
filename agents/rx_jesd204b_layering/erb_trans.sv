@@ -14,6 +14,7 @@ class erb_trans extends uvm_sequence_item;
 // first index will always stores the first incoming octet,
 // which is MSB, which is first sent out from transmitter
 logic [7:0] data[];
+bit is_control_word[];
 // 1 - all octets in this frame are valid
 // 0 - there is at least 1 octet in this frame is not valid
 bit valid;
@@ -54,6 +55,7 @@ function void erb_trans::do_copy(uvm_object rhs);
     super.do_copy(rhs);
     // Copy over wdata members:
     data = rhs_.data;
+    is_control_word = rhs_.is_control_word;
     valid = rhs_.valid;
     f_position = rhs_.f_position;
     sync_request = rhs_.sync_request;
@@ -70,6 +72,7 @@ function bit erb_trans::do_compare(uvm_object rhs,
 
     return super.do_compare(rhs, comparer) &&
       data == rhs_.data &&
+      is_control_word == rhs_.is_control_word &&
       valid == rhs_.valid &&
       f_position == rhs_.f_position &&
       sync_request == rhs_.sync_request;
@@ -84,6 +87,15 @@ function void erb_trans::do_print(uvm_printer printer);
         end
     end else begin
         printer.print_string("Decoded frame", "No data");
+    end
+
+    if (is_control_word.size) begin
+        foreach(is_control_word[i]) begin
+            printer.print_string($sformatf("Is control word[%0d]?", i), 
+                (is_control_word[i])? "Yes":"No");
+        end
+    end else begin
+        printer.print_string("Is control word?", "No data");
     end
     printer.print_int("All octets valid?", valid, $bits(valid), UVM_BIN);
     printer.print_int("Frame position inside a multiframe", 

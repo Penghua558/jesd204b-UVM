@@ -21,6 +21,7 @@ import deserializer_agent_pkg::*;
 `include "dec2cgs_recorder.sv"
 
 `include "erb_trans.sv"
+`include "erb.svh"
 `include "erb_sequencer.sv"
 `include "erb2cgs_seq.sv"
 `include "cgs2erb_monitor.sv"
