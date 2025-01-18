@@ -13,13 +13,14 @@ protected int num_frames_since_lmfc;
 // anything
 protected bit release_cond_met;
 
-function new(int size);
+function new(int size, int RBD);
     // argument size is the max number of frames a ERB can store, it's
     // different with RBD
     ila_start_detected = 1'b0;
     release_cond_met = 1'b0;
     num_frames_since_lmfc = 0;
     buffer = new(size);
+    this.RBD = RBD;
 endfunction
 
 

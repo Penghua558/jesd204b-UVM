@@ -58,7 +58,7 @@ function void cgs2erb_monitor::build_phase(uvm_phase phase);
     m_cfg = rx_jesd204b_layering_config::get_config(this);
     f_position = 0;
     self_o_position = 0;
-    m_erb = new(m_cfg.erb_size);
+    m_erb = new(m_cfg.erb_size, m_cfg.RBD);
     ap = new("ap", this);
 endfunction: build_phase
 
@@ -98,11 +98,18 @@ function void cgs2erb_monitor::write(cgsnfs_trans t);
                 erb_out.data.reverse();
                 erb_out.is_control_word.reverse();
 
-                `uvm_info("CGS2ERB Monitor", "Sending out a new frame", 
-                    UVM_HIGH)
-                // Clone and publish the cloned item to the subscribers
-                $cast(cloned_erb_out, erb_out.clone());
-                notify_transaction(cloned_erb_out);
+                // tries to feed the frame into ERB
+                if (m_erb.put(erb_out, t.ifsstate)) begin
+                    `uvm_info("CGS2ERB Monitor", "Fed a new frame into ERB", 
+                        UVM_MEDIUM)
+                end
+
+                if (m_erb.get(cloned_erb_out)) begin
+                    `uvm_info("CGS2ERB Monitor", "Sending out a new frame", 
+                        UVM_MEDIUM)
+                    // Clone and publish the cloned item to the subscribers
+                    notify_transaction(cloned_erb_out);
+                end
 
                 f_position = (f_position+1) % m_cfg.K;
             end
