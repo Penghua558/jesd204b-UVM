@@ -1,9 +1,9 @@
 class circular_buffer#(type T);
-T buffer[];
+protected T buffer[];
 // total size of buffer, includes the wasted element slot
-int N;
-int writeIndx = 0;
-int readIndx = 0;
+protected int N;
+protected int writeIndx = 0;
+protected int readIndx = 0;
 
 function new(int capacity);
     N = capacity + 1;
