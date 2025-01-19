@@ -15,9 +15,6 @@ class ila_trans extends uvm_sequence_item;
 // which is LSB, which is the last sent out from transmitter
 logic [7:0] data[];
 bit is_control_word[];
-// 1 - all octets in this frame are valid
-// 0 - there is at least 1 octet in this frame is not valid
-bit valid;
 // position of frame within a multiframe
 // 0 ~ K-1
 int f_position;
@@ -56,7 +53,6 @@ function void ila_trans::do_copy(uvm_object rhs);
     // Copy over wdata members:
     data = rhs_.data;
     is_control_word = rhs_.is_control_word;
-    valid = rhs_.valid;
     f_position = rhs_.f_position;
 endfunction:do_copy
 
@@ -72,7 +68,6 @@ function bit ila_trans::do_compare(uvm_object rhs,
     return super.do_compare(rhs, comparer) &&
       data == rhs_.data &&
       is_control_word == rhs_.is_control_word &&
-      valid == rhs_.valid &&
       f_position == rhs_.f_position;
 endfunction:do_compare
 
@@ -95,7 +90,6 @@ function void ila_trans::do_print(uvm_printer printer);
     end else begin
         printer.print_string("Is control word?", "No data");
     end
-    printer.print_int("All octets valid?", valid, $bits(valid), UVM_BIN);
     printer.print_int("Frame position inside a multiframe", 
         f_position, $bits(f_position), UVM_DEC);
 endfunction:do_print
