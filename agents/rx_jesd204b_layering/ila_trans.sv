@@ -1,8 +1,8 @@
-class erb_trans extends uvm_sequence_item;
+class ila_trans extends uvm_sequence_item;
 
 // UVM Factory Registration Macro
 //
-`uvm_object_utils(erb_trans)
+`uvm_object_utils(ila_trans)
 
 //------------------------------------------
 // Data Members (Outputs rand, inputs non-rand)
@@ -22,8 +22,8 @@ bit valid;
 // 0 ~ K-1
 int f_position;
 
-// passed from lower layer
-bit sync_request;
+// current ILA statemachine state
+ilastate_e ilastate;
 
 //------------------------------------------
 // Constraints
@@ -34,20 +34,20 @@ bit sync_request;
 //------------------------------------------
 
 // Standard UVM Methods:
-extern function new(string name = "erb_trans");
+extern function new(string name = "ila_trans");
 extern function void do_copy(uvm_object rhs);
 extern function bit do_compare(uvm_object rhs, uvm_comparer comparer);
 extern function void do_print(uvm_printer printer);
 extern function void do_record(uvm_recorder recorder);
 
-endclass:erb_trans
+endclass:ila_trans
 
-function erb_trans::new(string name = "erb_trans");
+function ila_trans::new(string name = "ila_trans");
   super.new(name);
 endfunction
 
-function void erb_trans::do_copy(uvm_object rhs);
-    erb_trans rhs_;
+function void ila_trans::do_copy(uvm_object rhs);
+    ila_trans rhs_;
 
     if(!$cast(rhs_, rhs)) begin
     `uvm_fatal("do_copy", "cast of rhs object failed")
@@ -58,12 +58,11 @@ function void erb_trans::do_copy(uvm_object rhs);
     is_control_word = rhs_.is_control_word;
     valid = rhs_.valid;
     f_position = rhs_.f_position;
-    sync_request = rhs_.sync_request;
 endfunction:do_copy
 
-function bit erb_trans::do_compare(uvm_object rhs, 
+function bit ila_trans::do_compare(uvm_object rhs, 
     uvm_comparer comparer);
-    erb_trans rhs_;
+    ila_trans rhs_;
 
     if(!$cast(rhs_, rhs)) begin
     `uvm_error("do_copy", "cast of rhs object failed")
@@ -74,11 +73,10 @@ function bit erb_trans::do_compare(uvm_object rhs,
       data == rhs_.data &&
       is_control_word == rhs_.is_control_word &&
       valid == rhs_.valid &&
-      f_position == rhs_.f_position &&
-      sync_request == rhs_.sync_request;
+      f_position == rhs_.f_position;
 endfunction:do_compare
 
-function void erb_trans::do_print(uvm_printer printer);
+function void ila_trans::do_print(uvm_printer printer);
     super.do_print(printer);
     if (data.size) begin
         foreach(data[i]) begin
@@ -100,11 +98,9 @@ function void erb_trans::do_print(uvm_printer printer);
     printer.print_int("All octets valid?", valid, $bits(valid), UVM_BIN);
     printer.print_int("Frame position inside a multiframe", 
         f_position, $bits(f_position), UVM_DEC);
-    printer.print_int("Sync request", 
-        sync_request, $bits(sync_request), UVM_BIN);
 endfunction:do_print
 
-function void erb_trans::do_record(uvm_recorder recorder);
+function void ila_trans::do_record(uvm_recorder recorder);
     super.do_record(recorder);
-    `uvm_record_string("erb_trans", this.sprint()) 
+    `uvm_record_string("ila_trans", this.sprint()) 
 endfunction:do_record

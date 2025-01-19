@@ -1,4 +1,4 @@
-package cgs2erb_monitor_dec;
+package cgs2erb_dec;
 
 typedef bit[7:0] frame_data[];
 

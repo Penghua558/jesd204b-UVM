@@ -1,4 +1,4 @@
-import cgs2erb_dec::*;
+import cgs2erb_monitor_dec::*;
 class cgs2erb_monitor extends uvm_subscriber#(cgsnfs_trans);
 
 // UVM Factory Registration Macro
@@ -93,7 +93,7 @@ function void cgs2erb_monitor::write(cgsnfs_trans t);
             erb_out.is_control_word[o_position] = t.is_control_word;
             erb_out.valid &= t.valid;
 
-            if (o_position == (m_cfg.F-1) && erb_out.valid) begin
+            if (o_position == (m_cfg.F-1)) begin
                 // MSB should be the first octet ever received
                 erb_out.data.reverse();
                 erb_out.is_control_word.reverse();
