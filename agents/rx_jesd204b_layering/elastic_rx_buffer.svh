@@ -1,5 +1,5 @@
 import cgs2erb_monitor_dec::*;
-class erb;
+class elastic_rx_buffer;
 int RBD;
 
 protected circular_buffer#(erb_trans) buffer;
@@ -76,4 +76,4 @@ function bit get(output erb_trans item);
     end else
         return 0;
 endfunction
-endclass: erb
+endclass: elastic_rx_buffer

@@ -22,7 +22,7 @@ int f_position;
 int self_o_position;
 // Elastic RX Buffer, 1st index is position of frame in the buffer, 2nd index
 // is octet position in a frame
-erb m_erb;
+elastic_rx_buffer m_elastic_rx_buffer;
 rx_jesd204b_layering_config m_cfg;
 
 //------------------------------------------
@@ -58,7 +58,7 @@ function void cgs2erb_monitor::build_phase(uvm_phase phase);
     m_cfg = rx_jesd204b_layering_config::get_config(this);
     f_position = 0;
     self_o_position = 0;
-    m_erb = new(m_cfg.erb_size, m_cfg.RBD);
+    m_elastic_rx_buffer = new(m_cfg.erb_size, m_cfg.RBD);
     ap = new("ap", this);
 endfunction: build_phase
 
@@ -94,17 +94,18 @@ function void cgs2erb_monitor::write(cgsnfs_trans t);
             erb_out.valid &= t.valid;
 
             if (o_position == (m_cfg.F-1) && erb_out.valid) begin
+                // only valid frames will be fed into Elastic RX Buffer
                 // MSB should be the first octet ever received
                 erb_out.data.reverse();
                 erb_out.is_control_word.reverse();
 
                 // tries to feed the frame into ERB
-                if (m_erb.put(erb_out, t.ifsstate)) begin
+                if (m_elastic_rx_buffer.put(erb_out, t.ifsstate)) begin
                     `uvm_info("CGS2ERB Monitor", "Fed a new frame into ERB", 
                         UVM_MEDIUM)
                 end
 
-                if (m_erb.get(cloned_erb_out)) begin
+                if (m_elastic_rx_buffer.get(cloned_erb_out)) begin
                     `uvm_info("CGS2ERB Monitor", "Sending out a new frame", 
                         UVM_MEDIUM)
                     // Clone and publish the cloned item to the subscribers
