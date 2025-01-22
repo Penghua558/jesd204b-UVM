@@ -1,6 +1,6 @@
-import cgs2erb_dec::*;
-class elastic_rx_buffer;
-int RBD;
+import erb2ila_dec::*;
+class ila_info_extractor;
+// extract information from ILA sequence
 
 protected circular_buffer#(erb_trans) buffer;
 // 1 - ILA's beginning symbol R(K28.0) has been detected and fed into buffer
@@ -76,4 +76,4 @@ function bit get(output erb_trans item);
     end else
         return 0;
 endfunction
-endclass: elastic_rx_buffer
+endclass: ila_info_extractor

@@ -30,6 +30,7 @@ import deserializer_agent_pkg::*;
 `include "erb_seq.sv"
 
 `include "ila_trans.sv"
+`include "ila_info_extractor.svh"
 `include "ila_fsm.sv"
 `include "erb2ila_monitor.sv"
 `include "erb2ila_recorder.sv"

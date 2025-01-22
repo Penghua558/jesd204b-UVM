@@ -42,9 +42,11 @@ extern function void do_record(uvm_recorder recorder);
 
 endclass:erb_trans
 
+
 function erb_trans::new(string name = "erb_trans");
   super.new(name);
 endfunction
+
 
 function void erb_trans::do_copy(uvm_object rhs);
     erb_trans rhs_;
@@ -60,6 +62,7 @@ function void erb_trans::do_copy(uvm_object rhs);
     f_position = rhs_.f_position;
     sync_request = rhs_.sync_request;
 endfunction:do_copy
+
 
 function bit erb_trans::do_compare(uvm_object rhs, 
     uvm_comparer comparer);
@@ -77,6 +80,7 @@ function bit erb_trans::do_compare(uvm_object rhs,
       f_position == rhs_.f_position &&
       sync_request == rhs_.sync_request;
 endfunction:do_compare
+
 
 function void erb_trans::do_print(uvm_printer printer);
     super.do_print(printer);
@@ -103,6 +107,7 @@ function void erb_trans::do_print(uvm_printer printer);
     printer.print_int("Sync request", 
         sync_request, $bits(sync_request), UVM_BIN);
 endfunction:do_print
+
 
 function void erb_trans::do_record(uvm_recorder recorder);
     super.do_record(recorder);

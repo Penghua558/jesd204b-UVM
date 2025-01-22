@@ -33,7 +33,7 @@ uvm_analysis_port #(ila_trans) ap;
 extern function new(string name = "erb2ila_monitor", 
 uvm_component parent = null);
 extern function void build_phase(uvm_phase phase);
-extern function void write(cgsnfs_trans t);
+extern function void write(erb_trans t);
 
 // Proxy Methods:
 extern function void notify_transaction(ila_trans item);
@@ -55,11 +55,13 @@ function void erb2ila_monitor::build_phase(uvm_phase phase);
 endfunction: build_phase
 
 
-function void erb2ila_monitor::write(cgsnfs_trans t);
+function void erb2ila_monitor::write(erb_trans t);
     // start of a frame, we create a new transaction to store a new frame
     ila_out = erb_trans::type_id::create("ila_out");
     ila_out.data = new[m_cfg.F];
     ila_out.is_control_word = new[m_cfg.F];
+    ila_out.data = t.data;
+    ila_out.is_control_word = t.is_control_word;
 
 
     // MSB should be the first octet ever received

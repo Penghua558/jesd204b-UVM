@@ -13,7 +13,7 @@ class ILA_StateMachine;
     // external associated with the event is event data
     // In this FSM, event data to cause transition is decoded symbol from
     // CGS FSM
-    cgsnfs_trans eventData;
+    ila_trans eventData;
 
     function new();
         currentState = ILA_WAIT;
@@ -24,31 +24,32 @@ class ILA_StateMachine;
     endfunction
 
     extern function void update_currentstate();
-    extern function void get_nextstate(cgsnfs_trans eventData);
-    // do things based on current state and updated cgsnfs_trans
-    extern function void state_func(cgsnfs_trans cgs);
-    extern function void check_alignment(cgsnfs_trans t);
+    extern function void get_nextstate(ila_trans eventData);
+    // do things based on current state and updated ila_trans
+    extern function void state_func(ila_trans cgs);
+    extern function void check_alignment(ila_trans t);
     extern function bit cross_coupling();
-    extern function bit is_link_initialization();
+    extern function bit is_link_initialization(ila_trans frame);
+    extern function bit show_value_phadj(ila_trans frame);
 endclass
 
 function void ILA_StateMachine::update_currentstate();
     currentState = nextState;
 endfunction
 
-function void ILA_StateMachine::get_nextstate(cgsnfs_trans eventData);
+function void ILA_StateMachine::get_nextstate(ila_trans eventData);
     case(currentState)
         ILA_WAIT: begin
-            if (is_link_initialization())
+            if (is_link_initialization(eventData))
                 nextState = ILA_EVAL;
             else
                 nextState = ILA_WAIT;
         end
-        FS_DATA: begin
-            if (eventData.data == K && eventData.is_control_word)
-                nextState = FS_CHECK;
+        ILA_EVAL: begin
+            if (show_value_phadj(eventData))
+                nextState = ILA_ADJ;
             else
-                nextState = FS_DATA;
+                nextState = ILA_WAIT;
         end
         FS_CHECK: begin
             if (kcounter == 3'd4)
@@ -62,7 +63,7 @@ function void ILA_StateMachine::get_nextstate(cgsnfs_trans eventData);
     endcase
 endfunction
 
-function void ILA_StateMachine::state_func(cgsnfs_trans cgs);
+function void ILA_StateMachine::state_func(ila_trans cgs);
     case(currentState)
         FS_INIT: ocounter = 0;
         FS_DATA: begin
@@ -89,7 +90,7 @@ function void ILA_StateMachine::state_func(cgsnfs_trans cgs);
     cgs.o_position = ocounter;
 endfunction
 
-function void ILA_StateMachine::check_alignment(cgsnfs_trans t);
+function void ILA_StateMachine::check_alignment(ila_trans t);
     if (t.is_control_word) begin
         if ((t.data == A || t.data == F) && t.valid) begin
             `uvm_info("IFS", "A/F detected", UVM_HIGH)
@@ -108,13 +109,30 @@ function void ILA_StateMachine::check_alignment(cgsnfs_trans t);
     end
 endfunction
 
+
 function bit ILA_StateMachine::cross_coupling();
 // when frame misalignment is expected to happen transmitter disable IFS
 // via control interface, for now it's a PLACEHOLDER
     return 0;
 endfunction
 
-function bit ILA_StateMachine::is_link_initialization();
+
+function bit ILA_StateMachine::is_link_initialization(ila_trans frame);
 // returns 1 when link initialization is detected
 // returns 0 if no link initialization is detected
+// link initialization condition is multiple K28.5 characters followed by
+// the start of ILA
+    logic [7:0] msb_of_frame[$];
+    msb_of_frame = frame.data.find_last with {1};
+    if (msb_of_frame.size) begin
+        if (msb_of_frame[0] == erb2ila_dec::R)
+            return 1;
+    end
+
+    return 0;
+endfunction
+
+
+function bit ILA_StateMachine::show_value_phadj(ila_trans frame);
+// 
 endfunction
