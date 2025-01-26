@@ -1,4 +1,3 @@
-import erb2ila_dec::*;
 class erb2ila_monitor extends uvm_subscriber#(erb_trans);
 
 // UVM Factory Registration Macro

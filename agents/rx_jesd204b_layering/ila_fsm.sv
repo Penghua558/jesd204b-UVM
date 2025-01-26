@@ -1,3 +1,4 @@
+import global_dec::*;
 import erb2ila_dec::*;
 class ILA_StateMachine;
     rx_jesd204b_layering_config m_cfg;
@@ -125,7 +126,7 @@ function bit ILA_StateMachine::is_link_initialization(ila_trans frame);
     logic [7:0] msb_of_frame[$];
     msb_of_frame = frame.data.find_last with {1};
     if (msb_of_frame.size) begin
-        if (msb_of_frame[0] == erb2ila_dec::R)
+        if (msb_of_frame[0] == global_dec::R)
             return 1;
     end
 

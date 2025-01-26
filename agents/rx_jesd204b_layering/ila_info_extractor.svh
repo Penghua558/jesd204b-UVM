@@ -1,98 +1,67 @@
-import erb2ila_dec::*;
+import global_dec::*;
 class ila_info_extractor;
 // extract information from ILA sequence
 
-protected circular_buffer#(erb_trans) buffer;
 // 1 - ILA's beginning symbol R(K28.0) has been detected and fed into buffer
 // 0 - no ILA's beginning symbol R(K28.0) has been detected
 protected bit ila_start_detected;
-// numbr of frames passed since the start of LMFC
-protected int num_frames_since_lmfc;
-// 1 - ERB release condition has been met, ERB is releasing frames now
-// 0 - ERB release condition has not been met yet, ERB is not releasing
-// anything
-protected bit release_cond_met;
-
-// 1 - start of ILA detected
-// 0 - ILA not detected yet
-protected bit start_ila_detected;
 // 1 - end of ILA detected
 // 0 - end of ILA not detected or currently not processing an ILA
-protected bit end_ila_detected;
+protected bit ila_end_detected;
+
 
 function new(int size, int RBD);
-    this.start_ila_detected = 1'b0;
-    this.end_ila_detected = 1'b0;
+    this.ila_start_detected = 1'b0;
+    this.ila_end_detected = 1'b0;
 endfunction
 
 
-function bit is_processing_ila();
+extern function bit is_processing_ila();
+extern function bit is_start_ila(byte octet, bit is_ctrl_word);
+extern function void extract_ila_info(erb_trans frame);
+extern function void process_single_octet(byte octet, bit is_ctrl_word);
+
+endclass
+
+
+function bit ila_info_extractor::is_processing_ila();
 // returns 1 if the object is extracting information from an incoming ILA
 // returns 0 if noi ILA detected at the moment
-    return (start_ila_detected && !end_ila_detected);
+    return (ila_start_detected && !ila_end_detected);
 endfunction
 
 
-function void extract_ila_info(erb_trans frame);
-// given an input frame, we test the start of ILA, then extract the information
-// according to the link configuraion mapping
+function void ila_info_extractor::process_single_octet(
+    byte octet, bit is_ctrl_word);
+// identify the ILA and extract info from a given octet
     if (!is_processing_ila()) begin
         //test for start of ILA
-        if (item.data[item.data.size()-1] == )
+        if (is_start_ila(octet, is_ctrl_word)) begin
+            `uvm_info("ILA Extractor", "Start of ILA detected", UVM_LOW)
+            this.ila_start_detected = 1'b1;
+            this.ila_end_detected = 1'b0;
+        end
+    end else begin
     end
 endfunction
 
-
-function bit put(erb_trans item, ifsstate_e ifsstate);
-// returns 1 if a frame is successfully been fed into Elastic RX Buffer,
-// returns 0 if the buffer is full or it does not accept frames yet(haven't
-// received ILA yet)
-    num_frames_since_lmfc = item.f_position;
-    if (ifsstate == FS_INIT) begin
-        // Elastic RX Buffer will not be fed when we are still in
-        // early synchronization stage
-        ila_start_detected = 1'b0;
-        release_cond_met = 1'b0;
-        buffer.reset();
-        return 0;
-    end
-
-    if (item.data[item.data.size()-1] == cgs2erb_dec::R &&
-        item.is_control_word[item.is_control_word.size()-1]) begin
-        // It is start of ILA, begin to feed frame into the buffer
-        ila_start_detected = 1'b1;
-    end
-
-    if (ila_start_detected) begin
-        // ILA has been detected already, Elastic RX Buffer continues to take
-        // in frames now
-        if (buffer.put(item))
-            return 1;
-        else
-            return 0;
-    end
-
-    return 0;
-endfunction
-
-
-function bit get(output erb_trans item);
-// returns 1 if Elastic RX Buffer released a frame
-// returns 0 if no frame is released because of buffer is empty or release
-// condition has not been met yet
-    erb_trans item_original;
-    if (!ila_start_detected || buffer.is_empty())
-        return 0;
-
-    if (ila_start_detected && num_frames_since_lmfc == (RBD-1))
-        release_cond_met = 1'b1;
-
-    if (release_cond_met) begin
-        buffer.get(item_original);
-        item = erb_trans::type_id::create("item");
-        item.copy(item_original);
+function bit ila_info_extractor::is_start_ila(byte octet, bit is_ctrl_word);
+// returns 1 if the octet(the first octet sent out from transmitter) is
+// the start of ILA
+// returns 0 if the octet is not the start of ILA
+    if (octet == global_dec::R && is_ctrl_word)
         return 1;
-    end else
+    else
         return 0;
 endfunction
+
+
+function void ila_info_extractor::extract_ila_info(erb_trans frame);
+// given an input frame, we test the start of ILA, then extract the information
+// according to the link configuraion mapping
+    for(int idx = frame.data.size()-1; i >= 0; i--) begin
+        process_single_octet(frame.data[idx], frame.is_control_word[idx]);
+    end
+endfunction
+
 endclass: ila_info_extractor

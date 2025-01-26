@@ -13,7 +13,7 @@ class ila_trans extends uvm_sequence_item;
 // contain data symbols
 // first index will always stores the last incoming octet,
 // which is LSB, which is the last sent out from transmitter
-logic [7:0] data[];
+byte data[];
 bit is_control_word[];
 // position of frame within a multiframe
 // 0 ~ K-1
