@@ -1,4 +1,5 @@
 import cgsnfs_dec::*;
+import global_dec::*;
 class CGS_StateMachine;
     cgsstate_e currentState;
     cgsstate_e nextState;
@@ -65,7 +66,7 @@ function void CGS_StateMachine::state_func(cgsnfs_trans cgs);
             // then we check if it's a K28.5 symbol, so we don't need to
             // constantly check all 3 conditions
             if (cgs.is_control_word && cgs.valid) begin
-                if (cgs.data == K)
+                if (cgs.data == global_dec::K)
                     kcounter++;
                 else
                     kcounter = 3'd0;
@@ -93,7 +94,7 @@ function void CGS_StateMachine::state_func(cgsnfs_trans cgs);
             // then we check if it's a K28.5 symbol, so we don't need to
             // constantly check all 3 conditions
             if (cgs.is_control_word && cgs.valid) begin
-                if (cgs.data == K)
+                if (cgs.data == global_dec::K)
                     kcounter++;
                 else
                     kcounter = 3'd0;
@@ -143,13 +144,13 @@ function void IFS_StateMachine::get_nextstate(cgsnfs_trans eventData);
     case(currentState)
         FS_INIT: begin
             if (!(eventData.sync_request ||
-                (eventData.data == K && eventData.is_control_word)))
+                (eventData.data == global_dec::K && eventData.is_control_word)))
                 nextState = FS_DATA;
             else
                 nextState = FS_INIT;
         end
         FS_DATA: begin
-            if (eventData.data == K && eventData.is_control_word)
+            if (eventData.data == global_dec::K && eventData.is_control_word)
                 nextState = FS_CHECK;
             else
                 nextState = FS_DATA;
@@ -157,7 +158,8 @@ function void IFS_StateMachine::get_nextstate(cgsnfs_trans eventData);
         FS_CHECK: begin
             if (kcounter == 3'd4)
                 nextState = FS_INIT;
-            else if (!(eventData.data == K && eventData.is_control_word))
+            else if (!(eventData.data == global_dec::K && 
+                eventData.is_control_word))
                 nextState = FS_DATA;
             else
                 nextState = FS_CHECK;
@@ -195,7 +197,8 @@ endfunction
 
 function void IFS_StateMachine::check_alignment(cgsnfs_trans t);
     if (t.is_control_word) begin
-        if ((t.data == A || t.data == F) && t.valid) begin
+        if ((t.data == global_dec::A || t.data == global_dec::F) && 
+            t.valid) begin
             `uvm_info("IFS", "A/F detected", UVM_HIGH)
             // discrambling enabled
             if (m_cfg.scrambling_enable)

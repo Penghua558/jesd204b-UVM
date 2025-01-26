@@ -1,4 +1,4 @@
-import cgs2erb_dec::*;
+import global_dec::*;
 class elastic_rx_buffer;
 int RBD;
 
@@ -38,7 +38,7 @@ function bit put(erb_trans item, ifsstate_e ifsstate);
         return 0;
     end
 
-    if (item.data[item.data.size()-1] == cgs2erb_dec::R &&
+    if (item.data[item.data.size()-1] == global_dec::R &&
         item.is_control_word[item.is_control_word.size()-1]) begin
         // It is start of ILA, begin to feed frame into the buffer
         ila_start_detected = 1'b1;

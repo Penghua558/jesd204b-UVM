@@ -37,6 +37,8 @@ function void extract_ila_info(erb_trans frame);
 // given an input frame, we test the start of ILA, then extract the information
 // according to the link configuraion mapping
     if (!is_processing_ila()) begin
+        //test for start of ILA
+        if (item.data[item.data.size()-1] == )
     end
 endfunction
 

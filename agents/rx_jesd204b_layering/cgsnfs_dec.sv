@@ -13,7 +13,4 @@ typedef enum {
     FS_DATA
 } ifsstate_e;
 
-parameter bit[7:0] K = 8'b101_11100;
-parameter bit[7:0] A = 8'b011_11100;
-parameter bit[7:0] F = 8'b111_11100;
 endpackage: cgsnfs_dec

@@ -1,4 +1,4 @@
-import cgs2erb_dec::*;
+import global_dec::*;
 class cgs2erb_monitor extends uvm_subscriber#(cgsnfs_trans);
 
 // UVM Factory Registration Macro
