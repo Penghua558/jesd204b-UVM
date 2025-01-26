@@ -13,14 +13,31 @@ protected int num_frames_since_lmfc;
 // anything
 protected bit release_cond_met;
 
+// 1 - start of ILA detected
+// 0 - ILA not detected yet
+protected bit start_ila_detected;
+// 1 - end of ILA detected
+// 0 - end of ILA not detected or currently not processing an ILA
+protected bit end_ila_detected;
+
 function new(int size, int RBD);
-    // argument size is the max number of frames a ERB can store, it's
-    // different with RBD
-    ila_start_detected = 1'b0;
-    release_cond_met = 1'b0;
-    num_frames_since_lmfc = 0;
-    buffer = new(size);
-    this.RBD = RBD;
+    this.start_ila_detected = 1'b0;
+    this.end_ila_detected = 1'b0;
+endfunction
+
+
+function bit is_processing_ila();
+// returns 1 if the object is extracting information from an incoming ILA
+// returns 0 if noi ILA detected at the moment
+    return (start_ila_detected && !end_ila_detected);
+endfunction
+
+
+function void extract_ila_info(erb_trans frame);
+// given an input frame, we test the start of ILA, then extract the information
+// according to the link configuraion mapping
+    if (!is_processing_ila()) begin
+    end
 endfunction
 
 

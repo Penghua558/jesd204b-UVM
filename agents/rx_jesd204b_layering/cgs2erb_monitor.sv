@@ -29,6 +29,9 @@ rx_jesd204b_layering_config m_cfg;
 // Component Members
 //------------------------------------------
 uvm_analysis_port #(erb_trans) ap;
+// 1 - frame is valid
+// 0 - frame is invalid, at one octet within is invalid
+bit frame_valid;
 
 //------------------------------------------
 // Methods
@@ -58,6 +61,7 @@ function void cgs2erb_monitor::build_phase(uvm_phase phase);
     m_cfg = rx_jesd204b_layering_config::get_config(this);
     f_position = 0;
     self_o_position = 0;
+    frame_valid = 0;
     m_elastic_rx_buffer = new(m_cfg.erb_size, m_cfg.RBD);
     ap = new("ap", this);
 endfunction: build_phase
@@ -86,14 +90,14 @@ function void cgs2erb_monitor::write(cgsnfs_trans t);
         erb_out.is_control_word[o_position] = t.is_control_word;
         erb_out.f_position = f_position;
         erb_out.sync_request = t.sync_request;
-        erb_out.valid = t.valid;
+        frame_valid = t.valid;
     end else begin
         assert(erb_out != null) begin
             erb_out.data[o_position] = t.data;
             erb_out.is_control_word[o_position] = t.is_control_word;
-            erb_out.valid &= t.valid;
+            frame_valid &= t.valid;
 
-            if (o_position == (m_cfg.F-1) && erb_out.valid) begin
+            if (o_position == (m_cfg.F-1) && frame_valid) begin
                 // only valid frames will be fed into Elastic RX Buffer
                 // MSB should be the first octet ever received
                 erb_out.data.reverse();
