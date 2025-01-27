@@ -13,38 +13,26 @@ module frame_lmfc_clk_gen(
 );
 
 
-reg frame_cnt = 1'b0;
 reg [5:0] lmfc_cnt = 6'd0;
-reg lmfc_clk_d;
+reg frame_clk_d;
 
 
 always@(posedge clk) begin
-    frame_cnt <= ~frame_cnt;
-    if (!frame_cnt) begin
-        if (lmfc_cnt == i_K)
-            lmfc_cnt <= 6'd0;
-        else
-            lmfc_cnt <= lmfc_cnt + 6'd1;
-    end else
-        lmfc_cnt <= lmfc_cnt;
-end
-
-always@(posedge clk) begin
-    if (!frame_cnt)
-        o_frame_clk <= 1'b1;
+    if (lmfc_cnt == i_K)
+        lmfc_cnt <= 6'd0;
     else
-        o_frame_clk <= 1'b0;
+        lmfc_cnt <= lmfc_cnt + 6'd1;
 end
 
 always@(posedge clk) begin
-    if (lmfc_cnt == {1'b0, i_K} && frame_cnt)
-        lmfc_clk_d <= 1'b1;
+    frame_clk_d <= clk;
+    o_frame_clk <= frame_clk_d;
+end
+
+always@(posedge clk) begin
+    if (lmfc_cnt == {1'b0, i_K})
+        o_lmfc_clk <= 1'b1;
     else
-        lmfc_clk_d <= 1'b0;
-end
-
-// delays LMFC clock to be aligned with frame clock
-always@(posedge clk) begin
-    o_lmfc_clk <= lmfc_clk_d;
+        o_lmfc_clk <= 1'b0;
 end
 endmodule

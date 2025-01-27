@@ -7,7 +7,7 @@ import testcase_lib_pkg::*;
 // clk and rst_n
 // 1.25GHz
 logic character_clk;
-// 312.5MHz
+// 156.25MHz
 logic device_clk;
 // 12.5GHz
 logic agent_bitclk;
@@ -95,14 +95,14 @@ initial begin
   // targeting at lane speed of 12.5Gbps
   // character clock frequency 1.25GHz
   // bit clock frequency 12.5GHz
-  // device clock frequency 312.5MHz
+  // device clock frequency 156.25MHz
   character_clk = 0;
   agent_bitclk = 0;
   device_clk = 0;
   fork
   forever #0.4ns character_clk = ~character_clk;
   forever #0.04ns agent_bitclk = ~agent_bitclk;
-  forever #1.6ns device_clk = ~device_clk;
+  forever #3.2ns device_clk = ~device_clk;
   join_none
 end
 

@@ -9,7 +9,7 @@
 // This module targets at lane speed 12.5Gbps, thus character clock frequency
 // is 1.25GHz
 module tx_jesd204b(
-    input wire clk, // 312.5MHz, device clock
+    input wire clk, // 156.25MHz, device clock
     input wire rst_n,
     input wire [7:0] i_data,
     input wire i_vld,
