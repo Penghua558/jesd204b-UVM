@@ -28,14 +28,65 @@ int num_octets_per_frame;
 // number of frames per multiframe, aka parameter K
 int num_frames_per_multiframe;
 
+
+
+//------------------------------------------
+// Link Configuraion Data Fields
+//------------------------------------------
 // Device identification no. 0..255
 byte DID;
 // Bank ID, extesion of DID, 0..15
 bit [3:0] BID;
 // Number of adjustment resolution steps to adjust DAC LMFC.
-// In this agent, it is the number of frame clocks
+// In this agent, it is the number of frame clocks, 0..15
+// Applies to Subclass 2 only
 bit [3:0] ADJCNT;
-
+// Lane identification number(within link), 0..31
+bit [4:0] LID;
+// phase adjustment request to DAC Subclass 2 only
+bit PHADJ;
+// Direction to adjust DAC LMFC
+// 0 - Advance
+// 1 - Delay
+// Applies to Subclass 2 operation only
+bit ADJDIR;
+// No. of lanes per converter device (link), 0..31
+bit [4:0] L;
+// Scrambling enabled
+bit SCR;
+// No. of octets per frame, 0..255
+bit [7:0] F;
+// No. of frames per multiframe, 0..31
+bit [4:0] K;
+// No. of converters per device, 0..255
+bit [7:0] M;
+// Converter resolution, 0..31
+bit [4:0] N;
+// No. of control bits per sample, 0..3
+bit [1:0] CS;
+// Total no. of bits per sample, 0..31
+bit [4:0] N_apostrophe;
+// Device Subclass Version
+// 000 – Subclass 0
+// 001 – Subclass 1
+// 010 – Subclass 2
+bit [2:0] SUBCLASSV;
+// No. of samples per converter per frame cycle, 0..31
+bit [4:0] S;
+// JESD204 version
+// 000 – JESD204A
+// 001 – JESD204B
+bit [2:0] JESDV;
+// No. of control words per frame clock period per link, 0..31
+bit [4:0] CF;
+// High Density format
+bit HD;
+// Reserved field 1
+bit [7:0] RES1;
+// Reserved field 1
+bit [7:0] RES2;
+// Checksum Σ(all above fields)mod 256
+bit [7:0] FCHK;
 
 
 
