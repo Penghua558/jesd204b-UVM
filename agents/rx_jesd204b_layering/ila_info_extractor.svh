@@ -23,12 +23,6 @@ protected byte no_octet_conf;
 // 0 - does not expect so
 protected bit expect_start_multiframe;
 
-// number of octets per frame, aka parameter F
-int num_octets_per_frame;
-// number of frames per multiframe, aka parameter K
-int num_frames_per_multiframe;
-
-
 
 //------------------------------------------
 // Link Configuraion Data Fields
@@ -99,7 +93,6 @@ function new(int size, int RBD);
 endfunction
 
 
-extern function void configure(int F, int K);
 extern function bit is_processing_ila();
 extern function bit is_start_multiframe(byte octet, bit is_ctrl_word);
 extern function bit is_end_ila(byte octet, bit is_ctrl_word);
@@ -109,19 +102,12 @@ extern function void store_conf_data(byte octet, bit is_ctrl_word);
 extern function bit is_checksum_correct();
 extern function bit is_processing_conf_data();
 extern function bit is_octetvalue_correct(byte octet, bit is_ctrl_word);
-extern function void extract_ila_info(erb_trans frame);
 extern function void process_single_octet(byte octet, bit is_ctrl_word);
+
+extern function void extract_ila_info(erb_trans frame);
 extern function void print_conf_data();
 
 endclass
-
-
-function void ila_info_extractor::configure(int F, int K);
-// this function should be used prior of testing ILA, and should be used again
-// once all ILA info has been extracted
-    this.num_octets_per_frame = F;
-    this.num_frames_per_multiframe = K;
-endfunction
 
 
 function bit ila_info_extractor::is_processing_ila();
@@ -145,69 +131,70 @@ function void ila_info_extractor::process_single_octet(
             this.octet_value = 1;
             this.no_octet_conf = 0;
         end
-    end else begin
-        if (is_end_ila(octet, is_ctrl_word)) begin
-            `uvm_info("ILA Extractor", "End of ILA detected", UVM_LOW)
-            this.ila_end_detected = 1;
-            return;
-        end
+        return;
+    end 
 
-        if (is_end_multiframe(octet, is_ctrl_word)) begin
-            // expect next octet(start of a multiframe) is R
-            this.expect_start_multiframe = 1'b1;
-            this.no_octet = 0;
-            this.octet_value = (this.octet_value+1) % 256;
-            return;
-        end
+    if (is_end_ila(octet, is_ctrl_word)) begin
+        `uvm_info("ILA Extractor", "End of ILA detected", UVM_LOW)
+        this.ila_end_detected = 1;
+        return;
+    end
 
-        if (is_start_multiframe(octet, is_ctrl_word)) begin
-            if (!this.expect_start_multiframe) begin
-                `uvm_fatal("ILA Extractor", 
-                    "Start of a multiframe detected without \
-                    detecting end of a multiframe")
-            end else begin
-                this.expect_start_multiframe = 1'b0;
-                this.no_multiframe++;
-                this.no_octet++;
-                this.octet_value = (this.octet_value+1) % 256;
-                return;
-            end
-        end
+    if (is_end_multiframe(octet, is_ctrl_word)) begin
+        // expect next octet(start of a multiframe) is R
+        this.expect_start_multiframe = 1'b1;
+        this.no_octet = 0;
+        this.octet_value = (this.octet_value+1) % 256;
+        return;
+    end
 
-        if (test_octet_before_conf_data(octet, is_ctrl_word)) begin
-            this.no_octet++;
-            this.octet_value = (this.octet_value+1) % 256;
-            return;
-        end
-
-        if (is_processing_conf_data()) begin
-            store_conf_data(octet, is_ctrl_word);
-            if (this.no_octet_conf == this.size_conf_data_in_octets) begin
-            // having extracted all link Configuraion data, test FCHK
-            // field
-                print_conf_data();
-                if (!is_checksum_correct())
-                    `uvm_fatal("ILA Extractor", 
-                        $sformatf("Incorrect checksum in ILA! FCHK: %h", 
-                        this.FCHK))
-                else
-                    `uvm_info("ILA Extractor", 
-                        "Successfully extracted link configuraion data", 
-                        UVM_LOW)
-            end
-            this.no_octet++;
-            this.octet_value = (this.octet_value+1) % 256;
-            return;
-        end
-
-        if (!is_octetvalue_correct(octet, is_ctrl_word)) begin
+    if (is_start_multiframe(octet, is_ctrl_word)) begin
+        if (!this.expect_start_multiframe) begin
             `uvm_fatal("ILA Extractor", 
-                $sformatf("Wrong octetValue in ILA! Expected octetValue: %0d, \
-                actual octetValue: %0d", octet_value, octet))
+                "Start of a multiframe detected without \
+                detecting end of a multiframe")
+        end else begin
+            this.expect_start_multiframe = 1'b0;
+            this.no_multiframe++;
+            this.no_octet++;
+            this.octet_value = (this.octet_value+1) % 256;
+            return;
         end
+    end
 
+    if (test_octet_before_conf_data(octet, is_ctrl_word)) begin
         this.no_octet++;
         this.octet_value = (this.octet_value+1) % 256;
+        return;
+    end
+
+    if (is_processing_conf_data()) begin
+        store_conf_data(octet, is_ctrl_word);
+        if (this.no_octet_conf == this.size_conf_data_in_octets) begin
+        // having extracted all link Configuraion data, test FCHK
+        // field
+            print_conf_data();
+            if (!is_checksum_correct())
+                `uvm_fatal("ILA Extractor", 
+                    $sformatf("Incorrect checksum in ILA! FCHK: %h", 
+                    this.FCHK))
+            else
+                `uvm_info("ILA Extractor", 
+                    "Successfully extracted link configuraion data", 
+                    UVM_LOW)
+        end
+        this.no_octet++;
+        this.octet_value = (this.octet_value+1) % 256;
+        return;
+    end
+
+    if (!is_octetvalue_correct(octet, is_ctrl_word)) begin
+        `uvm_fatal("ILA Extractor", 
+            $sformatf("Wrong octetValue in ILA! Expected octetValue: %0d, \
+            actual octetValue: %0d", octet_value, octet))
+        this.no_octet++;
+        this.octet_value = (this.octet_value+1) % 256;
+        return;
     end
 endfunction
 
@@ -393,9 +380,9 @@ function void ila_info_extractor::print_conf_data();
     $display("JESDV: %0d", this.JESDV);
     $display("CF: %0d", this.CF);
     $display("HD: %b", this.HD);
-    $display("RES1: %h", this.RES1);
-    $display("RES2: %h", this.RES2);
-    $display("FCHK: %h", this.FCHK);
+    $display("RES1: 0x%h", this.RES1);
+    $display("RES2: 0x%h", this.RES2);
+    $display("FCHK: 0x%h", this.FCHK);
     $display("============== ILA Link Configuraion Data End ================");
 endfunction
 
