@@ -2,6 +2,12 @@ import global_dec::*;
 class ila_info_extractor;
 // extract information from ILA sequence
 
+typedef enum {
+    NO_ILA,
+    INCOMING_ILA,
+    ILA_FINISHED
+    } ila_status_e;
+
 // length of ILA sequence, unit is number of multiframes, by default it's 4
 const int ila_length;
 // number of octets in link configuraion data, it is always 14 octets
@@ -104,8 +110,11 @@ extern function bit is_processing_conf_data();
 extern function bit is_octetvalue_correct(byte octet, bit is_ctrl_word);
 extern function void process_single_octet(byte octet, bit is_ctrl_word);
 
+// intended to be used by user
 extern function void extract_ila_info(erb_trans frame);
 extern function void print_conf_data();
+extern function ila_status_e get_ila_status();
+extern function bit has_ila_finished();
 
 endclass
 
@@ -113,7 +122,7 @@ endclass
 function bit ila_info_extractor::is_processing_ila();
 // returns 1 if the object is extracting information from an incoming ILA
 // returns 0 if noi ILA detected at the moment
-    return (ila_start_detected && !ila_end_detected);
+    return (this.ila_start_detected && !this.ila_end_detected);
 endfunction
 
 
@@ -384,6 +393,25 @@ function void ila_info_extractor::print_conf_data();
     $display("RES2: 0x%h", this.RES2);
     $display("FCHK: 0x%h", this.FCHK);
     $display("============== ILA Link Configuraion Data End ================");
+endfunction
+
+
+function bit ila_info_extractor::has_ila_finished();
+// returns 1 if we have finished extracting info from ILA sequence
+// returns 0 if ILA sequence is incoming or no ILA sequence is presented right
+// now
+    return (this.ila_start_detected && this.ila_end_detected);
+endfunction
+
+
+function ila_status_e ila_info_extractor::get_ila_status();
+    if (!this.ila_start_detected && !this.ila_end_detected)
+        return NO_ILA;
+    if (is_processing_ila())
+        return INCOMING_ILA;
+    if (has_ila_finished())
+        return ILA_FINISHED;
+    return NO_ILA;
 endfunction
 
 endclass: ila_info_extractor

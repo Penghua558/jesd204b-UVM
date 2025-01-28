@@ -26,11 +26,12 @@ import deserializer_agent_pkg::*;
 `include "erb2cgs_seq.sv"
 `include "cgs2erb_monitor.sv"
 `include "cgs2erb_recorder.sv"
+`include "ila_info_extractor.svh"
+`include "ila_extractor.sv"
 
 `include "erb_seq.sv"
 
 `include "ila_trans.sv"
-`include "ila_info_extractor.svh"
 `include "ila_fsm.sv"
 `include "erb2ila_monitor.sv"
 `include "erb2ila_recorder.sv"
