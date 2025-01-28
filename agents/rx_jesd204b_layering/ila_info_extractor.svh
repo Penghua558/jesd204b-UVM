@@ -34,7 +34,7 @@ int num_frames_per_multiframe;
 // Link Configuraion Data Fields
 //------------------------------------------
 // Device identification no. 0..255
-byte DID;
+bit [7:0] DID;
 // Bank ID, extesion of DID, 0..15
 bit [3:0] BID;
 // Number of adjustment resolution steps to adjust DAC LMFC.
@@ -106,10 +106,12 @@ extern function bit is_end_ila(byte octet, bit is_ctrl_word);
 extern function bit is_end_multiframe(byte octet, bit is_ctrl_word);
 extern function bit test_octet_before_conf_data(byte octet, bit is_ctrl_word);
 extern function void store_conf_data(byte octet, bit is_ctrl_word);
+extern function bit is_checksum_correct();
 extern function bit is_processing_conf_data();
 extern function bit is_octetvalue_correct(byte octet, bit is_ctrl_word);
 extern function void extract_ila_info(erb_trans frame);
 extern function void process_single_octet(byte octet, bit is_ctrl_word);
+extern function void print_conf_data();
 
 endclass
 
@@ -178,7 +180,25 @@ function void ila_info_extractor::process_single_octet(
             return;
         end
 
-        store_conf_data(octet, is_ctrl_word);
+        if (is_processing_conf_data()) begin
+            store_conf_data(octet, is_ctrl_word);
+            if (this.no_octet_conf == this.size_conf_data_in_octets) begin
+            // having extracted all link Configuraion data, test FCHK
+            // field
+                print_conf_data();
+                if (!is_checksum_correct())
+                    `uvm_fatal("ILA Extractor", 
+                        $sformatf("Incorrect checksum in ILA! FCHK: %h", 
+                        this.FCHK))
+                else
+                    `uvm_info("ILA Extractor", 
+                        "Successfully extracted link configuraion data", 
+                        UVM_LOW)
+            end
+            this.no_octet++;
+            this.octet_value = (this.octet_value+1) % 256;
+            return;
+        end
 
         if (!is_octetvalue_correct(octet, is_ctrl_word)) begin
             `uvm_fatal("ILA Extractor", 
@@ -203,6 +223,39 @@ function bit ila_info_extractor::is_processing_conf_data();
 endfunction
 
 
+function bit ila_info_extractor::is_checksum_correct();
+// test checksum in link configuraion data
+// returns 1 if checksum is correct
+// returns 0 if checksum is wrong
+// checksum = Σ(all above fields) mod 256
+    int actual_checksum = 0;
+    actual_checksum += this.DID;
+    actual_checksum += this.BID;
+    actual_checksum += this.ADJCNT;
+    actual_checksum += this.LID;
+    actual_checksum += this.PHADJ;
+    actual_checksum += this.ADJDIR;
+    actual_checksum += this.L;
+    actual_checksum += this.SCR;
+    actual_checksum += this.F;
+    actual_checksum += this.K;
+    actual_checksum += this.M;
+    actual_checksum += this.N;
+    actual_checksum += this.CS;
+    actual_checksum += this.N_apostrophe;
+    actual_checksum += this.SUBCLASSV;
+    actual_checksum += this.S;
+    actual_checksum += this.JESDV;
+    actual_checksum += this.CF;
+    actual_checksum += this.HD;
+    actual_checksum += this.RES1;
+    actual_checksum += this.RES2;
+    actual_checksum %= 256; 
+
+    return (actual_checksum == this.FCHK);
+endfunction
+
+
 function void ila_info_extractor::store_conf_data(byte octet, bit is_ctrl_word);
     if (this.no_multiframe == 1 && this.no_octet == 2) begin
         // test start of link configuraion data and mark the current
@@ -210,12 +263,46 @@ function void ila_info_extractor::store_conf_data(byte octet, bit is_ctrl_word);
         this.no_octet_conf = 0;
     end
 
-    if(is_processing_conf_data()) begin
-        case(this.no_octet_conf)
-            0: 
-        endcase
-        no_octet_conf++;
-    end
+    case(this.no_octet_conf)
+        0: this.DID = octet;
+        1: begin 
+            this.BID = octet[3:0];
+            this.ADJCNT = octet[7:4];
+        end
+        2: begin
+            this.LID = octet[4:0];
+            this.PHADJ = octet[5];
+            this.ADJDIR = octet[6];
+        end
+        3: begin
+            this.L = octet[4:0];
+            this.SCR = octet[7];
+        end
+        4: this.F = octet;
+        5: this.K = octet[4:0];
+        6: this.M = octet;
+        7: begin
+            this.N = octet[4:0];
+            this.CS = octet[7:6];
+        end
+        8: begin
+            this.N_apostrophe = octet[4:0];
+            this.SUBCLASSV = octet[7:5]
+        end
+        9: begin
+            this.S = octet[4:0];
+            this.JESDV = octet[7:5];
+        end
+        10: begin
+            this.CF = octet[4:0];
+            this.HD = octet[7];
+        end
+        11: this.RES1 = octet;
+        12: this.RES2 = octet;
+        13: this.FCHK = octet;
+    endcase
+
+    no_octet_conf++;
 endfunction
 
 
@@ -281,6 +368,35 @@ function void ila_info_extractor::extract_ila_info(erb_trans frame);
     for(int idx = frame.data.size()-1; i >= 0; i--) begin
         process_single_octet(frame.data[idx], frame.is_control_word[idx]);
     end
+endfunction
+
+
+function void ila_info_extractor::print_conf_data();
+// prints all link configuraion data
+    $display("============== ILA Link Configuraion Data Start ==============");
+    $display("DID: 0x%h", this.DID);
+    $display("BID: 0x%h", this.BID);
+    $display("ADJCNT: %0d", this.ADJCNT);
+    $display("LID: 0x%h", this.LID);
+    $display("PHADJ: %b", this.PHADJ);
+    $display("ADJDIR: %b", this.ADJDIR);
+    $display("L: %0d", this.L);
+    $display("SCR: %b", this.SCR);
+    $display("F: %0d", this.F);
+    $display("K: %0d", this.K);
+    $display("M: %0d", this.M);
+    $display("N: %0d", this.N);
+    $display("CS: %0d", this.CS);
+    $display("N': %0d", this.N_apostrophe);
+    $display("SUBCLASSV: %0d", this.SUBCLASSV);
+    $display("S: %0d", this.S);
+    $display("JESDV: %0d", this.JESDV);
+    $display("CF: %0d", this.CF);
+    $display("HD: %b", this.HD);
+    $display("RES1: %h", this.RES1);
+    $display("RES2: %h", this.RES2);
+    $display("FCHK: %h", this.FCHK);
+    $display("============== ILA Link Configuraion Data End ================");
 endfunction
 
 endclass: ila_info_extractor

@@ -13,7 +13,7 @@ class erb_trans extends uvm_sequence_item;
 // contain data symbols
 // first index will always stores the last incoming octet,
 // which is LSB, which is sent out lastly from transmitter
-byte data[];
+byte unsigned data[];
 bit is_control_word[];
 // position of frame within a multiframe
 // 0 ~ K-1
