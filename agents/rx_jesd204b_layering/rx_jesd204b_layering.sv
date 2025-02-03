@@ -21,6 +21,7 @@ erb_sequencer erb_m_sequencer;
 
 cgs2erb_monitor m_cgs2erb_monitor;
 cgs2erb_recorder m_cgs2erb_recorder;
+ila_extractor m_ila_extractor;
 
 dec2cgs_monitor m_dec2cgs_moitor;
 dec2cgs_recorder m_dec2cgs_recorder;
@@ -55,6 +56,8 @@ function void rx_jesd204b_layering::build_phase(uvm_phase phase);
 
     m_cgs2erb_recorder = cgs2erb_recorder::type_id::
         create("m_cgs2erb_recorder", this);
+
+    m_ila_extractor = ila_extractor::type_id::create("m_ila_extractor", this);
 
     m_dec2cgs_moitor = dec2cgs_monitor::type_id::
         create("m_dec2cgs_moitor", this);
@@ -91,6 +94,7 @@ function void rx_jesd204b_layering::connect_phase(uvm_phase phase);
     m_dec2cgs_moitor.ap.connect(m_dec2cgs_recorder.analysis_export);
     m_dec2cgs_moitor.ap.connect(cgs_sequencer.sequencer_export);
     m_cgs2erb_monitor.ap.connect(m_cgs2erb_recorder.analysis_export);
+    m_cgs2erb_monitor.ap.connect(m_ila_extractor.analysis_export);
 endfunction: connect_phase
 
 task rx_jesd204b_layering::run_phase(uvm_phase phase);

@@ -2,6 +2,9 @@ import global_dec::*;
 import erb2ila_dec::*;
 class ILA_StateMachine;
     rx_jesd204b_layering_config m_cfg;
+    // user should pass a handle of ila_info_extractor to this variable during 
+    // build_phase
+    ila_info_extractor m_ila_info_extractor;
     ilastate_e currentState;
     ilastate_e nextState;
     bit [2:0] kcounter;
@@ -31,6 +34,7 @@ class ILA_StateMachine;
     extern function void check_alignment(ila_trans t);
     extern function bit cross_coupling();
     extern function bit is_link_initialization(ila_trans frame);
+    extern function bit is_ila_extraction_finished(ila_trans frame);
     extern function bit show_value_phadj(ila_trans frame);
 endclass
 
@@ -47,10 +51,12 @@ function void ILA_StateMachine::get_nextstate(ila_trans eventData);
                 nextState = ILA_WAIT;
         end
         ILA_EVAL: begin
-            if (show_value_phadj(eventData))
-                nextState = ILA_ADJ;
-            else
-                nextState = ILA_WAIT;
+            if (is_ila_extraction_finished()) begin
+                if (show_value_phadj(eventData))
+                    nextState = ILA_ADJ;
+                else
+                    nextState = ILA_WAIT;
+            end
         end
         FS_CHECK: begin
             if (kcounter == 3'd4)
@@ -130,6 +136,14 @@ function bit ILA_StateMachine::is_link_initialization(ila_trans frame);
             return 1;
     end
 
+    return 0;
+endfunction
+
+
+function bit ILA_StateMachine::is_ila_extraction_finished(ila_trans frame);
+// returns 1 if agent has received whole ILA sequence
+// returns 0 if agent is receiving incoming ILA or no ILA has ever been
+// received
     return 0;
 endfunction
 

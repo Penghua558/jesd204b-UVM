@@ -13,10 +13,8 @@ ila_trans cloned_ila_out;
 // position of frame within a multiframe
 // 0 ~ K-1
 int f_position;
-// Elastic RX Buffer, 1st index is position of frame in the buffer, 2nd index
-// is octet position in a frame
-erb m_erb;
 rx_jesd204b_layering_config m_cfg;
+ILA_StateMachine m_ila_fsm;
 
 //------------------------------------------
 // Component Members
@@ -51,6 +49,8 @@ function void erb2ila_monitor::build_phase(uvm_phase phase);
     m_cfg = rx_jesd204b_layering_config::get_config(this);
     f_position = 0;
     ap = new("ap", this);
+    m_ila_fsm = new();
+    m_ila_fsm.m_ila_info_extractor = m_cfg.m_ila_info_extractor;
 endfunction: build_phase
 
 

@@ -5,6 +5,7 @@ import deserializer_agent_pkg::*;
 
 `include "uvm_macros.svh"
 
+`include "ila_info_extractor.svh"
 `include "rx_jesd204b_layering_config.sv"
 
 `include "decoder_8b10b_trans.sv"
@@ -26,13 +27,12 @@ import deserializer_agent_pkg::*;
 `include "erb2cgs_seq.sv"
 `include "cgs2erb_monitor.sv"
 `include "cgs2erb_recorder.sv"
-`include "ila_info_extractor.svh"
 `include "ila_extractor.sv"
 
 `include "erb_seq.sv"
 
 `include "ila_trans.sv"
-`include "ila_fsm.sv"
+`include "ila_statemachine.svh"
 `include "erb2ila_monitor.sv"
 `include "erb2ila_recorder.sv"
 

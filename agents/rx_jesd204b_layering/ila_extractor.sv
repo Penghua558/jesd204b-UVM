@@ -3,6 +3,7 @@ class ila_extractor extends uvm_subscriber#(erb_trans);
 
     ila_info_extractor m_ila_info_extractor;
     ila_info_extractor::ila_status_e ila_status;
+    rx_jesd204b_layering_config m_cfg;
     bit is_conf_data_printed;
     int fd;
 
@@ -14,7 +15,8 @@ class ila_extractor extends uvm_subscriber#(erb_trans);
 
     function void build_phase(uvm_phase phase);
         super.build_phase(phase);
-        m_ila_info_extractor = new();
+        m_cfg = rx_jesd204b_layering_config::get_config(this);
+        m_ila_info_extractor = m_cfg.m_ila_info_extractor;
     endfunction
 
 
@@ -34,10 +36,11 @@ class ila_extractor extends uvm_subscriber#(erb_trans);
         end
     endfunction
 
-    
+
     function void dump_conf_data();
         fd = $fopen("ILA_link_configuration_data", "a");
         if (fd) begin
+            $fwrite(fd, "===============================================");
             $fwrite(fd, $sformatf("DID: 0x%h", m_ila_info_extractor.DID));
             $fwrite(fd, $sformatf("BID: 0x%h", m_ila_info_extractor.BID));
             $fwrite(fd, $sformatf("ADJCNT: %0d", m_ila_info_extractor.ADJCNT));
@@ -62,6 +65,7 @@ class ila_extractor extends uvm_subscriber#(erb_trans);
             $fwrite(fd, $sformatf("RES1: 0x%h", m_ila_info_extractor.RES1));
             $fwrite(fd, $sformatf("RES2: 0x%h", m_ila_info_extractor.RES2));
             $fwrite(fd, $sformatf("FCHK: 0x%h", m_ila_info_extractor.FCHK));
+            $fwrite(fd, "===============================================");
             $fclose(fd);
         end else begin
             `uvm_error("ILA EXTRACTOR", 

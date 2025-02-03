@@ -20,6 +20,7 @@ bit has_functional_coverage = 0;
 // Include the APB RAM based scoreboard
 bit has_scoreboard = 0;
 
+ila_info_extractor m_ila_info_extractor;
 deserializer_agent_config m_deserializer_agent_cfg;
 
 // number of octets per frame
@@ -75,6 +76,7 @@ endclass: rx_jesd204b_layering_config
 function rx_jesd204b_layering_config::new(string name = 
     "rx_jesd204b_layering_config");
     super.new(name);
+    m_ila_info_extractor = new();
     m_deserializer_agent_cfg = deserializer_agent_config::type_id::
         create("m_deserializer_agent_cfg");
 endfunction
