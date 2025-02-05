@@ -39,9 +39,11 @@ extern function void do_record(uvm_recorder recorder);
 
 endclass:ila_trans
 
+
 function ila_trans::new(string name = "ila_trans");
   super.new(name);
 endfunction
+
 
 function void ila_trans::do_copy(uvm_object rhs);
     ila_trans rhs_;
@@ -55,6 +57,7 @@ function void ila_trans::do_copy(uvm_object rhs);
     is_control_word = rhs_.is_control_word;
     f_position = rhs_.f_position;
 endfunction:do_copy
+
 
 function bit ila_trans::do_compare(uvm_object rhs, 
     uvm_comparer comparer);
@@ -70,6 +73,7 @@ function bit ila_trans::do_compare(uvm_object rhs,
       is_control_word == rhs_.is_control_word &&
       f_position == rhs_.f_position;
 endfunction:do_compare
+
 
 function void ila_trans::do_print(uvm_printer printer);
     super.do_print(printer);
@@ -93,6 +97,7 @@ function void ila_trans::do_print(uvm_printer printer);
     printer.print_int("Frame position inside a multiframe", 
         f_position, $bits(f_position), UVM_DEC);
 endfunction:do_print
+
 
 function void ila_trans::do_record(uvm_recorder recorder);
     super.do_record(recorder);

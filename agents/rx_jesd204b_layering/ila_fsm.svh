@@ -5,8 +5,8 @@ class ILA_StateMachine;
     // user should pass a handle of ila_info_extractor to this variable during 
     // build_phase
     ila_info_extractor m_ila_info_extractor;
-    ilastate_e currentState;
-    ilastate_e nextState;
+    erb2ila_dec::ilastate_e currentState;
+    erb2ila_dec::ilastate_e nextState;
     bit [2:0] kcounter;
     int ocounter;
     // 0 - increment ocounter at reception of next octet
@@ -30,72 +30,62 @@ class ILA_StateMachine;
     extern function void update_currentstate();
     extern function void get_nextstate(ila_trans eventData);
     // do things based on current state and updated ila_trans
-    extern function void state_func(ila_trans cgs);
+    extern function void state_func(ila_trans eventData);
     extern function void check_alignment(ila_trans t);
     extern function bit cross_coupling();
     extern function bit is_link_initialization(ila_trans frame);
-    extern function bit is_ila_extraction_finished(ila_trans frame);
-    extern function bit show_value_phadj(ila_trans frame);
+    extern function bit is_ila_extraction_finished();
+    extern function bit show_value_phadj();
+    extern function bit is_adjustment_complete();
 endclass
+
 
 function void ILA_StateMachine::update_currentstate();
     currentState = nextState;
 endfunction
+
 
 function void ILA_StateMachine::get_nextstate(ila_trans eventData);
     case(currentState)
         ILA_WAIT: begin
             if (is_link_initialization(eventData))
                 nextState = ILA_EVAL;
-            else
-                nextState = ILA_WAIT;
         end
         ILA_EVAL: begin
             if (is_ila_extraction_finished()) begin
-                if (show_value_phadj(eventData))
+                if (show_value_phadj())
                     nextState = ILA_ADJ;
                 else
                     nextState = ILA_WAIT;
             end
         end
-        FS_CHECK: begin
-            if (kcounter == 3'd4)
-                nextState = FS_INIT;
-            else if (!(eventData.data == K && eventData.is_control_word))
-                nextState = FS_DATA;
-            else
-                nextState = FS_CHECK;
+        ILA_ADJ: begin
+            if (is_adjustment_complete())
+                nextState = ILA_RPT;
         end
-        default: nextState = FS_INIT;
+        ILA_RPT: nextState = ILA_WAIT;
+        default: nextState = ILA_WAIT;
     endcase
 endfunction
 
-function void ILA_StateMachine::state_func(ila_trans cgs);
+
+function void ILA_StateMachine::state_func(ila_trans eventData);
     case(currentState)
-        FS_INIT: ocounter = 0;
-        FS_DATA: begin
-            kcounter = 3'd0;
-            if (reset_octet_counter)
-                ocounter = 0;
-            else
-                ocounter = (ocounter + 1) % m_cfg.F;
-            reset_octet_counter = 1'b0;
-            check_alignment(cgs);
+        ILA_WAIT: begin
+        // resume error reporting
+        // the indication bit may be temporarily put inside agent config class,
+        // but ultimately I want to put it inside a RAL model for this agent
         end
-        FS_CHECK: begin
-            kcounter++;
-            if (reset_octet_counter)
-                ocounter = 0;
-            else
-                ocounter = (ocounter + 1) % m_cfg.F;
-            reset_octet_counter = 1'b0;
-            check_alignment(cgs);
+        ILA_EVAL: begin
+        // suspend error reporting
+        end
+        ILA_ADJ: begin
         end
         default: ocounter = 0;
     endcase
-    cgs.ifsstate = currentState;
-    cgs.o_position = ocounter;
+    eventData.ilastate = currentState;
 endfunction
+
 
 function void ILA_StateMachine::check_alignment(ila_trans t);
     if (t.is_control_word) begin
@@ -140,14 +130,20 @@ function bit ILA_StateMachine::is_link_initialization(ila_trans frame);
 endfunction
 
 
-function bit ILA_StateMachine::is_ila_extraction_finished(ila_trans frame);
+function bit ILA_StateMachine::is_ila_extraction_finished();
 // returns 1 if agent has received whole ILA sequence
 // returns 0 if agent is receiving incoming ILA or no ILA has ever been
 // received
-    return 0;
+    return m_ila_info_extractor.has_ila_finished();
 endfunction
 
 
-function bit ILA_StateMachine::show_value_phadj(ila_trans frame);
-// 
+function bit ILA_StateMachine::show_value_phadj();
+// return the value of PHADJ extracted from ILA
+    return m_ila_info_extractor.PHADJ;
+endfunction
+
+
+function bit ILA_StateMachine::is_adjustment_complete();
+    return 0;
 endfunction
