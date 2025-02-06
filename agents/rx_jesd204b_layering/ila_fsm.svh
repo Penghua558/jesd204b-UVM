@@ -6,7 +6,7 @@ class ILA_StateMachine;
 // only use get_nextstate() method and other variables since monitor only
 // observes.
     rx_jesd204b_layering_config m_cfg;
-    // user should pass a handle of ila_info_extractor to this variable during 
+    // user should pass a handle of ila_info_extractor to this variable during
     // build_phase
     ila_info_extractor m_ila_info_extractor;
     erb2ila_dec::ilastate_e currentState;
@@ -26,7 +26,6 @@ class ILA_StateMachine;
     extern function void get_nextstate(erb_trans eventData);
     // do things based on current state and updated ila_trans
     extern function void state_func(ila_trans eventData);
-    extern function bit cross_coupling();
     extern function bit is_link_initialization(erb_trans frame);
     extern function bit is_ila_extraction_finished();
     extern function bit get_phadj();
@@ -85,15 +84,11 @@ function void ILA_StateMachine::state_func(ila_trans eventData);
         ILA_RPT: begin
             eventData.err_report = 1'b1;
         end
+        default: begin
+        // resume error reporting
+        end
     endcase
     eventData.ilastate = currentState;
-endfunction
-
-
-function bit ILA_StateMachine::cross_coupling();
-// when frame misalignment is expected to happen transmitter disable IFS
-// via control interface, for now it's a PLACEHOLDER
-    return 0;
 endfunction
 
 
@@ -103,7 +98,7 @@ function bit ILA_StateMachine::is_link_initialization(erb_trans frame);
 // link initialization condition is multiple K28.5 characters followed by
 // the start of ILA
     logic [7:0] msb_of_frame[$];
-    msb_of_frame = frame.data.find_last with {1};
+    msb_of_frame = frame.data.find_last with (1);
     if (msb_of_frame.size) begin
         if (msb_of_frame[0] == global_dec::R)
             return 1;
@@ -127,7 +122,7 @@ function bit ILA_StateMachine::get_phadj();
 endfunction
 
 
-extern function bit[3:0] ILA_StateMachine::get_adjcnt();
+function bit[3:0] ILA_StateMachine::get_adjcnt();
 // returns the value of ADJCNT extracted from ILA
     return m_ila_info_extractor.ADJCNT;
 endfunction
@@ -140,5 +135,9 @@ endfunction
 
 
 function bit ILA_StateMachine::is_adjustment_complete();
-    return 0;
+// returns 1 if LMFC phase adjustment durin 3rd state in TX ILA statemachine
+// finished.
+// returns 0 if the adjustment state above is not finished yet or statemachine
+// is not at 3rd state
+    return ~m_cfg.lmfc_adj_start;
 endfunction
