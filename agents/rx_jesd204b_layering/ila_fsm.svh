@@ -1,41 +1,37 @@
 import global_dec::*;
 import erb2ila_dec::*;
 class ILA_StateMachine;
+// this class would be used in both erb2ila_monitor and ila2erb_seq,
+// ila2erb_seq would use full features of this class, erb2ila_monitor would
+// only use get_nextstate() method and other variables since monitor only
+// observes.
     rx_jesd204b_layering_config m_cfg;
     // user should pass a handle of ila_info_extractor to this variable during 
     // build_phase
     ila_info_extractor m_ila_info_extractor;
     erb2ila_dec::ilastate_e currentState;
     erb2ila_dec::ilastate_e nextState;
-    bit [2:0] kcounter;
-    int ocounter;
-    // 0 - increment ocounter at reception of next octet
-    // 1 - reset ocounter at reception of next octet
-    bit reset_octet_counter;
-    int previous_af_position;
     // in software FSM, transition is called event, data/stimulus from
     // external associated with the event is event data
     // In this FSM, event data to cause transition is decoded symbol from
     // CGS FSM
-    ila_trans eventData;
+
+
 
     function new();
         currentState = ILA_WAIT;
-        kcounter = 3'd0;
-        ocounter = 0;
-        reset_octet_counter = 1'b0;
-        previous_af_position = 0;
     endfunction
 
     extern function void update_currentstate();
-    extern function void get_nextstate(ila_trans eventData);
+    extern function void get_nextstate(erb_trans eventData);
     // do things based on current state and updated ila_trans
     extern function void state_func(ila_trans eventData);
-    extern function void check_alignment(ila_trans t);
     extern function bit cross_coupling();
-    extern function bit is_link_initialization(ila_trans frame);
+    extern function bit is_link_initialization(erb_trans frame);
     extern function bit is_ila_extraction_finished();
-    extern function bit show_value_phadj();
+    extern function bit get_phadj();
+    extern function bit[3:0] get_adjcnt();
+    extern function bit get_adjdir();
     extern function bit is_adjustment_complete();
 endclass
 
@@ -45,7 +41,7 @@ function void ILA_StateMachine::update_currentstate();
 endfunction
 
 
-function void ILA_StateMachine::get_nextstate(ila_trans eventData);
+function void ILA_StateMachine::get_nextstate(erb_trans eventData);
     case(currentState)
         ILA_WAIT: begin
             if (is_link_initialization(eventData))
@@ -53,7 +49,7 @@ function void ILA_StateMachine::get_nextstate(ila_trans eventData);
         end
         ILA_EVAL: begin
             if (is_ila_extraction_finished()) begin
-                if (show_value_phadj())
+                if (get_phadj())
                     nextState = ILA_ADJ;
                 else
                     nextState = ILA_WAIT;
@@ -80,30 +76,17 @@ function void ILA_StateMachine::state_func(ila_trans eventData);
         // suspend error reporting
         end
         ILA_ADJ: begin
+        // this should be moved to RAL later
+            m_cfg.PHADJ = this.get_phadj();
+            m_cfg.ADJCNT = this.get_adjcnt();
+            m_cfg.ADJDIR = this.get_adjdir();
+            m_cfg.lmfc_adj_start = 1'b1;
         end
-        default: ocounter = 0;
+        ILA_RPT: begin
+            eventData.err_report = 1'b1;
+        end
     endcase
     eventData.ilastate = currentState;
-endfunction
-
-
-function void ILA_StateMachine::check_alignment(ila_trans t);
-    if (t.is_control_word) begin
-        if ((t.data == A || t.data == F) && t.valid) begin
-            `uvm_info("IFS", "A/F detected", UVM_HIGH)
-            // discrambling enabled
-            if (m_cfg.scrambling_enable)
-                t.is_control_word = 1'b0;
-
-            if (((ocounter == previous_af_position) || cross_coupling()) &&
-                t.valid) begin
-                `uvm_info("IFS", "frame aligned, resetting ocounter", UVM_HIGH)
-                reset_octet_counter = 1'b1;
-            end
-            if (t.valid || ocounter == (m_cfg.F-1))
-                previous_af_position = ocounter;
-        end
-    end
 endfunction
 
 
@@ -114,7 +97,7 @@ function bit ILA_StateMachine::cross_coupling();
 endfunction
 
 
-function bit ILA_StateMachine::is_link_initialization(ila_trans frame);
+function bit ILA_StateMachine::is_link_initialization(erb_trans frame);
 // returns 1 when link initialization is detected
 // returns 0 if no link initialization is detected
 // link initialization condition is multiple K28.5 characters followed by
@@ -138,9 +121,21 @@ function bit ILA_StateMachine::is_ila_extraction_finished();
 endfunction
 
 
-function bit ILA_StateMachine::show_value_phadj();
-// return the value of PHADJ extracted from ILA
+function bit ILA_StateMachine::get_phadj();
+// returns the value of PHADJ extracted from ILA
     return m_ila_info_extractor.PHADJ;
+endfunction
+
+
+extern function bit[3:0] ILA_StateMachine::get_adjcnt();
+// returns the value of ADJCNT extracted from ILA
+    return m_ila_info_extractor.ADJCNT;
+endfunction
+
+
+function bit ILA_StateMachine::get_adjdir();
+// returns the value of ADJDIR extracted from ILA
+    return m_ila_info_extractor.ADJDIR;
 endfunction
 
 

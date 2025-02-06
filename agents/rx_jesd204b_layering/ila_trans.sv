@@ -21,6 +21,8 @@ int f_position;
 
 // current ILA statemachine state
 ilastate_e ilastate;
+// report error at last stage during LMFC phase adjustment
+bit err_report;
 
 //------------------------------------------
 // Constraints
@@ -56,6 +58,7 @@ function void ila_trans::do_copy(uvm_object rhs);
     data = rhs_.data;
     is_control_word = rhs_.is_control_word;
     f_position = rhs_.f_position;
+    err_report = rhs_.err_report;
 endfunction:do_copy
 
 
@@ -71,7 +74,8 @@ function bit ila_trans::do_compare(uvm_object rhs,
     return super.do_compare(rhs, comparer) &&
       data == rhs_.data &&
       is_control_word == rhs_.is_control_word &&
-      f_position == rhs_.f_position;
+      f_position == rhs_.f_position &&
+      err_report == rhs_.err_report;
 endfunction:do_compare
 
 
@@ -96,6 +100,8 @@ function void ila_trans::do_print(uvm_printer printer);
     end
     printer.print_int("Frame position inside a multiframe", 
         f_position, $bits(f_position), UVM_DEC);
+    printer.print_int("ILA error report", 
+        err_report, $bits(err_report), UVM_DEC);
 endfunction:do_print
 
 

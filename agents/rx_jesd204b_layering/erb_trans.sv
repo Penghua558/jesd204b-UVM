@@ -21,6 +21,9 @@ int f_position;
 
 // passed from lower layer
 bit sync_request;
+// passed from upper layer during LMFC phase adjustment
+// but it should be able to be set by any layers
+bit err_report;
 
 //------------------------------------------
 // Constraints
@@ -57,6 +60,7 @@ function void erb_trans::do_copy(uvm_object rhs);
     is_control_word = rhs_.is_control_word;
     f_position = rhs_.f_position;
     sync_request = rhs_.sync_request;
+    err_report = rhs_.err_report;
 endfunction:do_copy
 
 
@@ -73,7 +77,8 @@ function bit erb_trans::do_compare(uvm_object rhs,
       data == rhs_.data &&
       is_control_word == rhs_.is_control_word &&
       f_position == rhs_.f_position &&
-      sync_request == rhs_.sync_request;
+      sync_request == rhs_.sync_request &&
+      err_report == rhs_.err_report;
 endfunction:do_compare
 
 
@@ -100,6 +105,8 @@ function void erb_trans::do_print(uvm_printer printer);
         f_position, $bits(f_position), UVM_DEC);
     printer.print_int("Sync request", 
         sync_request, $bits(sync_request), UVM_BIN);
+    printer.print_int("ILA error report", 
+        err_report, $bits(err_report), UVM_BIN);
 endfunction:do_print
 
 
