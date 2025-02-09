@@ -73,6 +73,7 @@ function void ILA_StateMachine::state_func(ila_trans eventData);
         end
         ILA_EVAL: begin
         // suspend error reporting
+            eventData.err_report = 1'b0;
         end
         ILA_ADJ: begin
         // this should be moved to RAL later
@@ -80,6 +81,7 @@ function void ILA_StateMachine::state_func(ila_trans eventData);
             m_cfg.ADJCNT = this.get_adjcnt();
             m_cfg.ADJDIR = this.get_adjdir();
             m_cfg.lmfc_adj_start = 1'b1;
+            eventData.err_report = 1'b0;
         end
         ILA_RPT: begin
             eventData.err_report = 1'b1;
