@@ -12,7 +12,6 @@ ila_trans ila_out;
 ila_trans cloned_ila_out;
 // position of frame within a multiframe
 // 0 ~ K-1
-int f_position;
 rx_jesd204b_layering_config m_cfg;
 ILA_StateMachine m_ila_fsm;
 
@@ -47,7 +46,6 @@ endfunction
 
 function void erb2ila_monitor::build_phase(uvm_phase phase);
     m_cfg = rx_jesd204b_layering_config::get_config(this);
-    f_position = 0;
     ap = new("ap", this);
     m_ila_fsm = new();
     m_ila_fsm.m_ila_info_extractor = m_cfg.m_ila_info_extractor;
@@ -61,25 +59,19 @@ function void erb2ila_monitor::write(erb_trans t);
     ila_out.is_control_word = new[m_cfg.F];
     ila_out.data = t.data;
     ila_out.is_control_word = t.is_control_word;
+    ila_out.f_position = t.f_position;
 
+    // FSM in this monitor only observes, it does not drive
+    // the reason FSMs in dec2cgs_monitor drive is because those actions are
+    // all contained in that layer. This FSM's drive action will be carried
+    // out via transactions for lower layer, so this FSM will drive in its
+    // corresponding layered sequence.
+    m_ila_fsm.get_nextstate(t);
+    m_ila_fsm.update_currentstate();
 
-    // MSB should be the first octet ever received
-    ila_out.data.reverse();
-    ila_out.is_control_word.reverse();
-
-    // tries to feed the frame into ERB
-    if (m_erb.put(ila_out, t.ifsstate)) begin
-        `uvm_info("CGS2ERB Monitor", "Fed a new frame into ERB", 
-            UVM_MEDIUM)
-    end
-
-    if (m_erb.get(cloned_ila_out)) begin
-        `uvm_info("CGS2ERB Monitor", "Sending out a new frame", 
-            UVM_MEDIUM)
-        // Clone and publish the cloned item to the subscribers
-        notify_transaction(cloned_ila_out);
-    end
-    f_position = (f_position+1) % m_cfg.K;
+    // Clone and publish the cloned item to the subscribers
+    $cast(cloned_ila_out, ila_out.clone());
+    notify_transaction(cloned_ila_out);
 endfunction
 
 

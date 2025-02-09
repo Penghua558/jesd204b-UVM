@@ -138,6 +138,7 @@ task erb2cgs_seq::body;
             // SYNC~ is controlled by error reporting
             sync_n = !(err_report_assert_current_lmfc && 
                 (fcounter >= m_cfg.K-2 && fcounter <= m_cfg.K-1));
+
             asserted_by_sync_request = 1'b0;
         end
 

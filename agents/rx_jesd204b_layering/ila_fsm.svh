@@ -17,7 +17,6 @@ class ILA_StateMachine;
     // CGS FSM
 
 
-
     function new();
         currentState = ILA_WAIT;
     endfunction
