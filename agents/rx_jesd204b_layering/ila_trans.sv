@@ -22,7 +22,10 @@ int f_position;
 // current ILA statemachine state
 ilastate_e ilastate;
 // report error at last stage during LMFC phase adjustment
-bit err_report;
+// normally it would not be randomized as it can be completely driven by
+// protocol, but to make error report easier to generate we would to randomize
+// it directly rather than creating errors which would trigger error report
+rand bit err_report;
 
 //------------------------------------------
 // Constraints

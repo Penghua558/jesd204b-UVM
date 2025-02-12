@@ -95,6 +95,7 @@ function void rx_jesd204b_layering::connect_phase(uvm_phase phase);
     m_dec2cgs_moitor.ap.connect(cgs_sequencer.sequencer_export);
     m_cgs2erb_monitor.ap.connect(m_cgs2erb_recorder.analysis_export);
     m_cgs2erb_monitor.ap.connect(m_ila_extractor.analysis_export);
+    m_cgs2erb_monitor.ap.connect(erb_m_sequencer.analysis_export);
 endfunction: connect_phase
 
 task rx_jesd204b_layering::run_phase(uvm_phase phase);
