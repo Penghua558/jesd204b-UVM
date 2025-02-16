@@ -93,6 +93,7 @@ function void test_base::configure_rx_jesd204b_layering(
     rx_jesd204b_layering_config cfg);
     cfg.active = UVM_ACTIVE;
     assert(cfg.randomize());
+    cfg.randomize_err_report = 1'b0;
     cfg.F = 8;
     cfg.K = 4;
     cfg.scrambling_enable = 1'b1;

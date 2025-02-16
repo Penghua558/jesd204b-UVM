@@ -38,6 +38,8 @@ import deserializer_agent_pkg::*;
 `include "erb2ila_monitor.sv"
 `include "erb2ila_recorder.sv"
 
+`include "ila_seq.sv"
+
 
 `include "rx_jesd204b_layering.sv"
 endpackage: rx_jesd204b_layering_pkg

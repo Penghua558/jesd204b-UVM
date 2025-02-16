@@ -32,6 +32,11 @@ bit PHADJ;
 bit[3:0] ADJCNT;
 bit ADJDIR;
 
+// 1 - agent sequence would randomize error report
+// 0 - agent sequence would not randomize error report, rather the generation 
+// would be simulated, e.g.based on the result of ILA, result of 8b10b decoder,
+// etc
+rand bit randomize_err_report;
 // number of octets per frame
 rand int F;
 // number of frames per multiframe
@@ -86,6 +91,7 @@ function rx_jesd204b_layering_config::new(string name =
     "rx_jesd204b_layering_config");
     super.new(name);
     lmfc_adj_start = 1'b0;
+    randomize_err_report = 1'b0;
     m_ila_info_extractor = new();
     m_deserializer_agent_cfg = deserializer_agent_config::type_id::
         create("m_deserializer_agent_cfg");
@@ -114,6 +120,8 @@ endfunction
 function void rx_jesd204b_layering_config::do_print(uvm_printer printer);
     m_deserializer_agent_cfg.print();
     super.do_print(printer);
+    printer.print_int("Randomize error report?", randomize_err_report, 
+        $bits(randomize_err_report), UVM_DEC);
     printer.print_int("F", F, $bits(F), UVM_DEC);
     printer.print_int("K", K, $bits(K), UVM_DEC);
     printer.print_string("scrambling enable?", scrambling_enable? "Yes":"No");
