@@ -20,10 +20,14 @@ int f_position;
 // the layering continue to operate
 // 0 ~ F-1
 int self_o_position;
+// Number of adjustment clock period should the LMFC and frame clock should
+// delay. In this agent, the adjustment clock is equal to frame clock
+bit[3:0] ADJCNT;
 // Elastic RX Buffer, 1st index is position of frame in the buffer, 2nd index
 // is octet position in a frame
 elastic_rx_buffer m_elastic_rx_buffer;
 rx_jesd204b_layering_config m_cfg;
+
 
 //------------------------------------------
 // Component Members
@@ -43,6 +47,8 @@ extern function new(string name = "cgs2erb_monitor",
 uvm_component parent = null);
 extern function void build_phase(uvm_phase phase);
 extern function void write(cgsnfs_trans t);
+extern function void convert_adj2delay();
+
 
 // Proxy Methods:
 extern function void notify_transaction(erb_trans item);
@@ -65,6 +71,16 @@ function void cgs2erb_monitor::build_phase(uvm_phase phase);
     m_elastic_rx_buffer = new(m_cfg.erb_size, m_cfg.RBD);
     ap = new("ap", this);
 endfunction: build_phase
+
+
+function void cgs2erb_monitor::convert_adj2delay();
+// Convert ADJCNT and ADJDIR in agent layering to delay phase adjustment,
+// and assign the value to this monitor's ADJCNT
+    if (!m_cfg.ADJDIR)
+        this.ADJCNT = m_cfg.K - (m_cfg.ADJCNT % m_cfg.K);
+    else
+        this.ADJCNT = m_cfg.ADJCNT % m_cfg.K;
+endfunction
 
 
 function void cgs2erb_monitor::write(cgsnfs_trans t);
@@ -102,6 +118,20 @@ function void cgs2erb_monitor::write(cgsnfs_trans t);
                 // MSB should be the first octet ever received
                 erb_out.data.reverse();
                 erb_out.is_control_word.reverse();
+
+                // Adjust LMFC and frame clock phase
+                if (m_cfg.lmfc_adj_start) begin
+                // adjust
+                // convert all phase adjustment to delay phase
+                    convert_adj2delay();
+                    `uvm_info("CGS2ERB Monitor", 
+                        $sformatf("Converted delay ADJCNT: %0d", this.ADJCNT), 
+                        UVM_MEDIUM)
+                // detect if adjustment is complete
+                    if (is_adjustment_complete()) begin
+                        m_cfg.lmfc_adj_start = 1'b0;
+                    end
+                end
 
                 // tries to feed the frame into ERB
                 if (m_elastic_rx_buffer.put(erb_out, t.ifsstate)) begin
