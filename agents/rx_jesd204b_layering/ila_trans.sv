@@ -1,3 +1,4 @@
+import erb2ila_dec::*;
 class ila_trans extends uvm_sequence_item;
 
 // UVM Factory Registration Macro
@@ -20,7 +21,7 @@ bit is_control_word[];
 int f_position;
 
 // current ILA statemachine state
-ilastate_e ilastate;
+erb2ila_dec::ilastate_e ilastate;
 // report error at last stage during LMFC phase adjustment
 // normally it would not be randomized as it can be completely driven by
 // protocol, but to make error report easier to generate we would to randomize

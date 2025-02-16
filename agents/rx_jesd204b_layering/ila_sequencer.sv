@@ -11,7 +11,6 @@ class ila_sequencer extends uvm_sequencer#(ila_trans);
 // Standard UVM Methods:
 extern function new(string name="ila_sequencer", 
 uvm_component parent = null);
-extern virtual function void build_phase(uvm_phase phase);
 
 endclass: ila_sequencer
 

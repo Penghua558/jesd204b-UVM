@@ -11,4 +11,4 @@ typedef enum {
     ILA_RPT
     } ilastate_e;
 
-endpackage: cgs2erb_monitor_dec
+endpackage: erb2ila_dec

@@ -90,7 +90,7 @@ bit [7:0] FCHK;
 
 
 
-function new(int size, int RBD);
+function new();
     this.ila_start_detected = 1'b0;
     this.ila_end_detected = 1'b0;
     this.ila_length = 4;
@@ -283,7 +283,7 @@ function void ila_info_extractor::store_conf_data(byte octet, bit is_ctrl_word);
         end
         8: begin
             this.N_apostrophe = octet[4:0];
-            this.SUBCLASSV = octet[7:5]
+            this.SUBCLASSV = octet[7:5];
         end
         9: begin
             this.S = octet[4:0];
@@ -361,7 +361,7 @@ endfunction
 function void ila_info_extractor::extract_ila_info(erb_trans frame);
 // given an input frame, we test the start of ILA, then extract the information
 // according to the link configuraion mapping
-    for(int idx = frame.data.size()-1; i >= 0; i--) begin
+    for(int idx = frame.data.size()-1; idx >= 0; idx--) begin
         process_single_octet(frame.data[idx], frame.is_control_word[idx]);
     end
 endfunction
@@ -404,14 +404,12 @@ function bit ila_info_extractor::has_ila_finished();
 endfunction
 
 
-function ila_status_e ila_info_extractor::get_ila_status();
-    if (!this.ila_start_detected && !this.ila_end_detected)
-        return NO_ILA;
-    if (is_processing_ila())
-        return INCOMING_ILA;
-    if (has_ila_finished())
-        return ILA_FINISHED;
-    return NO_ILA;
+function ila_info_extractor::ila_status_e ila_info_extractor::get_ila_status();
+     if (!this.ila_start_detected && !this.ila_end_detected)
+         return NO_ILA;
+     if (is_processing_ila())
+         return INCOMING_ILA;
+     if (has_ila_finished())
+         return ILA_FINISHED;
+     return NO_ILA;
 endfunction
-
-endclass: ila_info_extractor

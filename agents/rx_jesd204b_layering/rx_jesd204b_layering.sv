@@ -122,7 +122,7 @@ task rx_jesd204b_layering::run_phase(uvm_phase phase);
     dec2des_seq = dec8b10b2des_seq::type_id::create("dec2des_seq", this);
     cgs2dec_seq = cgsnfs2dec_seq::type_id::create("cgs2dec_seq", this);
     erb2cgs_m_seq = erb2cgs_seq::type_id::create("erb2cgs_m_seq", this);
-    ila2erb_m_seq = ila2erb_m_seq::type_id::create("ila2erb_m_seq", this);
+    ila2erb_m_seq = ila2erb_seq::type_id::create("ila2erb_m_seq", this);
 
     // connect translation sequences to their respective upstream sequencers
     dec2des_seq.up_sequencer = dec_sequencer;

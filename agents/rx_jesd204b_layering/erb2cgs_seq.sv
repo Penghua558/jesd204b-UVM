@@ -79,10 +79,8 @@ task erb2cgs_seq::body;
 
             if (num_octet == 0) begin
                 erb_req.sync_request = sample_trans.sync_request;
-                erb_req.valid = sample_trans.valid;
             end else begin
                 erb_req.sync_request |= sample_trans.sync_request;
-                erb_req.valid &= sample_trans.valid;
             end
             num_octet++;
 

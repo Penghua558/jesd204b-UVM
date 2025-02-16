@@ -98,7 +98,7 @@ function bit ILA_StateMachine::is_link_initialization(erb_trans frame);
 // returns 0 if no link initialization is detected
 // link initialization condition is multiple K28.5 characters followed by
 // the start of ILA
-    logic [7:0] msb_of_frame[$];
+    byte unsigned msb_of_frame[$];
     msb_of_frame = frame.data.find_last with (1);
     if (msb_of_frame.size) begin
         if (msb_of_frame[0] == global_dec::R)
