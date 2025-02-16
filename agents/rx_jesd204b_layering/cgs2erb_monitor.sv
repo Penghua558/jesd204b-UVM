@@ -26,6 +26,7 @@ int self_o_position;
 // Number of adjustment clock period should the LMFC and frame clock should
 // delay. In this agent, the adjustment clock is equal to frame clock
 bit[3:0] ADJCNT;
+bit valid_erb_out;
 // Elastic RX Buffer, 1st index is position of frame in the buffer, 2nd index
 // is octet position in a frame
 elastic_rx_buffer m_elastic_rx_buffer;
@@ -71,6 +72,7 @@ function void cgs2erb_monitor::build_phase(uvm_phase phase);
     f_position = 0;
     self_o_position = 0;
     frame_valid = 0;
+    valid_erb_out = 1'b0;
     m_elastic_rx_buffer = new(m_cfg.erb_size, m_cfg.RBD);
     ap = new("ap", this);
 endfunction: build_phase
@@ -133,7 +135,9 @@ function void cgs2erb_monitor::write(cgsnfs_trans t);
                         `uvm_info("CGS2ERB Monitor", 
                             "LMFC phase adjustment completed", UVM_MEDIUM)
                         m_cfg.lmfc_adj_start = 1'b0;
-                    end
+                        valid_erb_out = 1'b1;
+                    end else
+                        valid_erb_out = 1'b0;
                 end
 
                 phase_adj_buffer.push_back(adj_tr);
@@ -142,10 +146,12 @@ function void cgs2erb_monitor::write(cgsnfs_trans t);
                     erb_out = phase_adj_buffer.pop_front();
                 end
 
-                // tries to feed the frame into ERB
-                if (m_elastic_rx_buffer.put(erb_out, t.ifsstate)) begin
-                    `uvm_info("CGS2ERB Monitor", "Fed a new frame into ERB", 
-                        UVM_MEDIUM)
+                if (valid_erb_out) begin
+                    // tries to feed the frame into ERB
+                    if (m_elastic_rx_buffer.put(erb_out, t.ifsstate)) begin
+                        `uvm_info("CGS2ERB Monitor", "Fed a frame into ERB", 
+                            UVM_MEDIUM)
+                    end
                 end
 
                 if (m_elastic_rx_buffer.get(cloned_erb_out)) begin
