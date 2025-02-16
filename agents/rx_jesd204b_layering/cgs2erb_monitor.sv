@@ -10,7 +10,10 @@ class cgs2erb_monitor extends uvm_subscriber#(cgsnfs_trans);
 // Data Members
 //------------------------------------------
 erb_trans erb_out;
+erb_trans adj_tr;
 erb_trans cloned_erb_out;
+// used to delay/advance LMFC and frame clock phase
+erb_trans phase_adj_buffer[$];
 // position of frame within a multiframe
 // 0 ~ K-1
 int f_position;
@@ -98,39 +101,45 @@ function void cgs2erb_monitor::write(cgsnfs_trans t);
     if (o_position == 0) begin
     // start of a frame, we create a new transaction to store a new frame
         `uvm_info("CGS2ERB Monitor", "Start of a new frame", UVM_HIGH)
-        erb_out = erb_trans::type_id::create("erb_out");
-        erb_out.data = new[m_cfg.F];
-        erb_out.is_control_word = new[m_cfg.F];
+        adj_tr = erb_trans::type_id::create("adj_tr");
+        adj_tr.data = new[m_cfg.F];
+        adj_tr.is_control_word = new[m_cfg.F];
 
-        erb_out.data[o_position] = t.data;
-        erb_out.is_control_word[o_position] = t.is_control_word;
-        erb_out.f_position = f_position;
-        erb_out.sync_request = t.sync_request;
+        adj_tr.data[o_position] = t.data;
+        adj_tr.is_control_word[o_position] = t.is_control_word;
+        adj_tr.f_position = f_position;
+        adj_tr.sync_request = t.sync_request;
         frame_valid = t.valid;
     end else begin
-        assert(erb_out != null) begin
-            erb_out.data[o_position] = t.data;
-            erb_out.is_control_word[o_position] = t.is_control_word;
+        assert(adj_tr != null) begin
+            adj_tr.data[o_position] = t.data;
+            adj_tr.is_control_word[o_position] = t.is_control_word;
             frame_valid &= t.valid;
 
             if (o_position == (m_cfg.F-1) && frame_valid) begin
                 // only valid frames will be fed into Elastic RX Buffer
                 // MSB should be the first octet ever received
-                erb_out.data.reverse();
-                erb_out.is_control_word.reverse();
+                adj_tr.data.reverse();
+                adj_tr.is_control_word.reverse();
 
                 // Adjust LMFC and frame clock phase
                 if (m_cfg.lmfc_adj_start) begin
-                // adjust
                 // convert all phase adjustment to delay phase
                     convert_adj2delay();
                     `uvm_info("CGS2ERB Monitor", 
                         $sformatf("Converted delay ADJCNT: %0d", this.ADJCNT), 
                         UVM_MEDIUM)
-                // detect if adjustment is complete
-                    if (is_adjustment_complete()) begin
+                    if (phase_adj_buffer.size() >= this.ADJCNT) begin
+                        `uvm_info("CGS2ERB Monitor", 
+                            "LMFC phase adjustment completed", UVM_MEDIUM)
                         m_cfg.lmfc_adj_start = 1'b0;
                     end
+                end
+
+                phase_adj_buffer.push_back(adj_tr);
+
+                if (!m_cfg.lmfc_adj_start)begin
+                    erb_out = phase_adj_buffer.pop_front();
                 end
 
                 // tries to feed the frame into ERB
