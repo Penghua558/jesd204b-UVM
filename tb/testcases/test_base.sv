@@ -121,11 +121,11 @@ function void test_base::set_sequencers(test_vseq_base seq);
 endfunction
 
 task test_base::run_phase(uvm_phase phase);
-    erb_seq rx_jesd204_seq = erb_seq::type_id::create("rx_jesd204_seq");
+    ila_seq rx_jesd204_seq = ila_seq::type_id::create("rx_jesd204_seq");
     super.run_phase(phase);
     fork
         forever begin
-            rx_jesd204_seq.start(m_env.m_rx_jesd204b_layering.erb_m_sequencer);
+            rx_jesd204_seq.start(m_env.m_rx_jesd204b_layering.ila_m_sequencer);
         end
     join_none
 endtask
