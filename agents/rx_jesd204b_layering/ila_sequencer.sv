@@ -19,7 +19,3 @@ function ila_sequencer::new(string name="ila_sequencer",
     uvm_component parent = null);
   super.new(name, parent);
 endfunction
-
-function void ila_sequencer::build_phase(uvm_phase phase);
-    sequencer_export = new("sequencer_export", this);
-endfunction
