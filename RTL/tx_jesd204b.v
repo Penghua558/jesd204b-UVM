@@ -72,9 +72,12 @@ frame_lmfc_clk_gen fr_lmfc_clk_gen(
 syncn_decoder syncn_dec(
     .clk(clk),
     .frame_clk(frame_clk),
+    .i_K(5'd3), // currently is tied to K = 4
     .i_sync_n(i_sync_n),
     .o_sync_request_tx(sync_request_tx),
-    .o_err_reporting()
+    .o_err_reporting(),
+    .o_sync_de_assertion(),
+    .o_no_frame_de_assertion()
 );
 
 tx_control tx_ctrl(
