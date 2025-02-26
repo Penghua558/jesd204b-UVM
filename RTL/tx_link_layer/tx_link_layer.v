@@ -1,5 +1,6 @@
 `include "encoder_8b10b.v"
 `include "k_sequence_gen.v"
+`include "ila_generator.v"
 
 module tx_link_layer(
     input wire clk, // character clock
@@ -8,6 +9,9 @@ module tx_link_layer(
     input wire [7:0] i_data,
     input wire i_vld,
     input wire i_k,
+    // position of current frame in current multiframe when SYNC~ de-asserted
+    // used for LMFC and frame clock phase adjustment
+    input wire [4:0] i_no_frame_de_assertion,
 
     // select which octect stream should be fed into 8b/10b encoder
     // 0: user data
