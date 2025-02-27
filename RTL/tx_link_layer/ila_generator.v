@@ -14,6 +14,7 @@ module ila_generator(
     input wire [7:0] i_DID,
     input wire [3:0] i_BID,
     input wire [4:0] i_LID,
+    input wire i_SCR,
     input wire [4:0] i_L,
     input wire [7:0] i_M,
     input wire [4:0] i_N,
@@ -38,8 +39,11 @@ module ila_generator(
 );
 
 
+localparam [2:0] SUBCLASSV = 3'd2;
+localparam [2:0] JESDV = 3'd1;
 localparam IDLE = 1'b0;
 localparam GEN_ILA = 1'b1;
+localparam [3:0] LINK_CONF_OCTET_NUM = 4'd14;
 localparam [7:0] K28_5 = 8'b101_11100;
 localparam [7:0] K28_0 = 8'b000_11100;
 localparam [7:0] K28_3 = 8'b011_11100;
@@ -57,6 +61,14 @@ reg [10:0] octet_position_in_multiframe;
 // number of current multiframe in ILA
 // 0 means the 1st multiframe
 reg [7:0] no_multiframe_in_ila;
+// position of current octet in link configuration data fields
+// there are 14 octets in total in link configuration data
+reg [3:0] octet_position_in_link_conf;
+reg [3:0] adjcnt;
+reg adjdir;
+reg phadj;
+// holds accumulation of all link configuration data fields
+reg [11:0] fchk_accum;
 
 
 always@(posedge clk or negedge rst_n) begin
@@ -71,6 +83,8 @@ always@(posedge clk or negedge rst_n) begin
         frame_position_in_multiframe <= 5'd0;
         octet_position_in_multiframe <= 11'd0;
         no_multiframe_in_ila <= 8'd0;
+        octet_position_in_link_conf <= 4'd0;
+        fchk_accum <= 12'd0;
     end else begin
         current_state <= next_state;
         case(current_state)
@@ -84,6 +98,8 @@ always@(posedge clk or negedge rst_n) begin
                 frame_position_in_multiframe <= 5'd0;
                 octet_position_in_multiframe <= 11'd0;
                 no_multiframe_in_ila <= 8'd0;
+                octet_position_in_link_conf <= 4'd0;
+                fchk_accum <= 12'd0;
             end
             GEN_ILA: begin
             // replace octet
@@ -110,6 +126,79 @@ always@(posedge clk or negedge rst_n) begin
                     o_vld <= 1'b1;
                     o_k <= 1'b1;
                     o_seq_end <= 1'b0;
+                end else
+                if (octet_position_in_multiframe == 11'd2 &&
+                    no_multiframe_in_ila == 8'd1) begin
+                    // test for 1st octet of link configuration data
+                    o_data <= i_DID;
+                    o_vld <= 1'b1;
+                    o_k <= 1'b0;
+                    o_seq_end <= 1'b0;
+                    octet_position_in_link_conf <= 4'd1;
+                    fchk_accum <= fchk_accum + {4'd0, i_DID};
+                end else
+                if (octet_position_in_link_conf < LINK_CONF_OCTET_NUM &&
+                    octet_position_in_link_conf > 4'd1) begin
+                    // test for the rest octets in link configuration data
+                    case(octet_position_in_link_conf)
+                        4'd1: begin
+                            o_data <= {adjcnt, i_BID};
+                            fchk_accum <= fchk_accum + {8'd0, adjcnt} +
+                                {8'd0, i_BID};
+                        end
+                        4'd2: begin
+                            o_data <= {1'b0, adjdir, phadj, i_LID};
+                            fchk_accum <= fchk_accum + {11'd0, adjdir} +
+                                {11'd0, phadj} + {7'd0, i_LID};
+                        end
+                        4'd3: begin
+                            o_data <= {i_SCR, 2'b0, i_L};
+                            fchk_accum <= fchk_accum + {11'd0, i_SCR} +
+                                {7'd0, i_L};
+                        end
+                        4'd4: begin
+                            o_data <= i_F;
+                            fchk_accum <= fchk_accum + {4'd0, i_F};
+                        end
+                        4'd5: begin
+                            o_data <= {3'b0, i_K};
+                            fchk_accum <= fchk_accum + {7'd0, i_K};
+                        end
+                        4'd6: begin
+                            o_data <= i_M;
+                            fchk_accum <= fchk_accum + {4'd0, i_M};
+                        end
+                        4'd7: begin
+                            o_data <= {i_CS, 1'b0, i_N};
+                            fchk_accum <= fchk_accum + {10'd0, i_CS} +
+                                {7'd0, i_N};
+                        end
+                        4'd8: begin
+                            o_data <= {SUBCLASSV, i_N_ap};
+                            fchk_accum <= fchk_accum + {9'd0, SUBCLASSV} +
+                                {7'd0, i_N_ap};
+                        end
+                        4'd9: begin
+                            o_data <= {JESDV, i_S};
+                            fchk_accum <= fchk_accum + {9'd0, JESDV} +
+                                {7'd0, i_S};
+                        end
+                        4'd10: begin
+                            o_data <= {i_HD, 2'b0, i_CF};
+                            fchk_accum <= fchk_accum + {11'd0, i_HD} +
+                                {7'd0, i_CF};
+                        end
+                        4'd11: o_data <= 8'b0;
+                        4'd12: o_data <= 8'b0;
+                        // all link configuration data fields' sum mod 256
+                        4'd13: o_data <= fchk_accum[7:0];
+                        default: o_data <= 8'b0;
+                    endcase
+                    o_vld <= 1'b1;
+                    o_k <= 1'b0;
+                    o_seq_end <= 1'b0;
+                    octet_position_in_link_conf <=
+                        octet_position_in_link_conf + 4'd1;
                 end else begin
                 end
             end
@@ -123,6 +212,8 @@ always@(posedge clk or negedge rst_n) begin
                 frame_position_in_multiframe <= 5'd0;
                 octet_position_in_multiframe <= 11'd0;
                 no_multiframe_in_ila <= 8'd0;
+                octet_position_in_link_conf <= 4'd0;
+                fchk_accum <= 12'd0;
             end
         endcase
     end
