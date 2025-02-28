@@ -39,6 +39,8 @@ module ila_generator(
 );
 
 
+localparam ADVANCE_LMFC = 1'b0;
+localparam DELAY_LMFC = 1'b1;
 localparam [2:0] SUBCLASSV = 3'd2;
 localparam [2:0] JESDV = 3'd1;
 localparam IDLE = 1'b0;
@@ -69,6 +71,37 @@ reg adjdir;
 reg phadj;
 // holds accumulation of all link configuration data fields
 reg [11:0] fchk_accum;
+
+
+always@(posedge clk or negedge rst_n) begin
+    if (!rst_n) begin
+        adjdir <= 1'b0;
+        adjcnt <= 4'd0;
+        phadj <= 1'b0;
+    end else begin
+        if (current_state == GEN_ILA) begin
+            if (i_no_frame_de_assertion == 5'd0) begin
+                adjdir <= ADVANCE_LMFC;
+                adjcnt <= 4'd0;
+                phadj <= 1'b0;
+            end else
+            if (i_no_frame_de_assertion <=
+                (i_K - i_no_frame_de_assertion)) begin
+                adjdir <= ADVANCE_LMFC;
+                phadj <= 1'b1;
+                adjcnt <= i_no_frame_de_assertion;
+            end else begin
+                adjdir <= DELAY_LMFC;
+                phadj <= 1'b1;
+                adjcnt <= i_K - i_no_frame_de_assertion;
+            end
+        end else begin
+            adjdir <= adjdir;
+            adjcnt <= adjcnt;
+            phadj <= phadj;
+        end
+    end
+end
 
 
 always@(posedge clk or negedge rst_n) begin
@@ -200,7 +233,33 @@ always@(posedge clk or negedge rst_n) begin
                     octet_position_in_link_conf <=
                         octet_position_in_link_conf + 4'd1;
                 end else begin
+                    o_data <= octet_value;
+                    o_vld <= 1'b1;
+                    o_k <= 1'b0;
+                    if (no_multiframe_in_ila == i_ila_multiframe_length &&
+                        octet_position_in_frame == i_F &&
+                        frame_position_in_multiframe == i_K)
+                        o_seq_end <= 1'b1;
+                    else
+                        o_seq_end <= 1'b0;
                 end
+
+                octet_value <= octet_value + 8'd1;
+
+                if (octet_position_in_frame >= i_F) begin
+                    octet_position_in_frame <= 8'd0;
+                    if (frame_position_in_multiframe >= i_K) begin
+                        frame_position_in_multiframe <= 5'd0;
+                        octet_position_in_multiframe <= 11'd0;
+                        no_multiframe_in_ila <= no_multiframe_in_ila + 8'd1;
+                    end else begin
+                        frame_position_in_multiframe <=
+                            frame_position_in_multiframe + 5'd1;
+                        octet_position_in_multiframe <=
+                            octet_position_in_multiframe + 11'd1;
+                    end
+                end else
+                    octet_position_in_frame <= octet_position_in_frame + 8'd1;
             end
             default: begin
                 o_data <= K28_5;
