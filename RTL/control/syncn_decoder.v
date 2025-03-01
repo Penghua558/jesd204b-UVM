@@ -76,7 +76,7 @@ always@(posedge clk) begin
     end else begin
         // detect SYNC~'s low to high transition
         if (i_sync_n && !sync_n_dly) begin
-            o_sync_de_assertion<= 1'b1;
+            o_sync_de_assertion <= 1'b1;
             o_no_frame_de_assertion <= no_frame_in_multiframe;
         end else begin
             o_sync_de_assertion <= o_sync_de_assertion;

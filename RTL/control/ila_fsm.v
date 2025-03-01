@@ -1,16 +1,11 @@
-module tx_control(
+module ila_fsm(
     input wire clk,  // device clock
     input wire rst_n,
     input wire frame_clk,
     input wire lmfc_clk,
+    input wire i_err_reporting,
     // assert when link re-initialization is detected
     input wire i_sync_request_tx,
-    // number of octets per frame
-    // 1 ~ 256, encoding: binary value - 1
-    input wire [7:0] i_F,
-    // number of multiframes an ILA lasts
-    // 1 ~ 256, encoding: binary value - 1
-    input wire [7:0] i_ila_multiframe_length,
 
     // select which octect stream should be fed into 8b/10b encoder
     // 0: user data
@@ -20,10 +15,6 @@ module tx_control(
 );
 
 // states
-localparam [2:0] SYNC = 3'b001;
-localparam [2:0] INIT_LANE = 3'b010;
-localparam [2:0] DATA_ENC = 3'b100;
-
 localparam [2:0] DETECT_DEASSERT = 3'b001;
 localparam [2:0] CAL_ADJ = 3'b010;
 localparam [2:0] SEND_K_ILA = 3'b100;
@@ -36,8 +27,6 @@ localparam [2:0] SEND_LANE_SEQ = 3'd2;
 
 reg [2:0] next_state;
 reg [2:0] current_state;
-reg [2:0] ila_next_state;
-reg [2:0] ila_current_state;
 // number of frames the K sequence has been sent in
 // current link re-initialization procedure
 reg [3:0] k_frame_cnt;
@@ -47,27 +36,9 @@ reg [3:0] k_sequence_min_frame;
 // initial lane alignment procedure
 reg [8:0] ila_multiframe_cnt;
 
-wire [8:0] i_F_decode;
-wire [8:0] i_ila_multiframe_length_decode;
-assign i_F_decode = i_F + 9'd1;
-assign i_ila_multiframe_length_decode = i_ila_multiframe_length + 9'd1;
-
-always@(posedge clk) begin
-    if (i_F_decode == 9'd1)
-        k_sequence_min_frame <= 4'd10;
-    else if (i_F_decode == 9'd2)
-        k_sequence_min_frame <= 4'd6;
-    else if (i_F_decode == 9'd3 || i_F_decode == 9'd4)
-        k_sequence_min_frame <= 4'd4;
-    else if (i_F_decode >= 9'd5 && i_F_decode <= 4'd8)
-        k_sequence_min_frame <= 4'd3;
-    else
-        k_sequence_min_frame <= 4'd2;
-end
-
 always@(posedge clk or negedge rst_n) begin
     if (!rst_n) begin
-      current_state <= SYNC;
+      current_state <= DETECT_DEASSERT;
       o_link_mux <= SEND_K;
     end else begin
         current_state <= next_state;
