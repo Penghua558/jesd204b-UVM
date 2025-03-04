@@ -15,9 +15,11 @@ module ila_fsm(
 );
 
 // states
-localparam [2:0] DETECT_DEASSERT = 3'b001;
-localparam [2:0] CAL_ADJ = 3'b010;
-localparam [2:0] SEND_K_ILA = 3'b100;
+localparam [4:0] DETECT_ERR_REPORTING = 5'b00001;
+localparam [4:0] DETECT_DEASSERT = 5'b00010;
+localparam [4:0] CAL_ADJ = 5'b00100;
+localparam [4:0] SEND_K = 5'b01000;
+localparam [4:0] SEND_ILA = 5'b10000;
 
 
 // FSM actions encode
@@ -38,7 +40,7 @@ reg [8:0] ila_multiframe_cnt;
 
 always@(posedge clk or negedge rst_n) begin
     if (!rst_n) begin
-      current_state <= DETECT_DEASSERT;
+      current_state <= DETECT_ERR_REPORTING;
       o_link_mux <= SEND_K;
     end else begin
         current_state <= next_state;
