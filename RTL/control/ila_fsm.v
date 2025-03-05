@@ -41,42 +41,28 @@ reg [8:0] ila_multiframe_cnt;
 always@(posedge clk or negedge rst_n) begin
     if (!rst_n) begin
       current_state <= DETECT_ERR_REPORTING;
-      o_link_mux <= SEND_K;
+      o_link_mux <= SEND_USER_DATA;
     end else begin
         current_state <= next_state;
 
         case(current_state)
-            SYNC: o_link_mux <= SEND_K;
-            INIT_LANE: o_link_mux <= SEND_LANE_SEQ;
-            DATA_ENC: o_link_mux <= SEND_USER_DATA;
-            default: o_link_mux <= SEND_K;
+            DETECT_ERR_REPORTING: o_link_mux <= SEND_USER_DATA;
+            DETECT_DEASSERT: o_link_mux <= SEND_USER_DATA;
+            CAL_ADJ: o_link_mux <= SEND_USER_DATA;
+            SEND_K: o_link_mux <= SEND_K;
+            SEND_ILA: o_link_mux <= SEND_LANE_SEQ;
+            default: o_link_mux <= SEND_USER_DATA;
         endcase
     end
 end
 
 always@(*) begin
     case(current_state)
-        SYNC: begin
-            if (i_sync_request_tx || !lmfc_clk ||
-                (k_frame_cnt <= k_sequence_min_frame))
-                next_state = SYNC;
-            else
-                next_state = INIT_LANE;
+        DETECT_ERR_REPORTING: begin
         end
         INIT_LANE: begin
-            // ILA sequence does not end
-            if (i_sync_request_tx)
-                next_state = SYNC;
-            else if (ila_multiframe_cnt <= i_ila_multiframe_length_decode)
-                next_state = INIT_LANE;
-            else
-                next_state = DATA_ENC;
         end
         DATA_ENC: begin
-            if (!i_sync_request_tx)
-                next_state = DATA_ENC;
-            else
-                next_state = SYNC;
         end
         default: next_state = SYNC;
     endcase
