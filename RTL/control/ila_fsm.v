@@ -7,6 +7,9 @@ module ila_fsm(
     // assert when link re-initialization is detected
     input wire i_sync_request_tx,
     input wire i_sync_de_assertion,
+    // number of multiframes an ILA lasts
+    // 1 ~ 256, encoding: binary value - 1
+    input wire [7:0] i_ila_multiframe_length,
 
     // select which octect stream should be fed into 8b/10b encoder
     // 0: user data
@@ -14,6 +17,8 @@ module ila_fsm(
     // 2: ILA
     output reg [2:0] o_link_mux
 );
+
+localparam [3:0] K_SEQ_FRAME_CNT = 4'd4;
 
 // states
 localparam [3:0] DETECT_DEASSERT = 4'b0001;
@@ -44,6 +49,9 @@ reg [3:0] k_sequence_min_frame;
 // initial lane alignment procedure
 reg [8:0] ila_multiframe_cnt;
 
+wire [8:0] i_ila_multiframe_length_decode;
+assign i_ila_multiframe_length_decode = i_ila_multiframe_length + 9'd1;
+
 always@(posedge clk) begin
     sync_request_tx_d <= i_sync_request_tx;
     err_reporting_d <= i_err_reporting;
@@ -53,8 +61,6 @@ always@(posedge clk or negedge rst_n) begin
     if (!rst_n) begin
       current_state <= DETECT_DEASSERT;
       o_link_mux <= SEND_USER_DATA;
-      phadj <= 1'b0;
-      phadj_valid <= 1'b0;
     end else begin
         current_state <= next_state;
 
@@ -65,6 +71,34 @@ always@(posedge clk or negedge rst_n) begin
             SEND_ILA: o_link_mux <= SEND_LANE_SEQ;
             default: o_link_mux <= SEND_USER_DATA;
         endcase
+    end
+end
+
+always@(posedge clk or negedge rst_n) begin
+    if (!rst_n) begin
+        phadj <= 1'b0;
+        phadj_valid <= 1'b0;
+    end else begin
+        if (current_state == CAL_ADJ) begin
+        // calculate PHADJ, ADJDIR, ADJCNT
+        end else begin
+            phadj <= 1'b0;
+            phadj_valid <= 1'b0;
+        end
+    end
+end
+
+always@(posedge clk or negedge rst_n) begin
+    if (!rst_n) begin
+        k_frame_cnt <= 4'd0;
+    end else begin
+        if (current_state == SEND_K) begin
+            if (frame_clk)
+                k_frame_cnt <= k_frame_cnt + 4'd1;
+            else
+                k_frame_cnt <= k_frame_cnt;
+        end else
+            k_frame_cnt <= 4'd0;
     end
 end
 
@@ -93,6 +127,21 @@ always@(*) begin
             end
         end
         SEND_K: begin
+            if (k_frame_cnt >= K_SEQ_FRAME_CNT) begin
+            // for error reporting trigger ILA, we only need to send
+            // 4 K symbols, but since the module's working is device clock,
+            // so for simplicity we send 4 frame periods long of K symbol
+                next_state <= SEND_ILA;
+            end else begin
+                next_state <= SEND_K;
+            end
+        end
+        SEND_ILA: begin
+            if (ila_multiframe_cnt <= i_ila_multiframe_length_decode) begin
+                next_state = SEND_ILA;
+            end else begin
+                next_state <= DETECT_DEASSERT;
+            end
         end
         default: next_state = DETECT_DEASSERT;
     endcase
@@ -100,23 +149,9 @@ end
 
 always@(posedge clk or negedge rst_n) begin
     if (!rst_n) begin
-        k_frame_cnt <= 4'd0;
-    end else begin
-        if (current_state == SYNC) begin
-            if (frame_clk)
-                k_frame_cnt <= k_frame_cnt + 4'd1;
-            else
-                k_frame_cnt <= k_frame_cnt;
-        end else
-            k_frame_cnt <= 4'd0;
-    end
-end
-
-always@(posedge clk or negedge rst_n) begin
-    if (!rst_n) begin
         ila_multiframe_cnt <= 9'd0;
     end else begin
-        if (current_state == INIT_LANE) begin
+        if (current_state == SEND_ILA) begin
             if (lmfc_clk)
                 ila_multiframe_cnt <= ila_multiframe_cnt + 9'd1;
             else
