@@ -29,6 +29,9 @@ wire frame_clk; // 156.25MHz
 wire lmfc_clk; // 156.25/K MHz
 wire sync_request_tx;
 wire [2:0] link_mux;
+wire err_reporting;
+wire syncn_de_assertion;
+wire [4:0] no_frame_de_assertion;
 
 // bit clock frequency is 12.5GHz to hit bitrate of 12.5Gbps
 clk_gen#(
@@ -49,6 +52,7 @@ tx_link_layer link_layer(
     .i_data(i_data),
     .i_vld(i_vld),
     .i_k(i_k),
+    .i_no_frame_de_assertion(no_frame_de_assertion),
     .i_link_mux(link_mux),
     .o_data(o_link_data),
     .o_k_error(o_link_k_error)
@@ -75,9 +79,9 @@ syncn_decoder syncn_dec(
     .i_K(5'd3), // currently is tied to K = 4
     .i_sync_n(i_sync_n),
     .o_sync_request_tx(sync_request_tx),
-    .o_err_reporting(),
-    .o_sync_de_assertion(),
-    .o_no_frame_de_assertion()
+    .o_err_reporting(err_reporting),
+    .o_sync_de_assertion(syncn_de_assertion),
+    .o_no_frame_de_assertion(no_frame_de_assertion)
 );
 
 tx_control tx_ctrl(
@@ -85,7 +89,9 @@ tx_control tx_ctrl(
     .rst_n(rst_n),
     .frame_clk(frame_clk),
     .lmfc_clk(lmfc_clk),
+    .i_err_reporting(err_reporting),
     .i_sync_request_tx(sync_request_tx),
+    .i_sync_de_assertion(syncn_de_assertion),
     .i_F(8'd7), // currently is tied to F = 8
     .i_ila_multiframe_length(8'd3), // currently is tied to 4 multiframes
     .o_link_mux(link_mux)

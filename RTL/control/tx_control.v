@@ -1,10 +1,17 @@
+`include "ila_fsm.sv"
+
 module tx_control(
     input wire clk,  // device clock
     input wire rst_n,
     input wire frame_clk,
     input wire lmfc_clk,
+    // asserted during the whole SYNC~ assertion period
+    input wire i_err_reporting,
     // assert when link re-initialization is detected
     input wire i_sync_request_tx,
+    // assert when low to high transition of SYNC~ is detected,
+    // deassert when SYNC~ is low
+    input wire i_sync_de_assertion,
     // number of octets per frame
     // 1 ~ 256, encoding: binary value - 1
     input wire [7:0] i_F,
@@ -16,7 +23,7 @@ module tx_control(
     // 0: user data
     // 1: continous K
     // 2: ILA
-    output reg [2:0] o_link_mux
+    output wire [2:0] o_link_mux
 );
 
 // states
@@ -47,6 +54,9 @@ reg [3:0] k_sequence_min_frame;
 // initial lane alignment procedure
 reg [8:0] ila_multiframe_cnt;
 
+reg [2:0] link_mux_tx_control;
+reg [2:0] link_mux_ila_fsm;
+
 wire [8:0] i_F_decode;
 wire [8:0] i_ila_multiframe_length_decode;
 assign i_F_decode = i_F + 9'd1;
@@ -68,15 +78,15 @@ end
 always@(posedge clk or negedge rst_n) begin
     if (!rst_n) begin
       current_state <= SYNC;
-      o_link_mux <= SEND_K;
+      link_mux_tx_control <= SEND_K;
     end else begin
         current_state <= next_state;
 
         case(current_state)
-            SYNC: o_link_mux <= SEND_K;
-            INIT_LANE: o_link_mux <= SEND_LANE_SEQ;
-            DATA_ENC: o_link_mux <= SEND_USER_DATA;
-            default: o_link_mux <= SEND_K;
+            SYNC: link_mux_tx_control <= SEND_K;
+            INIT_LANE: link_mux_tx_control <= SEND_LANE_SEQ;
+            DATA_ENC: link_mux_tx_control <= SEND_USER_DATA;
+            default: link_mux_tx_control <= SEND_K;
         endcase
     end
 end
@@ -136,4 +146,23 @@ always@(posedge clk or negedge rst_n) begin
             ila_multiframe_cnt <= 9'd0;
     end
 end
+
+
+ila_fsm u_ila_fsm(
+.clk(clk),
+.rst_n(rst_n),
+.frame_clk(frame_clk),
+.lmfc_clk(lmfc_clk),
+.i_err_reporting(i_err_reporting),
+.i_sync_request_tx(i_sync_request_tx),
+.i_sync_de_assertion(i_sync_de_assertion),
+.i_ila_multiframe_length(i_ila_multiframe_length),
+.o_link_mux(link_mux_ila_fsm)
+);
+
+// if ILA FSM' output is SEND_USER_DATA, it means no error reporting is
+// detected, so the FSM is actually untriggered, so tx_control's FSM's output
+// takes effect.
+assign o_link_mux = (link_mux_ila_fsm == SEND_USER_DATA)? 
+    link_mux_tx_control: link_mux_ila_fsm;
 endmodule

@@ -3,9 +3,12 @@ module ila_fsm(
     input wire rst_n,
     input wire frame_clk,
     input wire lmfc_clk,
+    // asserted during the whole SYNC~ assertion period
     input wire i_err_reporting,
     // assert when link re-initialization is detected
     input wire i_sync_request_tx,
+    // assert when low to high transition of SYNC~ is detected,
+    // deassert when SYNC~ is low
     input wire i_sync_de_assertion,
     // number of multiframes an ILA lasts
     // 1 ~ 256, encoding: binary value - 1
