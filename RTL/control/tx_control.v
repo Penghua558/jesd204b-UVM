@@ -31,11 +31,6 @@ localparam [2:0] SYNC = 3'b001;
 localparam [2:0] INIT_LANE = 3'b010;
 localparam [2:0] DATA_ENC = 3'b100;
 
-localparam [2:0] DETECT_DEASSERT = 3'b001;
-localparam [2:0] CAL_ADJ = 3'b010;
-localparam [2:0] SEND_K_ILA = 3'b100;
-
-
 // FSM actions encode
 localparam [2:0] SEND_USER_DATA = 3'd0;
 localparam [2:0] SEND_K = 3'd1;

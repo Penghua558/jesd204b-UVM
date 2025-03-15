@@ -36,6 +36,11 @@ wire user_k;
 wire [7:0] k_seq_data;
 wire k_seq_vld;
 wire k_seq_k;
+wire seq_start;
+
+wire [7:0] ila_data;
+wire ila_vld;
+wire ila_k;
 
 k_sequence_gen k_seq_gen(
     .clk(clk),
@@ -63,9 +68,9 @@ always@(posedge clk) begin
             k_flag_after_mux <= k_seq_k;
         end
         3'd2: begin // ILA
-            data_after_mux <= 8'd1;
-            data_vld_after_mux <= 1'b1;
-            k_flag_after_mux <= 1'b0;
+            data_after_mux <= ila_data;
+            data_vld_after_mux <= ila_vld;
+            k_flag_after_mux <= ila_k;
         end
         default: begin
             data_after_mux <= user_data;
@@ -83,5 +88,34 @@ encoder_8b10b u_encoder_8b10b(
     .i_k(k_flag_after_mux),
     .o_data(o_data),
     .o_k_error(o_k_error)
+);
+
+assign seq_start = (i_link_mux == 3'd2) ? 1'b1:1'b0;
+
+ila_generator u_ila_generator(
+    .clk(clk),
+    .rst_n(rst_n),
+    .i_no_frame_de_assertion(i_no_frame_de_assertion),
+    .i_seq_start(seq_start),
+    .i_ila_multiframe_length(8'd3),
+    .i_DID(8'd12),
+    .i_BID(4'3),
+    .i_LID(5'd0),
+    .i_SCR(1'b1),
+    .i_L(5'd0), // 1 lane
+    .i_M(8'd3), // 4 converters per device
+    .i_N(5'd13), // sample resolution 14bits
+    .i_CS(2'd2), // 2 control bits per sample
+    .i_N_ap(5'd15), // total 16bits per sample(include control bits)
+    .i_F(8'd7), // 8 octets per frame
+    .i_K(5'd3), // 4 frames per multiframe
+    .i_S(5'd0), // 1 sample per converter per frame cycle
+    .i_HD(1'b0),
+    .i_CF(5'd0),
+
+    .o_data(ila_data),
+    .o_vld(ila_vld),
+    .o_k(ila_k),
+    .o_seq_end() // no use atm
 );
 endmodule
