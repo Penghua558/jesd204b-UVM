@@ -55,19 +55,31 @@ constraint dac_para_cons {
     F >= 1;
     F <= 256;
 
-    K >= $ceil(17.0/F);
+    // this if else condition serves as the same as $ceil() system call, but
+    // randomization constraint can not use real number, so I'm forced to use
+    // integer to describe $ceil
+    if (17 % F == 0) {
+        K >= 17/F;
+    } else {
+        K >= 17/F + 1;
+    }
+    // K >= $ceil(17.0/F);
     K <= (min(32, 1024/F));
 
     // a multiframe's period must be larger than maximum possible link delay
     // the inequality is only valid for 12.5Gbps link operation
-    0.8*K*F > 3.28 + 1.6*F;
+    // 0.8*K*F > 3.28 + 1.6*F;
+    // real type variable randomization requires additional license which I do
+    // not have, so we make the number to be integers
+    10*K*F > 41 + 20*F;
 
     RBD >= 1;
     RBD <= K;
 
     // Elastic RX Buffer's release delay must be greater than maximum possible
     // link delay, the inequality is only valid for 12.5Gbps link operation
-    0.8*RBD*F > 3.28 + 1.6*F;
+    // 0.8*RBD*F > 3.28 + 1.6*F;
+    10*RBD*F > 41 + 20*F;
 
     erb_size >= RBD;
     erb_size <= 33;
