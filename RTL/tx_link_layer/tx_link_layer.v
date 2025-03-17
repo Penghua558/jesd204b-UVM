@@ -99,7 +99,7 @@ ila_generator u_ila_generator(
     .i_seq_start(seq_start),
     .i_ila_multiframe_length(8'd3),
     .i_DID(8'd12),
-    .i_BID(4'3),
+    .i_BID(4'd3),
     .i_LID(5'd0),
     .i_SCR(1'b1),
     .i_L(5'd0), // 1 lane

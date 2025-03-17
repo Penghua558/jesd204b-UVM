@@ -1,4 +1,4 @@
-`include "ila_fsm.sv"
+`include "ila_fsm.v"
 
 module tx_control(
     input wire clk,  // device clock

@@ -24,10 +24,10 @@ module ila_fsm(
 localparam [3:0] K_SEQ_FRAME_CNT = 4'd4;
 
 // states
-localparam [3:0] DETECT_DEASSERT = 4'b0001;
-localparam [3:0] CAL_ADJ = 4'b0010;
-localparam [3:0] SEND_K = 4'b0100;
-localparam [3:0] SEND_ILA = 4'b1000;
+localparam [3:0] STATE_DETECT_DEASSERT = 4'b0001;
+localparam [3:0] STATE_CAL_ADJ = 4'b0010;
+localparam [3:0] STATE_SEND_K = 4'b0100;
+localparam [3:0] STATE_SEND_ILA = 4'b1000;
 
 
 // FSM actions encode
@@ -62,16 +62,16 @@ end
 
 always@(posedge clk or negedge rst_n) begin
     if (!rst_n) begin
-      current_state <= DETECT_DEASSERT;
+      current_state <= STATE_DETECT_DEASSERT;
       o_link_mux <= SEND_USER_DATA;
     end else begin
         current_state <= next_state;
 
         case(current_state)
-            DETECT_DEASSERT: o_link_mux <= SEND_USER_DATA;
-            CAL_ADJ: o_link_mux <= SEND_USER_DATA;
-            SEND_K: o_link_mux <= SEND_K;
-            SEND_ILA: o_link_mux <= SEND_LANE_SEQ;
+            STATE_DETECT_DEASSERT: o_link_mux <= SEND_USER_DATA;
+            STATE_CAL_ADJ: o_link_mux <= SEND_USER_DATA;
+            STATE_SEND_K: o_link_mux <= SEND_K;
+            STATE_SEND_ILA: o_link_mux <= SEND_LANE_SEQ;
             default: o_link_mux <= SEND_USER_DATA;
         endcase
     end
@@ -82,7 +82,7 @@ always@(posedge clk or negedge rst_n) begin
         phadj <= 1'b0;
         phadj_valid <= 1'b0;
     end else begin
-        if (current_state == CAL_ADJ) begin
+        if (current_state == STATE_CAL_ADJ) begin
         // calculate PHADJ, ADJDIR, ADJCNT
         end else begin
             phadj <= 1'b0;
@@ -107,46 +107,46 @@ end
 
 always@(*) begin
     case(current_state)
-        DETECT_DEASSERT: begin
+        STATE_DETECT_DEASSERT: begin
             if (i_sync_de_assertion &&
                 err_reporting_d &&
                 !sync_request_tx_d) begin
-                next_state <= CAL_ADJ;
+                next_state <= STATE_CAL_ADJ;
             end else begin
-                next_state <= DETECT_DEASSERT;
+                next_state <= STATE_DETECT_DEASSERT;
             end
         end
-        CAL_ADJ: begin
+        STATE_CAL_ADJ: begin
             if (!phadj && phadj_valid) begin
             // in protocol the transition can only happen if phadj is 0 AND
             // it's not a sync request, since this FSM only detects non sync
             // request, aka error reporting, so we eliminated the sync request
             // condition
-                next_state <= DETECT_DEASSERT;
+                next_state <= STATE_DETECT_DEASSERT;
             end else if (phadj && phadj_valid) begin
-                next_state <= SEND_K;
+                next_state <= STATE_SEND_K;
             end else begin
-                next_state <= CAL_ADJ;
+                next_state <= STATE_CAL_ADJ;
             end
         end
-        SEND_K: begin
+        STATE_SEND_K: begin
             if (k_frame_cnt >= K_SEQ_FRAME_CNT) begin
             // for error reporting trigger ILA, we only need to send
             // 4 K symbols, but since the module's working is device clock,
             // so for simplicity we send 4 frame periods long of K symbol
-                next_state <= SEND_ILA;
+                next_state <= STATE_SEND_ILA;
             end else begin
-                next_state <= SEND_K;
+                next_state <= STATE_SEND_K;
             end
         end
-        SEND_ILA: begin
+        STATE_SEND_ILA: begin
             if (ila_multiframe_cnt <= i_ila_multiframe_length_decode) begin
-                next_state = SEND_ILA;
+                next_state = STATE_SEND_ILA;
             end else begin
-                next_state <= DETECT_DEASSERT;
+                next_state <= STATE_DETECT_DEASSERT;
             end
         end
-        default: next_state = DETECT_DEASSERT;
+        default: next_state = STATE_DETECT_DEASSERT;
     endcase
 end
 
@@ -154,7 +154,7 @@ always@(posedge clk or negedge rst_n) begin
     if (!rst_n) begin
         ila_multiframe_cnt <= 9'd0;
     end else begin
-        if (current_state == SEND_ILA) begin
+        if (current_state == STATE_SEND_ILA) begin
             if (lmfc_clk)
                 ila_multiframe_cnt <= ila_multiframe_cnt + 9'd1;
             else

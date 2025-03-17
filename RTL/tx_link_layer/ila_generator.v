@@ -30,12 +30,12 @@ module ila_generator(
     // HGFEDCBA
     // at default this module would output K28.5 to fill the gap bewteen FSM
     // state switch
-    output wire [7:0] o_data,
-    output wire o_vld,
-    output wire o_k,
+    output reg [7:0] o_data,
+    output reg o_vld,
+    output reg o_k,
     // active HIGH, pulse signal, lasts for 1 clock cycle
     // when ILA sequence is ended the signal would assert
-    output wire o_seq_end
+    output reg o_seq_end
 );
 
 
