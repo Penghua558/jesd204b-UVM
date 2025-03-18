@@ -9,7 +9,7 @@ class rx_jesd204b_layering extends uvm_component;
 //------------------------------------------
 // Component Members
 //------------------------------------------
-uvm_analysis_port #(erb_trans) ap;
+uvm_analysis_port #(ila_trans) ap;
 
 rx_jesd204b_layering_config m_cfg;
 
@@ -90,7 +90,7 @@ function void rx_jesd204b_layering::build_phase(uvm_phase phase);
             "cgs_sequencer", this);
         erb_m_sequencer = erb_sequencer::type_id::create(
             "erb_m_sequencer", this);
-        ila_m_sequencer = erb_sequencer::type_id::create(
+        ila_m_sequencer = ila_sequencer::type_id::create(
             "ila_m_sequencer", this);
     end
 endfunction: build_phase
@@ -108,7 +108,7 @@ function void rx_jesd204b_layering::connect_phase(uvm_phase phase);
     m_dec2cgs_moitor.ap.connect(cgs_sequencer.sequencer_export);
     m_cgs2erb_monitor.ap.connect(m_cgs2erb_recorder.analysis_export);
     m_cgs2erb_monitor.ap.connect(m_ila_extractor.analysis_export);
-    m_cgs2erb_monitor.ap.connect(erb_m_sequencer.analysis_export);
+    m_cgs2erb_monitor.ap.connect(erb_m_sequencer.sequencer_export);
     m_erb2ila_monitor.ap.connect(m_erb2ila_recorder.analysis_export);
 endfunction: connect_phase
 
