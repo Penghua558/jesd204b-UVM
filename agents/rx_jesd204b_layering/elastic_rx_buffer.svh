@@ -69,7 +69,9 @@ function bit get(output erb_trans item);
         release_cond_met = 1'b1;
 
     if (release_cond_met) begin
-        buffer.get(item_original);
+        if (!buffer.get(item_original))
+            `uvm_fatal("ELASTIC RX BUFFER", 
+            "something went wrong when tring to release elastic RX buffer")
         item = erb_trans::type_id::create("item");
         item.copy(item_original);
         return 1;

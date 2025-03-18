@@ -54,7 +54,7 @@ endfunction: build_phase
 
 function void erb2ila_monitor::write(erb_trans t);
     // start of a frame, we create a new transaction to store a new frame
-    ila_out = erb_trans::type_id::create("ila_out");
+    ila_out = ila_trans::type_id::create("ila_out");
     ila_out.data = new[m_cfg.F];
     ila_out.is_control_word = new[m_cfg.F];
     ila_out.data = t.data;

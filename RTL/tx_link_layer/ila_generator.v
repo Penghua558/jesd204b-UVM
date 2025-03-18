@@ -20,7 +20,7 @@ module ila_generator(
     input wire [4:0] i_N,
     input wire [1:0] i_CS,
     // N'
-    input wire [1:0] i_N_ap,
+    input wire [4:0] i_N_ap,
     input wire [7:0] i_F,
     input wire [4:0] i_K,
     input wire [4:0] i_S,
