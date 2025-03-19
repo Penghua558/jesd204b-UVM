@@ -120,12 +120,13 @@ function void test_base::set_sequencers(test_vseq_base seq);
   seq.enc_bus_sequencer_h = m_env.m_enc_bus_agent.m_sequencer;
 endfunction
 
+
 task test_base::run_phase(uvm_phase phase);
     ila_seq rx_jesd204_seq = ila_seq::type_id::create("rx_jesd204_seq");
     super.run_phase(phase);
     fork
         forever begin
-            rx_jesd204_seq.start(m_env.m_rx_jesd204b_layering.ila_m_sequencer);
+            rx_jesd204_seq.start(m_env.m_rx_jesd204b_layering.m_ila_sequencer);
         end
     join_none
 endtask

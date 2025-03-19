@@ -13,12 +13,12 @@ uvm_analysis_port #(ila_trans) ap;
 
 rx_jesd204b_layering_config m_cfg;
 
-decoder_sequencer dec_sequencer;
-cgsnfs_sequencer cgs_sequencer;
+decoder_sequencer m_dec_sequencer;
+cgsnfs_sequencer m_cgs_sequencer;
 // I couldn't come up with a suitable name for this variable 
 // other than erb_sequencer, so erb_m_sequencer is my best shot
-erb_sequencer erb_m_sequencer;
-ila_sequencer ila_m_sequencer;
+erb_sequencer m_erb_sequencer;
+ila_sequencer m_ila_sequencer;
 
 erb2ila_monitor m_erb2ila_monitor;
 erb2ila_recorder m_erb2ila_recorder;
@@ -27,7 +27,7 @@ cgs2erb_monitor m_cgs2erb_monitor;
 cgs2erb_recorder m_cgs2erb_recorder;
 ila_extractor m_ila_extractor;
 
-dec2cgs_monitor m_dec2cgs_moitor;
+dec2cgs_monitor m_dec2cgs_monitor;
 dec2cgs_recorder m_dec2cgs_recorder;
 
 deser2dec_monitor m_deser2dec_monitor;
@@ -69,8 +69,8 @@ function void rx_jesd204b_layering::build_phase(uvm_phase phase);
 
     m_ila_extractor = ila_extractor::type_id::create("m_ila_extractor", this);
 
-    m_dec2cgs_moitor = dec2cgs_monitor::type_id::
-        create("m_dec2cgs_moitor", this);
+    m_dec2cgs_monitor = dec2cgs_monitor::type_id::
+        create("m_dec2cgs_monitor", this);
 
     m_dec2cgs_recorder = dec2cgs_recorder::type_id::
         create("m_dec2cgs_recorder", this);
@@ -84,57 +84,60 @@ function void rx_jesd204b_layering::build_phase(uvm_phase phase);
     m_deser_agent = deserializer_agent::type_id::create("m_deser_agent", this);
 
     if (m_cfg.active == UVM_ACTIVE) begin
-        dec_sequencer = decoder_sequencer::type_id::create(
-            "dec_sequencer", this);
-        cgs_sequencer = cgsnfs_sequencer::type_id::create(
-            "cgs_sequencer", this);
-        erb_m_sequencer = erb_sequencer::type_id::create(
-            "erb_m_sequencer", this);
-        ila_m_sequencer = ila_sequencer::type_id::create(
-            "ila_m_sequencer", this);
+        m_dec_sequencer = decoder_sequencer::type_id::create(
+            "m_dec_sequencer", this);
+        m_cgs_sequencer = cgsnfs_sequencer::type_id::create(
+            "m_cgs_sequencer", this);
+        m_erb_sequencer = erb_sequencer::type_id::create(
+            "m_erb_sequencer", this);
+        m_ila_sequencer = ila_sequencer::type_id::create(
+            "m_ila_sequencer", this);
     end
 endfunction: build_phase
 
+
 function void rx_jesd204b_layering::connect_phase(uvm_phase phase);
+    `uvm_info("DEBUG", "here HERE again!!", UVM_MEDIUM)
     m_deser_agent.ap.connect(m_deser2dec_monitor.analysis_export);
-    m_deser2dec_monitor.ap.connect(m_dec2cgs_moitor.analysis_export);
-    m_dec2cgs_moitor.ap.connect(m_cgs2erb_monitor.analysis_export);
+    m_deser2dec_monitor.ap.connect(m_dec2cgs_monitor.analysis_export);
+    m_dec2cgs_monitor.ap.connect(m_cgs2erb_monitor.analysis_export);
     m_cgs2erb_monitor.ap.connect(m_erb2ila_monitor.analysis_export);
 
     ap = m_erb2ila_monitor.ap;
 
     m_deser2dec_monitor.ap.connect(m_deser2dec_recorder.analysis_export);
-    m_dec2cgs_moitor.ap.connect(m_dec2cgs_recorder.analysis_export);
-    m_dec2cgs_moitor.ap.connect(cgs_sequencer.sequencer_export);
+    m_dec2cgs_monitor.ap.connect(m_dec2cgs_recorder.analysis_export);
+    m_dec2cgs_monitor.ap.connect(m_cgs_sequencer.sequencer_export);
     m_cgs2erb_monitor.ap.connect(m_cgs2erb_recorder.analysis_export);
     m_cgs2erb_monitor.ap.connect(m_ila_extractor.analysis_export);
-    m_cgs2erb_monitor.ap.connect(erb_m_sequencer.sequencer_export);
+    m_cgs2erb_monitor.ap.connect(m_erb_sequencer.sequencer_export);
     m_erb2ila_monitor.ap.connect(m_erb2ila_recorder.analysis_export);
 endfunction: connect_phase
 
+
 task rx_jesd204b_layering::run_phase(uvm_phase phase);
-    dec8b10b2des_seq dec2des_seq;
-    cgsnfs2dec_seq cgs2dec_seq;
-    erb2cgs_seq erb2cgs_m_seq;
-    ila2erb_seq ila2erb_m_seq;
+    dec8b10b2des_seq m_dec2des_seq;
+    cgsnfs2dec_seq m_cgs2dec_seq;
+    erb2cgs_seq m_erb2cgs_seq;
+    ila2erb_seq m_ila2erb_seq;
     super.run_phase(phase);
 
-    dec2des_seq = dec8b10b2des_seq::type_id::create("dec2des_seq", this);
-    cgs2dec_seq = cgsnfs2dec_seq::type_id::create("cgs2dec_seq", this);
-    erb2cgs_m_seq = erb2cgs_seq::type_id::create("erb2cgs_m_seq", this);
-    ila2erb_m_seq = ila2erb_seq::type_id::create("ila2erb_m_seq", this);
+    m_dec2des_seq = dec8b10b2des_seq::type_id::create("m_dec2des_seq", this);
+    m_cgs2dec_seq = cgsnfs2dec_seq::type_id::create("m_cgs2dec_seq", this);
+    m_erb2cgs_seq = erb2cgs_seq::type_id::create("m_erb2cgs_seq", this);
+    m_ila2erb_seq = ila2erb_seq::type_id::create("m_ila2erb_seq", this);
 
     // connect translation sequences to their respective upstream sequencers
-    dec2des_seq.up_sequencer = dec_sequencer;
-    cgs2dec_seq.up_sequencer = cgs_sequencer;
-    erb2cgs_m_seq.up_sequencer = erb_m_sequencer;
-    ila2erb_m_seq.up_sequencer = ila_m_sequencer;
+    m_dec2des_seq.up_sequencer = m_dec_sequencer;
+    m_cgs2dec_seq.up_sequencer = m_cgs_sequencer;
+    m_erb2cgs_seq.up_sequencer = m_erb_sequencer;
+    m_ila2erb_seq.up_sequencer = m_ila_sequencer;
 
     // start the translation sequences
     fork
-        ila2erb_m_seq.start(erb_m_sequencer);
-        erb2cgs_m_seq.start(cgs_sequencer);
-        cgs2dec_seq.start(dec_sequencer);
-        dec2des_seq.start(m_deser_agent.m_sequencer);
+        m_ila2erb_seq.start(m_erb_sequencer);
+        m_erb2cgs_seq.start(m_cgs_sequencer);
+        m_cgs2dec_seq.start(m_dec_sequencer);
+        m_dec2des_seq.start(m_deser_agent.m_sequencer);
     join_none
 endtask

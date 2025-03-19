@@ -51,7 +51,8 @@ function void env::build_phase(uvm_phase phase);
     m_rx_jesd204b_layering = rx_jesd204b_layering::type_id::create(
         "m_rx_jesd204b_layering", this);
     m_enc_bus_agent = enc_bus_agent::type_id::create("m_enc_bus_agent", this);
-    // m_scoreboard = enc_8b10b_scoreboard::type_id::create("m_scoreboard", this);
+    // m_scoreboard = enc_8b10b_scoreboard::type_id::create("m_scoreboard", 
+    // this);
 endfunction:build_phase
 
 function void env::connect_phase(uvm_phase phase);
