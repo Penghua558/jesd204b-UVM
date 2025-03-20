@@ -8,13 +8,12 @@ module frame_lmfc_clk_gen(
     // both frame clock and LMFC clock's duty cycle is not 50%,
     // their HIGH level will only lasts 1 device clock period per their own
     // period
-    output reg o_frame_clk,
+    output wire o_frame_clk,
     output reg o_lmfc_clk
 );
 
 
 reg [5:0] lmfc_cnt = 6'd0;
-reg frame_clk_d;
 
 
 always@(posedge clk) begin
@@ -24,10 +23,7 @@ always@(posedge clk) begin
         lmfc_cnt <= lmfc_cnt + 6'd1;
 end
 
-always@(posedge clk) begin
-    frame_clk_d <= clk;
-    o_frame_clk <= frame_clk_d;
-end
+assign o_frame_clk = clk;
 
 always@(posedge clk) begin
     if (lmfc_cnt == {1'b0, i_K})
