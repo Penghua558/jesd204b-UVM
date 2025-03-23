@@ -60,6 +60,7 @@ function void erb2ila_monitor::write(erb_trans t);
     ila_out.data = t.data;
     ila_out.is_control_word = t.is_control_word;
     ila_out.f_position = t.f_position;
+    ila_out.erb_passthrough = t.erb_passthrough;
 
     // FSM in this monitor only observes, it does not drive
     // the reason FSMs in dec2cgs_monitor drive is because those actions are

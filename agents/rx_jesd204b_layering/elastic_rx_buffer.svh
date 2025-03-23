@@ -46,7 +46,7 @@ function bit put(erb_trans item, ifsstate_e ifsstate);
 
     if (ila_start_detected) begin
         // ILA has been detected already, Elastic RX Buffer continues to take
-        // in frames now
+        // in frames from now
         if (buffer.put(item))
             return 1;
         else

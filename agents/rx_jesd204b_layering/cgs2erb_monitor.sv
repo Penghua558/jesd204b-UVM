@@ -158,12 +158,21 @@ function void cgs2erb_monitor::write(cgsnfs_trans t);
                     end
                 end
 
-                if (m_elastic_rx_buffer.get(cloned_erb_out)) begin
+                if (valid_erb_out && m_elastic_rx_buffer.get(cloned_erb_out)) 
+                begin
                     `uvm_info("CGS2ERB Monitor", "Sending out a new frame", 
                         UVM_MEDIUM)
                     // Clone and publish the cloned item to the subscribers
-                    notify_transaction(cloned_erb_out);
+                end else if (!valid_erb_out) begin
+                    // ERB does not contain any valid data, so no user data
+                    // should be uploaded to upper layer, but error reporting
+                    // status still needed to be sent to lower layer since
+                    // SYNC~ drive logic needs it, and SYNC~ should be driven
+                    // regardless of link status.
+                    $cast(cloned_erb_out, erb_out.clone());
+                    cloned_erb_out.erb_passthrough = 1'b1;
                 end
+                notify_transaction(cloned_erb_out);
 
                 f_position = (f_position+1) % m_cfg.K;
             end

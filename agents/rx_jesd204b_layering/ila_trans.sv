@@ -27,6 +27,17 @@ erb2ila_dec::ilastate_e ilastate;
 // protocol, but to make error report easier to generate we would to randomize
 // it directly rather than creating errors which would trigger error report
 rand bit err_report;
+// 1 - this transaction is passthroughed from ERB, this happens when LMFC
+// phase adjustment has not yet finished or not started.
+// 0 - this transaction is a valid output of ERB.
+//
+// When this flag is 1, it tells upper layer this transaction does not 
+// contain valid user data, but it does contain valid sync_request&err_report
+// variables, so it enables lower layer to continue driving SYNC~.
+//
+// When this flag is 0, it tells upper layer this transaction contains valid
+// user data.
+bit erb_passthrough;
 
 //------------------------------------------
 // Constraints
@@ -47,7 +58,8 @@ endclass:ila_trans
 
 
 function ila_trans::new(string name = "ila_trans");
-  super.new(name);
+    super.new(name);
+    this.erb_passthrough = 1'b0;
 endfunction
 
 
@@ -63,6 +75,7 @@ function void ila_trans::do_copy(uvm_object rhs);
     is_control_word = rhs_.is_control_word;
     f_position = rhs_.f_position;
     err_report = rhs_.err_report;
+    erb_passthrough = rhs_.erb_passthrough;
 endfunction:do_copy
 
 
@@ -79,7 +92,8 @@ function bit ila_trans::do_compare(uvm_object rhs,
       data == rhs_.data &&
       is_control_word == rhs_.is_control_word &&
       f_position == rhs_.f_position &&
-      err_report == rhs_.err_report;
+      err_report == rhs_.err_report &&
+      erb_passthrough == rhs_.erb_passthrough;
 endfunction:do_compare
 
 
@@ -106,6 +120,8 @@ function void ila_trans::do_print(uvm_printer printer);
         f_position, $bits(f_position), UVM_DEC);
     printer.print_int("ILA error report", 
         err_report, $bits(err_report), UVM_DEC);
+    printer.print_string("Passthrough from ERB?", 
+        (erb_passthrough)? "Yes":"No");
 endfunction:do_print
 
 
