@@ -25,7 +25,7 @@ class ILA_StateMachine;
     extern function void get_nextstate(erb_trans eventData);
     // do things based on current state and updated ila_trans
     extern function void state_func(ila_trans eventData);
-    extern function bit is_link_initialization(erb_trans frame);
+    extern function bit is_link_initialising(erb_trans frame);
     extern function bit is_ila_extraction_finished();
     extern function bit get_phadj();
     extern function bit[3:0] get_adjcnt();
@@ -42,8 +42,10 @@ endfunction
 function void ILA_StateMachine::get_nextstate(erb_trans eventData);
     case(currentState)
         ILA_WAIT: begin
-            if (is_link_initialization(eventData))
+            if (is_link_initialising(eventData))
                 nextState = ILA_EVAL;
+            else
+                nextState = ILA_WAIT;
         end
         ILA_EVAL: begin
             if (is_ila_extraction_finished()) begin
@@ -93,7 +95,7 @@ function void ILA_StateMachine::state_func(ila_trans eventData);
 endfunction
 
 
-function bit ILA_StateMachine::is_link_initialization(erb_trans frame);
+function bit ILA_StateMachine::is_link_initialising(erb_trans frame);
 // returns 1 when link initialization is detected
 // returns 0 if no link initialization is detected
 // link initialization condition is multiple K28.5 characters followed by

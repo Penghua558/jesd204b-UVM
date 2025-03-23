@@ -32,9 +32,9 @@ task ila2erb_seq::body;
 
     forever begin
         up_sequencer.get_next_item(ila_req);
-        // setup phase, get sync_request from lower layer
-        // wait for cgsnfs_trans sent from dec2cgs_monitor
+        `uvm_info("ILA2ERB SEQ", "debug here", UVM_MEDIUM)
         wait(p_sequencer.instruction_trans.size());
+        `uvm_info("ILA2ERB SEQ", "debug here after", UVM_MEDIUM)
         sample_trans = p_sequencer.instruction_trans.pop_front();
 
         m_ila_fsm.state_func(ila_req);
@@ -43,6 +43,7 @@ task ila2erb_seq::body;
 
         drive_trans = erb_trans::type_id::create("drive_trans");
         start_item(drive_trans);
+        drive_trans.copy(sample_trans);
         // manipulate drive_trans meant to be sent to lower layering
         drive_trans.err_report = ila_req.err_report;
         finish_item(drive_trans);

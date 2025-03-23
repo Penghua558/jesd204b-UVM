@@ -18,8 +18,10 @@ task ila_seq::body;
     m_cfg = rx_jesd204b_layering_config::get_config(m_sequencer);
 
     start_item(req);
+    `uvm_info("ILA SEQ", "debug here?", UVM_MEDIUM)
     assert(req.randomize() with {
         if (!m_cfg.randomize_err_report) err_report == 1'b0;
     });
+    `uvm_info("ILA SEQ", "or debug here?", UVM_MEDIUM)
     finish_item(req);
 endtask

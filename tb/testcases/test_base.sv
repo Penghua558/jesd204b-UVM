@@ -124,9 +124,15 @@ endfunction
 task test_base::run_phase(uvm_phase phase);
     ila_seq rx_jesd204_seq = ila_seq::type_id::create("rx_jesd204_seq");
     super.run_phase(phase);
+    phase.raise_objection(this, "Waiting for reset");
+    m_env_cfg.m_rx_jesd204b_layering_cfg.m_deserializer_agent_cfg.
+        wait_for_reset();
+    phase.drop_objection(this, "Reset finished");
     fork
         forever begin
+            `uvm_info("ILA SEQ", "debug here?", UVM_MEDIUM)
             rx_jesd204_seq.start(m_env.m_rx_jesd204b_layering.m_ila_sequencer);
+            `uvm_info("ILA SEQ", "debug here?", UVM_MEDIUM)
         end
     join_none
 endtask

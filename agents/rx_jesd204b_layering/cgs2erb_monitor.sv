@@ -140,9 +140,13 @@ function void cgs2erb_monitor::write(cgsnfs_trans t);
                         valid_erb_out = 1'b0;
                 end
 
+                `uvm_info("CGS2ERB MONITOR", "push into phase_adj_buffer", 
+                    UVM_MEDIUM)
                 phase_adj_buffer.push_back(adj_tr);
 
                 if (!m_cfg.lmfc_adj_start)begin
+                    `uvm_info("CGS2ERB MONITOR", 
+                        "phase adjustment not yet started", UVM_MEDIUM)
                     erb_out = phase_adj_buffer.pop_front();
                 end
 
