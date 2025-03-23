@@ -75,6 +75,7 @@ frame_lmfc_clk_gen fr_lmfc_clk_gen(
 
 syncn_decoder syncn_dec(
     .clk(clk),
+    .rst_n(rst_n),
     .frame_clk(frame_clk),
     .i_K(5'd3), // currently is tied to K = 4
     .i_sync_n(i_sync_n),

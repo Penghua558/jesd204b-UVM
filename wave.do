@@ -11,13 +11,21 @@ add wave -noupdate /top/agent_bitclk
 add wave -noupdate /top/character_clk
 add wave -noupdate /top/DUT/i_sync_n
 add wave -noupdate /top/DUT/frame_clk
+add wave -noupdate /top/DUT/rst_n
 add wave -noupdate /top/DUT/tx_ctrl/i_sync_request_tx
 add wave -noupdate /top/DUT/syncn_dec/sync_requset_frame_cnt
 add wave -noupdate /top/DUT/fr_lmfc_clk_gen/o_lmfc_clk
 add wave -noupdate /top/DUT/fr_lmfc_clk_gen/lmfc_cnt
 add wave -noupdate /top/DUT/fr_lmfc_clk_gen/o_frame_clk
+add wave -noupdate -expand -group tx_control /top/DUT/tx_ctrl/link_mux_tx_control
+add wave -noupdate -expand -group tx_control /top/DUT/tx_ctrl/link_mux_ila_fsm
+add wave -noupdate -expand -group tx_control /top/DUT/tx_ctrl/current_state
+add wave -noupdate /top/DUT/tx_ctrl/i_sync_request_tx
+add wave -noupdate /top/DUT/tx_ctrl/k_frame_cnt
+add wave -noupdate /top/DUT/tx_ctrl/k_sequence_min_frame
+add wave -noupdate /top/DUT/syncn_dec/sync_requset_frame_cnt
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {507200 ps} 0}
+WaveRestoreCursors {{Cursor 1} {48000 ps} 0}
 quietly wave cursor active 1
 configure wave -namecolwidth 274
 configure wave -valuecolwidth 100

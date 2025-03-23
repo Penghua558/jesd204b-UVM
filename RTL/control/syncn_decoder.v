@@ -2,6 +2,7 @@ module syncn_decoder(
     // device clock, we use this as our detection clock as well, which is
     // twice as fast as frame clock
     input wire clk,
+    input wire rst_n,
     input wire frame_clk,
     // number of frames per multiframe
     // 1 ~ 32, encoding: binary value - 1
@@ -26,6 +27,12 @@ module syncn_decoder(
 reg sync_n_dly;
 reg [2:0] sync_requset_frame_cnt = 3'd0;
 reg [4:0] no_frame_in_multiframe = 5'd0;
+// Set to 1 after every reset, 1 means DUT would always interpret i_sync_n as
+// synchronization request immediately after reset is lifted regardless of
+// i_sync_n's actual value and assertion length.
+//
+// Set to 0 after detecting LOW to HIGH transition of SYNC~
+reg first_linkup;
 
 always@(posedge clk) begin
     sync_n_dly <= i_sync_n;
@@ -85,11 +92,22 @@ always@(posedge clk) begin
     end
 end
 
+always@(posedge clk or negedge rst_n) begin
+    if (!rst_n) begin
+        first_linkup <= 1'b1;
+    end else begin
+        if (i_sync_n && !sync_n_dly)
+            first_linkup <= 1'b0;
+        else
+            first_linkup <= first_linkup;
+    end
+end
+
 always@(posedge clk) begin
-    if (i_sync_n) begin
+    if (i_sync_n && !first_linkup) begin
         o_sync_request_tx <= 1'b0;
     end else begin
-        if (sync_requset_frame_cnt >= 3'd5)
+        if (sync_requset_frame_cnt >= 3'd5 || first_linkup)
             o_sync_request_tx <= 1'b1;
         else
             o_sync_request_tx <= 1'b0;
